@@ -54,7 +54,7 @@ static bool meta_read(LogMeta *m)
     if (!f) {
         return false;
     }
-    bool ok = (f.read((uint8_t *)m, sizeof(*m)) == (int)sizeof(*m));
+    bool ok = (f.read((uint8_t *)m, sizeof(*m)) == sizeof(*m));
     f.close();
     if (!ok || m->magic != META_MAGIC) {
         return false;
@@ -267,7 +267,7 @@ uint32_t saw_store_stream_samples(SawSampleVisitor cb, void *ctx)
             continue;
         }
         SawSampleRecord rec;
-        while (f.read((uint8_t *)&rec, sizeof(rec)) == (int)sizeof(rec)) {
+        while (f.read((uint8_t *)&rec, sizeof(rec)) == sizeof(rec)) {
             uint16_t want = saw_crc16((const uint8_t *)&rec,
                                       sizeof(rec) - sizeof(uint16_t));
             if (want != rec.crc) {
