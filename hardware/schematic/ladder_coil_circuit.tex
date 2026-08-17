@@ -195,11 +195,17 @@
 % Ghost slot — where the passive thermostat lands once bought
 % ============================================================
 \draw[tsrule, line width=0.7pt, densely dashed, rounded corners=3pt]
-      (16.1,1.05) rectangle (19.6,2.35);
-\node[note, anchor=north, align=center, tsmute] at (17.85,2.25)
-  {TSTAT lands here once bought\\(TASK-6). Today this span\\is plain wire.};
+      (15.7,0.95) rectangle (20.0,2.6);
+% 120–130 °C is a purchasing spec, not decoration: it has to open
+% ABOVE the firmware's TRIP_THRESHOLD so the supervisor trips first
+% and logs it. A ~110 °C part collapses the two layers into one.
+\node[note, anchor=north, align=center, tsmute] at (17.85,2.5)
+  {TSTAT lands here once bought ---\\TASK-6, NC,
+   \textbf{opens 120--130\,\textdegree C},\\\emph{above} the
+   110\,\textdegree C \texttt{TRIP\_THRESHOLD}.\\
+   Today this span is plain wire.};
 \draw[tsrule, line width=0.7pt, densely dashed, -{Latex[length=4pt]}]
-      (17.85,1.05) -- (17.85,0.18);
+      (17.85,0.95) -- (17.85,0.18);
 
 % ============================================================
 % Legends

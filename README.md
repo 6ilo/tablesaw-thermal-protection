@@ -107,28 +107,36 @@ For the person who uses the saw day-to-day. Print this page and stick it inside 
 | **Slow blink** | Cooling down. | Wait for solid, then press Start. |
 | **Fast blink** | Thermal trip. Motor is hot. | Wait for slow blink, then solid. Check the fan shroud is clear. |
 | **Double-blink** | Sensor fault. | Do not use. Check the probe wiring. |
+| **Triple-blink** | Locked out after too many trips. | Fix the cause first, then press ack once the motor is cool. |
 | **SOS pattern** | Boot failure. | Do not use. Power-cycle. If it repeats, get the builder. |
 | **Off** | No power to the monitor. | Do not use. Check the wall disconnect and the ESP32's power. |
+
+The LED tells you the *family* of problem. For the specific fault and what to do about
+it, see the **error codes** in [`docs/codes/`](docs/codes/) — one page per fault, written
+to be read at the machine. The same pages are served from the saw itself, so they work
+with no internet.
 
 ### After a trip
 
 1. Wait for the LED to stop flashing and go solid.
-2. Look at the fan shroud on the back of the motor. Is it packed with dust? Clean it with compressed air before running again — that's the root cause of most trips.
-3. Press Start.
-4. Watch the first cut. If the LED goes to fast-blink within a few minutes at normal load, the motor still isn't shedding heat. Stop and investigate before continuing.
+2. **Lock out the disconnect before you go near the fan shroud.** Solid means the relay has already re-closed — from that moment a press of Start spins the fan.
+3. Look at the fan shroud on the back of the motor. Is it packed with dust? Clean it with compressed air before running again — that's the root cause of most trips.
+4. Restore the disconnect, wait for the LED to go solid again, and press Start.
+5. Watch the first cut. If the LED goes to fast-blink within a few minutes at normal load, the motor still isn't shedding heat. Stop and investigate before continuing.
 
 ### The saw won't start
 
 If Start doesn't pull in the contactor:
 
 - Check the LED. Anything other than solid means the monitor is holding the coil open — the machine is behaving correctly, wait or clean the shroud.
-- If the LED is solid but the contactor still won't pull in: the thermostat may be tripped (it auto-resets when cool), or the overload relay's red reset button may have popped. Check those.
+- If the LED is solid but the contactor still won't pull in: the overload relay's red reset button may have popped, or — once it is fitted — the bimetallic thermostat may be open and will re-close on its own as the motor cools. Check those. Neither of them logs anything, so the dashboard will show a healthy saw that refuses to start.
 - Anything more than that: lock out the disconnect, verify with a meter, and open the starter enclosure.
 
 ### Never
 
 - Never bypass the monitor. If the LED says "do not use," the answer is not "unplug the ESP32."
 - Never open the starter enclosure without locking out the disconnect first.
+- Never reach into the fan shroud without locking out the disconnect first. The supervisor re-closes its relay on its own once the motor cools.
 - Never let the fan shroud stay packed with dust. That is the failure mode this whole system was built to catch.
 
 ---
@@ -139,8 +147,11 @@ If Start doesn't pull in the contactor:
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
 | [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
+| [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
+| [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |
 | [`hardware/`](hardware/) | Physical build artifacts — schematics, harnesses, [`BOM.csv`](hardware/BOM.csv). Every diagram is drawn for the parts on hand; the end-state design lives in `ARCHITECTURE.md` as prose and open TASKs. |
 | [`firmware/`](firmware/) | ESP32 supervisor source — src, tests, build config. Stub for now; the design lives in `ARCHITECTURE.md § Reference pseudocode` until it does. |
+| [`CHANGELOG.md`](CHANGELOG.md) | Change history, and what the version number in `VERSION` covers. |
 | [`LICENSE`](LICENSE) | MIT + safety-scope notice. |
 
 ---

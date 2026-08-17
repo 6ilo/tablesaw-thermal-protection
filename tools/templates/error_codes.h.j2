@@ -1,0 +1,67 @@
+/*
+ * GENERATED FILE — do not edit.
+ *
+ * Source:      docs/codes/*.md
+ * Generator:   tools/codedocs.py
+ * Registry:    {{ registry_version }}
+ * Built from:  {{ commit }} ({{ commit_date }})
+ *
+ * The operator documentation is the source of truth for this table. If you need to
+ * change a code's title, summary or severity, edit the markdown and rebuild. Editing
+ * this header puts the device out of step with the docs the operator is reading,
+ * which is the specific failure this pipeline exists to prevent.
+ */
+
+#pragma once
+
+#define SAW_REGISTRY_VERSION "{{ registry_version }}"
+#define SAW_CODE_COUNT {{ docs | length }}
+
+typedef enum {
+    SAW_SEV_INFO    = 0,  /* feedback about an operator action, not a fault */
+    SAW_SEV_WARNING = 1,  /* advisory; saw keeps running, LED unchanged     */
+    SAW_SEV_TRIP    = 2,  /* relay opened, recovers automatically           */
+    SAW_SEV_LOCKOUT = 3,  /* relay opened, requires a physical ack press    */
+} saw_severity_t;
+
+typedef enum {
+{%- for d in docs %}
+    SAW_CODE_{{ d.code }} = {{ loop.index0 }},
+{%- endfor %}
+} saw_code_id_t;
+
+typedef struct {
+    const char     *code;      /* "E01"                                   */
+    const char     *event;     /* firmware log event, e.g. "OVERTEMP"     */
+    const char     *title;     /* short operator-facing name              */
+    const char     *summary;   /* one line for the status card            */
+    const char     *doc_path;  /* page in the on-device bundle            */
+    saw_severity_t  severity;
+    unsigned char   loto;      /* 1 if remediation needs a lockout         */
+} saw_code_t;
+
+static const saw_code_t SAW_CODES[SAW_CODE_COUNT] = {
+{%- for d in docs %}
+    { {{ '"%s"' % d.code }}, {{ '"%s"' % d.event }}, {{ d.title | tojson }}, {{ d.summary | tojson }},
+      {{ '"/codes/%s.html"' % d.code }}, SAW_SEV_{{ d.severity | upper }}, {{ 1 if d.loto else 0 }} },
+{%- endfor %}
+};
+
+/* Map a firmware log event name to its registry entry. Returns NULL if the event has
+ * no published code — which is itself worth logging, since every operator-visible
+ * event is supposed to have one. */
+static inline const saw_code_t *saw_code_by_event(const char *event)
+{
+    if (!event) {
+        return (const saw_code_t *)0;
+    }
+    for (int i = 0; i < SAW_CODE_COUNT; i++) {
+        const char *a = SAW_CODES[i].event;
+        const char *b = event;
+        while (*a && *a == *b) { a++; b++; }
+        if (*a == '\0' && *b == '\0') {
+            return &SAW_CODES[i];
+        }
+    }
+    return (const saw_code_t *)0;
+}
