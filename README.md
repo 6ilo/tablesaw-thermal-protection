@@ -2,7 +2,7 @@
 
 Replacing a failed Klixon `BEC2921` manual-reset thermal protector on a Powermatic table saw with a two-layer protection system: a passive bimetallic thermostat as primary protection, plus an ESP32 supervisory monitor with logging and a web dashboard.
 
-**Status:** Parts purchased, design phase. No firmware yet. Several BOM items still need verification — see [ARCHITECTURE.md](ARCHITECTURE.md#bill-of-materials).
+**Status:** BOM verified. Two purchased parts unusable at the winding and repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)). Two build paths documented — see below.
 
 ---
 
@@ -39,9 +39,22 @@ This diagnosis has an important consequence for the replacement: **current sensi
 
 An exact `BEC2921` replacement (or Sensata supersession) would restore original function but would leave both design weaknesses in place and would not warn before the next trip.
 
-## The new system, at a high level
+## Two build paths
 
-Two layers of protection, both wired **in series with the contactor coil circuit** — not the motor line. Either layer opening drops the contactor, which drops the seal-in, which stops the saw and requires a human to press Start to resume.
+BOM verification revealed the purchased NTC probe tops out at 125 °C (below the trip point) and the "wireless switch" is a fob-driven RF receiver, not a GPIO-controllable relay. Rather than wait on new parts, this project documents two routes:
+
+### Path A — Tonight's build → [BUILD-TONIGHT.md](BUILD-TONIGHT.md)
+
+Same-day protection using only parts on hand. Fail-safe via a **heartbeat** design: the ESP32 continuously transmits through the 433 MHz fob to a receiver programmed in *momentary* mode. Anything that stops the transmission — power loss, firmware hang, sensor fault, watchdog reset, jamming — opens the receiver's relay and stops the saw.
+
+- Sensor: repurposed NTC on the **motor frame** (not the winding). Advisory-precision but adequate as long as the delta between healthy and unhealthy frame temperature is what you're detecting.
+- Isolation: USB phone charger — a UL-listed reinforced-isolation AC-DC supply, freely available.
+- No passive thermostat yet.
+- Nuisance-stop-prone by design. That's the correct direction — the alternative is unprotected running.
+
+### Path B — Full retrofit → [ARCHITECTURE.md](ARCHITECTURE.md)
+
+End-state design. Two independent layers wired in series with the contactor coil:
 
 ```mermaid
 flowchart LR
@@ -52,28 +65,24 @@ flowchart LR
     Coil --> OL[OL contact NC] --> L2[L2]
 ```
 
-**Layer 1 — Bimetallic thermostat.** Passive, snap-action, normally closed, opens on temperature rise, auto-reset. No firmware, no power supply, no software failure modes. This is the primary protection. If everything else in this project is unplugged, the saw is still thermally protected.
+- **Layer 1 — Bimetallic thermostat.** Passive, snap-action, normally closed, opens on rise, auto-reset. Primary protection. If everything else is unplugged, the saw is still thermally protected.
+- **Layer 2 — ESP32 supervisor.** K-type thermocouple bonded to the winding end turns via an AlN substrate, read through a MAX31855. Drives a **wired, opto-isolated relay** (energized-to-close) directly from a GPIO — no RF in the safety path.
+- Trip threshold below the thermostat's, so the ESP32 acts first in normal operation. The thermostat is the backstop.
+- Rate-of-rise tracking on a local web dashboard warns before a trip — the genuinely new capability, because it can tell the operator the shroud needs cleaning *before* the motor cooks.
 
-**Layer 2 — ESP32 supervisor.** A temperature sensor bonded to the winding end turns feeds an ESP32, which drives a relay in series with the coil. The relay is **normally open, energized to close**, so any firmware fault, sensor fault, watchdog timeout, or loss of power opens the relay and stops the saw. The ESP32 trips at a threshold *below* the thermostat's, so in normal operation it always acts first — the thermostat is the backstop.
-
-Two things the ESP32 provides that the original design never could:
-
-- **Early warning.** Rate-of-rise tracking and a warn threshold below the trip point mean the operator can be told the shroud needs cleaning *before* a trip.
-- **History.** Trip events, cooldown curves, and steady-state temperatures are logged to flash and served on a local web dashboard.
-
-The web interface is advisory only. It can display state, history, and alerts; it can acknowledge a fault. It **cannot** lower thresholds, force-arm the relay, or override the protection loop. Wi-Fi down = system still protects.
+Path B is what the saw ends up with. Path A is what gets it running until the missing parts (thermostat, K-type + MAX31855, isolated bench supply) arrive.
 
 ## Safety principles
 
-Enforced by topology, not by trust in firmware:
+Enforced by topology, not by trust in firmware. Both build paths honor these:
 
-1. **Fail-safe or fail-stopped.** Every fault path — firmware hang, sensor open, power loss, watchdog timeout, unhandled exception — stops the saw. There is no acceptable failure mode where the saw runs with protection disabled.
+1. **Fail-safe or fail-stopped.** Every fault path — firmware hang, sensor open, power loss, watchdog timeout, unhandled exception — stops the saw. No failure mode may leave the saw running with protection disabled.
 2. **Interrupt-only.** Nothing in this system can *energize* the contactor coil. The only permitted electrical function is opening a series contact.
-3. **Passive primary retained.** The bimetallic thermostat is independent of the ESP32.
-4. **No autonomous restart.** Cooldown re-closes the relay, but the 3-wire seal-in means the saw does not restart until someone presses the physical Start button at the machine.
+3. **Passive primary retained** (Path B). The bimetallic thermostat is independent of the ESP32.
+4. **No autonomous restart.** Cooldown re-closes the relay, but the 3-wire seal-in means the saw does not restart until someone presses the physical Start button.
 5. **Sensor faults are trips.** No "last known good," no "assume ambient."
 
-Full requirements and rationale are in [ARCHITECTURE.md](ARCHITECTURE.md#safety-requirements).
+Full requirements and rationale are in [ARCHITECTURE.md § Safety requirements](ARCHITECTURE.md#safety-requirements).
 
 ## Prerequisite work
 

@@ -1,14 +1,17 @@
 # Architecture
 
-Hardware and software design for the table saw thermal protection retrofit. Companion to the [README](README.md), which covers the *why*.
+Hardware and software design for the table saw thermal protection retrofit. Companion to the [README](README.md), which covers the *why*. For the same-day expedient build using only parts on hand, see [BUILD-TONIGHT.md](BUILD-TONIGHT.md).
 
 - [Motor and starter](#motor-and-starter)
 - [Control topology](#control-topology)
 - [Coil circuit after retrofit](#coil-circuit-after-retrofit)
 - [Wiring diagram](#wiring-diagram)
+- [Pin assignments](#pin-assignments)
+- [Why RF was rejected as the primary path](#why-rf-was-rejected-as-the-primary-path)
 - [Sensor mounting](#sensor-mounting)
 - [Bill of materials](#bill-of-materials)
 - [Software architecture](#software-architecture)
+- [Reference pseudocode](#reference-pseudocode)
 - [Safety requirements](#safety-requirements)
 - [Commissioning](#commissioning)
 - [Open questions](#open-questions)
@@ -106,26 +109,87 @@ flowchart LR
     subgraph LV ["Low-voltage side (isolated)"]
         PSU_OUT[5 or 12 V DC] --> ESP[ESP32]
         ESP -->|GPIO| RelayDrv[Relay driver]
-        Sensor["Temperature sensor<br/>(K-type or PT100)"] -->|amplifier / RTD front-end| ESP
+        TC["K-type thermocouple<br/>on winding"] -->|MAX31855 SPI| ESP
+        NTC["NTC on motor frame<br/>(advisory)"] -->|ADC1| ESP
         ESP --> WiFi[Wi-Fi web dashboard]
     end
 
     PSU_IN -.reinforced isolation.-> PSU_OUT
     RelayDrv -.coil isolation.-> RLY
-    Sensor -.AlN substrate<br/>electrical isolation.-> Mot
+    TC -.AlN substrate<br/>electrical isolation.-> Mot
 ```
 
 Notes on the diagram:
 
 - The thermostat and ESP32 relay are in the **coil circuit only**, not the motor line. The motor's line current runs through the contactor's main power contacts directly, bypassing both.
-- The isolation boundaries (`PSU_IN → PSU_OUT`, `RelayDrv → RLY` coil, `Sensor → Motor` via AlN) collectively ensure that a fault on the mains side cannot appear at the USB port or the web interface. See SR-7.
+- Two temperature sensors: the K-type at the winding is the trip source; the NTC on the frame is advisory-only and feeds rate-of-rise / airflow-restriction detection.
+- The isolation boundaries (`PSU_IN → PSU_OUT`, `RelayDrv → RLY` coil, `TC → Mot` via AlN) collectively ensure that a fault on the mains side cannot appear at the USB port or the web interface. See SR-7.
 - The Wi-Fi block is intentionally shown *off* the protection path. It reads state from the ESP32 but plays no role in tripping.
+
+---
+
+## Pin assignments
+
+ESP32 and relay live in the **main junction box with the contactor**. The thermocouple junction sits at the winding, connected by K-type extension wire — thermocouples are designed for exactly this. A 10–20 ft run introduces negligible error.
+
+| ESP32 pin | Connects to | Notes |
+|---|---|---|
+| GPIO18 | MAX31855 SCK | SPI clock |
+| GPIO19 | MAX31855 DO | MISO. MAX31855 is read-only — no MOSI |
+| GPIO5 | MAX31855 CS | Chip select |
+| 3V3 | MAX31855 VIN | |
+| GND | MAX31855 GND | |
+| GPIO34 | NTC divider midpoint | **Must be ADC1.** ADC2 is unusable when Wi-Fi is active |
+| GPIO26 | Relay module IN | Active-HIGH only — see below |
+| GPIO27 | Local ack button | To GND, internal pullup |
+| GPIO2 | Onboard status LED | |
+| 5V (VIN) | Isolated supply +5 V | Also feeds relay module VCC |
+| GND | Isolated supply 0 V | Common low-voltage ground |
+
+### NTC divider
+
+`3V3 → 10 kΩ fixed → [GPIO34] → NTC 10K → GND`
+
+B3950 curve, β-parameter equation for conversion. ESP32 ADC is nonlinear and noisy — oversample 16×, apply a two-point calibration. Advisory precision only.
+
+### Relay polarity — critical
+
+The relay module **must be active-HIGH** (GPIO high closes the contact). Many cheap opto-isolated modules are active-LOW, which is fail-dangerous here: ESP32 GPIOs float as inputs during boot and after a crash, and a floating line on an active-LOW module can close the relay with no firmware running.
+
+Additionally, fit a **10 kΩ pulldown from GPIO26 to GND**. Floating line then reads low, relay stays open. Verify by inspection: with the ESP32 unpowered, the relay contact must be open.
+
+### Mains side
+
+```
+… seal-in ─▶ Thermostat (NC) ─▶ Relay COM/NO ─▶ Coil ─▶ OL ─▶ L2
+```
+
+Relay contacts wired COM and NO only. The NC terminal is left unconnected — never used.
+
+---
+
+## Why RF was rejected as the primary path
+
+The purchased VONVOFF 433 MHz receiver *latches* its relay state by default. In its default modes, RF failures leave the relay in whatever position it was last commanded to — the opposite of what a safety supervisor needs:
+
+| Fault | Wired relay | RF receiver (latched) |
+|---|---|---|
+| ESP32 loses power | Opens — safe | Holds last state — **unprotected** |
+| Firmware hangs | Watchdog opens — safe | Holds last state — **unprotected** |
+| Link broken / jammed | N/A | Holds last state — **unprotected** |
+| Cable cut | Opens — safe | N/A |
+
+There is no fault in the wired design that leaves the saw running without protection. There is no fault in the latched-RF design that *doesn't*. That asymmetry is the whole reason the ESP32 relay is specified as a wired, opto-isolated, active-HIGH module driven directly by GPIO.
+
+**The one fail-safe RF configuration** is the receiver in **momentary mode** with the ESP32 transmitting a continuous heartbeat — loss of transmission opens the relay. This is exactly the design in [BUILD-TONIGHT.md](BUILD-TONIGHT.md), used deliberately as an expedient because the RF receiver is on hand and a proper wired relay is not. It has real drawbacks (continuous 433 MHz transmission has FCC Part 15 duty-cycle implications, a shop is an electrically noisy RF environment, and the link has no acknowledgment), so it is a fallback path, not the end state.
 
 ---
 
 ## Sensor mounting
 
 The sensor determines whether the system works at all. A sensor that reads air temperature instead of winding temperature produces confident, useless numbers.
+
+**Primary sensor (K-type at the winding):**
 
 1. Bond the sensor tip to the winding end turns using the AlN substrate as the interface. AlN is thermally conductive and electrically insulating — thermal contact with dielectric separation from a 230 V conductor.
 2. Cover the outboard face of the sensor with thermal insulation so it reads the winding, not the air around it.
@@ -135,63 +199,94 @@ The sensor determines whether the system works at all. A sensor that reads air t
 
 Sensor and thermostat leads inside the motor must be rated for the winding temperature class (PTFE or fiberglass, 600 V). PVC hookup wire will fail there.
 
+**Secondary sensor (NTC on the frame, advisory only):**
+
+The DROK NTC probe sits in a fin channel on the motor frame exterior, near the drive end. The delta between frame temperature and winding temperature is itself the airflow-restriction signal this project exists to detect. See BUILD-TONIGHT.md § 6 for mounting details — the procedure is identical.
+
 ---
 
 ## Bill of materials
 
-Parts have been purchased. Several need verification before wiring; two are likely wrong and are blocking.
+BOM has been checked against actual Amazon purchases. Two parts cannot be used as originally intended and have been repurposed.
 
-| Item | Status | Action |
-|---|---|---|
-| ESP32 dev board | OK | — |
-| Temperature sensor | ⚠️ **VERIFY** | TASK-1 |
-| "220 to 12 V buck converter" | ⚠️ **LIKELY WRONG** | TASK-2 (blocking) |
-| "Wireless switch" relay | ⚠️ **VERIFY** | TASK-3 |
-| AlN substrate | OK | Thermal interface, electrically isolating |
-| Thermal insulation | OK | Shields sensor from ambient air |
-| Ring terminals, solder, tips, scrap wire | OK | Motor-interior wire must be temp-rated — TASK-4 |
-| Enclosure | OK | TASK-5 |
-| **Bimetallic thermostat** | ❌ **NOT PURCHASED** | TASK-6 (blocking, required by SR-3) |
+### Verified — keep as-is
 
-### TASK-1 — Verify sensor temperature range
+**ESP32 — `B0GF1ZJCCN`, ESP32-DevKitC-32E, 2-pack**
+Genuine ESP32-WROOM-32E, dual-core 240 MHz, 8 MB flash, USB-C, 38 GPIO (10 RTC), rated −40 to 85 °C. Arduino IDE / MicroPython / ESP-IDF supported. 8 MB flash is ample for the logging requirement; the second board is a spare for bench testing without pulling the installed one.
 
-Class F insulation runs to 155 °C. A sensor bonded to end turns must read reliably to at least 180 °C to be useful near the limit.
+### Verified — cannot be used at the winding; repurposed
 
-**Common failure:** DS18B20 and most cheap digital sensors max out at 125 °C — *below* the trip point. If the purchased sensor is a DS18B20 or similar, it cannot be used.
+**Temperature sensor — `B0F8NQ9S4R`, DROK 10K NTC thermistor probe**
+Specs: NTC 10K / B3950, 1% tolerance, range **−25 °C to 125 °C**, 5 × 25 mm stainless probe, 1 m PVC cable, JST XH 2.54 mm 2-pin, 3–5 V.
 
-Suitable alternatives:
+Three disqualifying problems for end-turn mounting:
 
-- K-type thermocouple + MAX31855 or MAX6675 (amplifier provides some isolation)
-- PT100 RTD + MAX31865
+1. **125 °C ceiling.** `TRIP_THRESHOLD` is 110 °C and the thermostat backstop is 120–130 °C. The sensor saturates right where the decisions happen, with no headroom to observe an overshoot.
+2. **PVC cable.** Will soften and fail against end turns. Also fails SR-7 — PVC is not a mains-isolation-grade insulation at winding temperature.
+3. **Stainless probe body.** A 5 × 25 mm cylinder does not mate to a flat AlN substrate, and a conductive housing adjacent to line-potential end turns is an isolation hazard.
 
-Both give headroom well past 200 °C.
+**Repurposed** to motor frame monitoring as a **secondary, advisory-only** input — never a trip source. Frame surface temperature on a TEFC motor runs well inside the 125 °C range, and the delta between frame and winding temperatures is the airflow-restriction signal. Use a fixed divider, oversample, and calibrate.
+
+**Wireless switch — `B0836KDYGH`, VONVOFF 433 MHz RF remote switch**
+Specs: 433 MHz RF receiver, 30 A relay, AC 110/120/240 V, learning-code, two fobs, 328 ft range, momentary/toggle/latched modes.
+
+Not usable in the coil circuit as the primary relay. It is **not GPIO-controllable** — it is a standalone RF receiver commanded by a key fob, not a relay module the ESP32 can drive. Putting a fob-commanded device in a safety path also violates SR-8, and its default latched behavior is fail-dangerous (see [Why RF was rejected as the primary path](#why-rf-was-rejected-as-the-primary-path)).
+
+**Repurposed** to dust collector remote — the highest-value repurpose in the box, since inadequate dust extraction is the root cause of the original motor failure.
+
+**Note:** BUILD-TONIGHT.md uses this same receiver in the coil circuit in **momentary mode with an ESP32-driven heartbeat**. That configuration *is* fail-safe (loss of TX opens the relay) but is an expedient for same-day protection, not the end-state design.
+
+### Unverified — no listing provided
+
+**"220 to 12 V buck converter" — BLOCKING, see TASK-2**
+
+**AlN substrate, thermal insulation, enclosure, scrap wire, ring terminals, solder** — no specific products identified. The ring-terminal and solder-wire links were Amazon category/search pages, not product pages; confirm whether these were actually ordered.
+
+### Not yet purchased — required for Path B (full retrofit)
+
+| Item | Spec |
+|---|---|
+| High-temp primary sensor | See TASK-1 |
+| GPIO-driven relay | See TASK-3 |
+| Bimetallic thermostat | See TASK-6 |
+| Isolated AC-DC supply | See TASK-2 |
+| High-temp lead wire | See TASK-4 |
+
+### TASK-1 — Source a suitable primary sensor
+
+Must read reliably past 180 °C to give headroom above the 110 °C trip point. Two good options:
+
+- **K-type thermocouple + MAX31855 or MAX6675.** Fiberglass or PTFE lead, exposed or grounded junction. Amplifier provides SPI isolation from the ESP32. Cheap, robust, standard. This is the assumed choice in [Pin assignments](#pin-assignments).
+- **PT100 RTD + MAX31865.** Better accuracy and stability, slightly more expensive.
+
+Either mates well to the AlN substrate. Specify high-temperature lead insulation at purchase — this is the detail that gets missed.
 
 ### TASK-2 — Power supply isolation (blocking)
 
-"220 to 12 V buck converter" is ambiguous. A *buck* converter is DC-DC. If the purchased part is a non-isolated AC-line supply, the ESP32 ground floats at mains potential — lethal at the USB port and unacceptable per SR-7.
+"220 to 12 V buck converter" is ambiguous. A *buck* converter is DC-DC. If the purchased module is a non-isolated AC-line supply, the ESP32 ground floats at mains potential — lethal at the USB port, and incompatible with SR-7.
 
-**Required:** an isolated AC-DC supply with reinforced isolation, 230 VAC input, 5 V or 12 V output, from a recognized manufacturer with safety certification. Not a bare non-isolated module.
+**Required:** an isolated AC-DC supply with reinforced isolation, 230 VAC input, 5 V or 12 V output, from a manufacturer with real safety certification (Mean Well, Recom, TDK-Lambda). Not a bare module.
 
-Do not energize anything until this is resolved.
+Do not energize anything until this is resolved. Identify what was purchased and report. (For same-day expedient power, BUILD-TONIGHT.md uses a UL-listed USB phone charger — an isolated AC-DC supply that happens to be a wall wart.)
 
-### TASK-3 — Relay verification
+### TASK-3 — Source a GPIO-driven relay
 
-Identify the "wireless switch." Requirements:
+Replaces the RF switch in the coil circuit. Requirements:
 
-- Contacts rated ≥ 250 VAC, with margin for the A200 Size 1 coil inrush (~1 A). A 5 A contact rating is ample.
-- Must be usable as a plain **normally-open, energized-to-close** contact under direct GPIO control.
-
-**If it is a consumer Wi-Fi relay whose state is controlled over the network, do not use it in the coil circuit.** Network-commanded state in a safety path violates SR-8. Substitute a plain relay module or an SSR driven directly by GPIO. The purchased device may be repurposed for a non-safety function (e.g. a dust-collector interlock).
+- **Normally-open, energized-to-close**, driven directly by an ESP32 GPIO through an opto-isolated driver
+- **Active-HIGH** input (see [Relay polarity](#relay-polarity--critical) — active-LOW modules are fail-dangerous)
+- Contacts ≥ 250 VAC, ≥ 5 A (A200 Size 1 coil inrush is ~1 A)
+- A standard opto-isolated mechanical relay module or a suitably rated SSR both work
 
 ### TASK-4 — Wire rating
 
-Sensor leads run against winding end turns. Use PTFE or fiberglass-insulated lead wire rated for the winding temperature class and 600 V. "Scrap wire" is fine for the low-voltage side inside the enclosure, not for the motor interior.
+Primary sensor leads run against winding end turns. Use PTFE or fiberglass-insulated lead wire rated for the winding temperature class and 600 V. Scrap wire is acceptable on the low-voltage side inside the enclosure, not inside the motor.
 
 ### TASK-5 — Enclosure placement
 
-Mount outside the motor, away from the fan shroud and dust stream. Do not obstruct cooling airflow — restricting airflow to install a device that detects restricted airflow would be a poor outcome. Consider mounting alongside the existing starter enclosure.
+Mount outside the motor, away from the fan shroud and dust stream. Do not obstruct cooling airflow — restricting airflow to install a device that detects restricted airflow would be a poor outcome. Alongside the existing starter enclosure is a reasonable location.
 
-### TASK-6 — Source the bimetallic thermostat (blocking)
+### TASK-6 — Source the bimetallic thermostat
 
 Required by SR-3. Specification:
 
@@ -284,6 +379,168 @@ Confirm against the thermostat's actual rating once TASK-6 is closed. `TRIP_THRE
 
 ---
 
+## Reference pseudocode
+
+Structure only — not intended to compile. The protection task must be independent of Wi-Fi, NTP, and the web server.
+
+### Pin and constant definitions
+
+```
+PIN_TC_SCK   = 18    PIN_TC_DO  = 19    PIN_TC_CS = 5
+PIN_NTC      = 34                       // ADC1 only
+PIN_RELAY    = 26                       // active-HIGH, 10k pulldown to GND
+PIN_ACK      = 27                       // input, pullup
+PIN_LED      = 2
+
+TRIP_C          = 110
+WARN_C          = 95
+RESET_C         = 70
+COOLDOWN_HOLD_S = 120
+SENSOR_TIMEOUT_MS = 3000
+SAMPLE_HZ       = 4
+WDT_TIMEOUT_MS  = 5000
+
+STATE = { BOOT, ARMED, TRIPPED, COOLDOWN }
+```
+
+### Boot
+
+```
+setup():
+    pinMode(PIN_RELAY, OUTPUT)
+    digitalWrite(PIN_RELAY, LOW)        // FIRST LINE. Relay open before anything else.
+
+    pinMode(PIN_ACK, INPUT_PULLUP)
+    pinMode(PIN_LED, OUTPUT)
+
+    nvs_open()
+    last_state = nvs_read("last_state")
+
+    tc = MAX31855(PIN_TC_CS, PIN_TC_SCK, PIN_TC_DO)
+
+    // Self-test: must get N consecutive valid reads before arming
+    valid = 0
+    for i in 1..10:
+        r = read_thermocouple()
+        if r.ok: valid += 1
+        delay(100)
+
+    if valid < 8:
+        state = TRIPPED
+        log_event("BOOT_SENSOR_FAIL")
+        return                          // relay stays open
+
+    if last_state == TRIPPED and r.celsius >= RESET_C:
+        state = TRIPPED                 // don't clear a trip by power-cycling
+    else:
+        state = COOLDOWN
+        cooldown_start = now()
+
+    watchdog_enable(WDT_TIMEOUT_MS)
+    start_task(protection_loop, core=0, priority=HIGHEST)
+    start_task(network_task,   core=1, priority=LOW)
+```
+
+### Protection loop — core 0, never blocks on network
+
+```
+protection_loop():
+    loop forever:
+        r = read_thermocouple()
+
+        // SR-5: any sensor doubt is a trip
+        if not r.ok
+           or r.fault_open or r.fault_short_gnd or r.fault_short_vcc
+           or r.celsius < -20 or r.celsius > 400
+           or (now() - last_valid_ms) > SENSOR_TIMEOUT_MS
+           or abs(r.celsius - last_valid_c) > 50:      // implausible jump
+            trip("SENSOR_FAULT")
+            feed_watchdog()
+            continue
+
+        last_valid_c  = r.celsius
+        last_valid_ms = now()
+
+        frame_c = read_ntc()             // advisory only, never trips
+        delta   = r.celsius - frame_c    // widening delta = airflow restriction
+
+        switch state:
+
+            case ARMED:
+                if r.celsius >= TRIP_C:
+                    trip("OVERTEMP")
+                else if r.celsius >= WARN_C:
+                    raise_alert("APPROACHING_TRIP")
+
+            case TRIPPED:
+                digitalWrite(PIN_RELAY, LOW)
+                if r.celsius < RESET_C:
+                    state = COOLDOWN
+                    cooldown_start = now()
+
+            case COOLDOWN:
+                digitalWrite(PIN_RELAY, LOW)     // still open
+                if r.celsius >= RESET_C:
+                    state = TRIPPED              // re-heated, restart hold
+                else if (now() - cooldown_start) > COOLDOWN_HOLD_S:
+                    state = ARMED
+                    digitalWrite(PIN_RELAY, HIGH)
+                    log_event("ARMED")
+                    // SR-4: relay closing does NOT start the saw.
+                    // The 3-wire seal-in requires a physical Start press.
+
+        sample_buffer.push(now(), r.celsius, frame_c, delta, state)
+        feed_watchdog()                  // ONLY reached on a complete cycle
+        delay(1000 / SAMPLE_HZ)
+```
+
+### Trip
+
+```
+trip(cause):
+    digitalWrite(PIN_RELAY, LOW)        // hardware first, bookkeeping after
+    if state != TRIPPED:
+        state = TRIPPED
+        nvs_write("last_state", TRIPPED)
+        log_event("TRIP", cause, last_valid_c)
+        raise_alert(cause)
+```
+
+### Network task — core 1, advisory only
+
+```
+network_task():
+    wifi_connect()                      // failure here is non-fatal
+    http_server.on("/",       serve_dashboard)
+    http_server.on("/api/state",   -> json(state, last_valid_c, frame_c, delta))
+    http_server.on("/api/history", -> json(sample_buffer))
+    http_server.on("/api/ack",     -> clear_alert_flag_only)
+
+    // SR-8: no endpoint may write TRIP_C, force ARMED, or drive PIN_RELAY.
+    // Enforce server-side. The dashboard is a window, not a control panel.
+
+    loop forever:
+        http_server.handle()
+        flush_samples_to_flash_every(60s)
+        delay(10)
+```
+
+### Rate-of-rise tracking
+
+The genuinely new capability. A °C/min figure that climbs across sessions at constant workload means airflow is degrading — cleaning is due *before* a trip.
+
+```
+compute_ror():
+    // linear fit over trailing 60 s of samples
+    ror = slope(sample_buffer.last(60s))
+    if ror > baseline_ror * 1.5:
+        raise_alert("HEATING_FASTER_THAN_BASELINE")
+```
+
+Establish `baseline_ror` from the first commissioning run (Commissioning step 6).
+
+---
+
 ## Safety requirements
 
 Non-negotiable. Any change that appears to violate one of these is wrong until proven otherwise.
@@ -321,9 +578,15 @@ Do not cut wood until all of these pass.
 
 ## Open questions
 
-1. What is the actual temperature sensor part number? (TASK-1)
-2. Is the power supply isolated? (TASK-2 — blocking)
-3. What is the "wireless switch," and is it GPIO-controllable as a plain relay? (TASK-3)
-4. Has the thermostat been ordered? (TASK-6 — blocking for SR-3)
-5. Should the dust collector be interlocked to the saw? The purchased wireless relay might serve here, outside the safety path, and it addresses root cause.
-6. Is a `BEC2921` or a Sensata supersession still worth pursuing in parallel as a fallback?
+Resolved: sensor identified (DROK NTC, repurposed to frame monitoring), RF switch identified (repurposed to dust collection), ESP32 confirmed suitable.
+
+Outstanding:
+
+1. **Is the power supply isolated?** (TASK-2 — blocking, nothing gets energized until this is answered)
+2. Has the primary high-temp sensor been ordered? (TASK-1 — blocking for Path B)
+3. Has the GPIO relay been ordered? (TASK-3 — blocking for Path B)
+4. Has the bimetallic thermostat been ordered? (TASK-6 — blocking for SR-3)
+5. What AlN part was purchased — flat substrate, and what dimensions? Determines sensor mounting geometry.
+6. Were the ring terminals and solder actually ordered? The provided links were category pages.
+7. Is a `BEC2921` or a Sensata supersession worth pursuing in parallel as a fallback?
+8. Dust collector interlock: is the collector currently manual-start? If the saw and collector can be interlocked, that addresses root cause more directly than any monitoring.
