@@ -129,6 +129,18 @@ If Start doesn't pull in the contactor:
 
 ---
 
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
+| [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
+| [`hardware/`](hardware/) | Physical build artifacts — schematics, BOM.csv, photos, datasheets. Stub for now; the design lives in `ARCHITECTURE.md` until it does. |
+| [`firmware/`](firmware/) | ESP32 supervisor source — src, tests, build config. Stub for now; the design lives in `ARCHITECTURE.md § Reference pseudocode` until it does. |
+| [`LICENSE`](LICENSE) | MIT + safety-scope notice. |
+
+---
+
 ## Liability note
 
 This retrofit modifies a UL-listed motor and voids its listing. For a private shop that is the owner's call. If this saw is ever used in a commercial, institutional, insured-workshop, or teaching setting, the correct answer is a listed replacement protector and this project is not appropriate.
