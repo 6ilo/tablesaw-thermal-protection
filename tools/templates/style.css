@@ -1,0 +1,235 @@
+/* Served from the ESP32. Inlined into every page — no external requests are
+   possible, the device has no uplink. Designed to be read on a phone, at a
+   machine, in poor light, possibly one-handed. Large type, high contrast,
+   generous tap targets, no animation. */
+
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --border: #d6d4cf;
+  --ink: #17181a;
+  --ink-soft: #55585e;
+  --accent: #1e5fa8;
+
+  --trip-bg: #fdecea;
+  --trip-fg: #8c1d13;
+  --lockout-bg: #f3e8f8;
+  --lockout-fg: #6a1b7a;
+  --warning-bg: #fdf3d8;
+  --warning-fg: #7a5300;
+  --info-bg: #e7f0fa;
+  --info-fg: #14497e;
+
+  --danger-bg: #fdecea;
+  --danger-border: #c0392b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16171a;
+    --surface: #1e2024;
+    --border: #34373d;
+    --ink: #eceef1;
+    --ink-soft: #a8adb6;
+    --accent: #7fb3f0;
+
+    --trip-bg: #3a1512;
+    --trip-fg: #ff9d92;
+    --lockout-bg: #2d1636;
+    --lockout-fg: #e2a6f0;
+    --warning-bg: #33280c;
+    --warning-fg: #f2c96a;
+    --info-bg: #12283f;
+    --info-fg: #9cc7f5;
+
+    --danger-bg: #3a1512;
+    --danger-border: #e05c4a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 1rem 4rem;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+main { max-width: 42rem; margin: 0 auto; }
+
+a { color: var(--accent); }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.05em 0.3em;
+}
+
+/* --- header ------------------------------------------------------------- */
+
+header.code-head {
+  margin: 1.5rem 0 0;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 6px solid currentColor;
+  border-radius: 8px;
+}
+
+header.code-head.sev-trip    { color: var(--trip-fg);    background: var(--trip-bg); }
+header.code-head.sev-lockout { color: var(--lockout-fg); background: var(--lockout-bg); }
+header.code-head.sev-warning { color: var(--warning-fg); background: var(--warning-bg); }
+header.code-head.sev-info    { color: var(--info-fg);    background: var(--info-bg); }
+
+.code-id {
+  font: 700 2.75rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+.code-title {
+  margin: 0.35rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.code-summary {
+  margin: 0.6rem 0 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.sev-tag {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.2em 0.6em;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: 0.75rem;
+}
+
+/* --- facts table -------------------------------------------------------- */
+
+dl.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1rem;
+  margin: 1rem 0 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+dl.facts dt { color: var(--ink-soft); }
+dl.facts dd { margin: 0; font-weight: 600; }
+
+/* --- lockout callout ---------------------------------------------------- */
+
+.loto {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-left: 6px solid var(--danger-border);
+  border-radius: 8px;
+}
+.loto h2 { margin-top: 0; border: 0; padding: 0; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* --- body content ------------------------------------------------------- */
+
+h2 {
+  margin: 2rem 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.2rem;
+}
+
+ol, ul { padding-left: 1.4rem; }
+li { margin: 0.45rem 0; }
+li::marker { color: var(--ink-soft); font-weight: 700; }
+
+/* --- reference links + QR ----------------------------------------------- */
+
+.refs { margin-top: 2.5rem; }
+
+.ref {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.ref .qr { flex: 0 0 84px; line-height: 0; }
+.ref .qr svg { width: 84px; height: 84px; }
+.ref-title { font-weight: 650; }
+.ref-url {
+  margin-top: 0.2rem;
+  color: var(--ink-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  word-break: break-all;
+}
+
+.offline-note {
+  margin: 1.5rem 0 0;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* --- index -------------------------------------------------------------- */
+
+.code-list { list-style: none; margin: 1.5rem 0 0; padding: 0; }
+.code-list li { margin: 0 0 0.6rem; }
+.code-list a {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.code-list a.sev-trip    { border-left-color: var(--trip-fg); }
+.code-list a.sev-lockout { border-left-color: var(--lockout-fg); }
+.code-list a.sev-warning { border-left-color: var(--warning-fg); }
+.code-list a.sev-info    { border-left-color: var(--info-fg); }
+.code-list .id {
+  flex: 0 0 3.1rem;
+  font: 700 1.15rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.code-list .txt strong { display: block; font-size: 1.02rem; }
+.code-list .txt span { color: var(--ink-soft); font-size: 0.9rem; }
+
+/* --- footer ------------------------------------------------------------- */
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+footer p { margin: 0.35rem 0; }
+
+.backlink { display: inline-block; margin: 1.5rem 0 0; font-weight: 600; }

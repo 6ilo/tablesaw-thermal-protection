@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error codes — ALN Table Saw</title>
+<style>{{ style }}</style>
+</head>
+<body>
+<main>
+
+<header class="code-head sev-info">
+  <div class="code-id">Codes</div>
+  <h1 class="code-title">Table saw thermal supervisor</h1>
+  <p class="code-summary">Every code the supervisor can show, what it means, and what to
+  do about it. All of it is stored on the saw — none of these pages need the internet.</p>
+</header>
+
+{% for group, items in groups %}
+<h2>{{ group }}</h2>
+<ul class="code-list">
+{% for d in items %}
+  <li><a class="sev-{{ d.severity }}" href="{{ d.code }}.html">
+    <span class="id">{{ d.code }}</span>
+    <span class="txt"><strong>{{ d.title }}</strong><span>{{ d.summary }}</span></span>
+  </a></li>
+{% endfor %}
+</ul>
+{% endfor %}
+
+<h2>Reading the status LED</h2>
+<p>The LED on the supervisor board is the only indicator visible at the machine. It tells
+you the family of problem; these pages tell you the rest. Warnings
+({% for d in warnings %}{{ d.code }}{% if not loop.last %}, {% endif %}{% endfor %})
+leave the LED <strong>solid</strong> — the saw keeps running and the only way to see them
+is this page.</p>
+
+<section class="refs">
+<h2>The project</h2>
+{% for ref in repo_refs %}
+<div class="ref">
+  {% if ref.qr %}<div class="qr">{{ ref.qr }}</div>{% endif %}
+  <div>
+    <div class="ref-title">{{ ref.title }}</div>
+    <div class="ref-url">{{ ref.url }}</div>
+  </div>
+</div>
+{% endfor %}
+</section>
+
+<footer>
+<p>Error code registry {{ registry_version }} &middot; built from {{ commit }} ({{ commit_date }})</p>
+<p>Codes are append-only: a published code never changes meaning and is never reused.</p>
+</footer>
+
+</main>
+</body>
+</html>

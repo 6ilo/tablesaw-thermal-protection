@@ -1,0 +1,90 @@
+<!-- GENERATED FILE — do not edit by hand.
+     Source: docs/codes/*.md
+     Regenerate: python3 tools/codedocs.py build
+     Verify:     python3 tools/codedocs.py check
+     Static prose lives in tools/templates/index.md.j2. -->
+
+# Error codes
+
+Every fault and advisory the thermal supervisor can report, with operator remediation
+for each. These pages are the **single source** for three artifacts:
+
+| Artifact | Built by | Where it goes |
+|---|---|---|
+| This index and the pages beside it | — | GitHub, for reading and review |
+| Offline HTML bundle | `tools/codedocs.py build` | LittleFS on the ESP32, served over the `ALN Table Saw` access point |
+| `error_codes.h` | `tools/codedocs.py build` | Firmware, so the device's code list cannot drift from the docs |
+
+Nothing here is hand-copied into firmware. If a code's text changes, the device's copy
+changes with it on the next build. See [issue #1](https://github.com/6ilo/tablesaw-thermal-protection/issues/1).
+
+## The registry
+
+Registry version **1.0.0**. Codes are **append-only** — once published,
+a code never changes meaning and is never reused, because it may be printed on the
+operator card inside the cabinet door.
+
+
+### Trips — the saw stopped
+
+| Code | Meaning | Status LED | State | Clears |
+|---|---|---|---|---|
+| [`E01`](E01.md) | Motor overtemperature | Fast blink (5 Hz) | `TRIPPED` | On its own, once the motor cools |
+| [`E02`](E02.md) | Sensor fault | Double-blink then pause | `TRIPPED` | On its own, once the motor cools |
+| [`E03`](E03.md) | Sensor timeout | Double-blink then pause | `TRIPPED` | On its own, once the motor cools |
+| [`E05`](E05.md) | Boot self-test failed | SOS pattern | `TRIPPED` | Fix the fault, then power-cycle |
+| [`E06`](E06.md) | Trip held through a power cycle | Fast blink (5 Hz) | `TRIPPED` | On its own, once the motor cools |
+
+### Lockouts — the saw stays stopped
+
+| Code | Meaning | Status LED | State | Clears |
+|---|---|---|---|---|
+| [`E04`](E04.md) | Manual lockout after repeated trips | Triple-blink then long pause | `MANUAL_LOCKOUT` | Physical ack button press |
+| [`E07`](E07.md) | Booted back into lockout | Triple-blink then long pause | `MANUAL_LOCKOUT` | Physical ack button press |
+
+### Warnings — the saw is still running
+
+| Code | Meaning | Status LED | State | Clears |
+|---|---|---|---|---|
+| [`W01`](W01.md) | Approaching trip temperature | Solid ON | `ARMED` | On its own, when the condition passes |
+| [`W02`](W02.md) | Heating faster than baseline | Solid ON | `ARMED` | On its own, when the condition passes |
+| [`W03`](W03.md) | Probe never warmed up | Solid ON | `ARMED` | On its own, when the condition passes |
+
+### Notices — feedback, not a fault
+
+| Code | Meaning | Status LED | State | Clears |
+|---|---|---|---|---|
+| [`E08`](E08.md) | Ack pressed too early | Triple-blink then long pause | `MANUAL_LOCKOUT` | Physical ack button press |
+
+
+## Severity
+
+| Severity | Meaning |
+|---|---|
+| `trip` | The relay opened. The saw stopped and cannot be started until the condition clears. |
+| `lockout` | The relay opened and will not re-close on its own. A physical ack press is required. |
+| `warning` | Advisory. The saw keeps running and the status LED stays **solid** — this page is the only place the warning appears. |
+| `info` | Feedback about something the operator did, not a fault. |
+
+## Adding a code
+
+1. Copy [`_TEMPLATE.md`](_TEMPLATE.md) to the next unused number. **Never reuse a retired
+   code.**
+2. Fill in the front matter and all required sections. `python3 tools/codedocs.py check`
+   enforces the schema, the section list, the cross-links, and — importantly — that every
+   threshold you quote matches the value in
+   [`ARCHITECTURE.md`](../../ARCHITECTURE.md). Quoting a stale number is the defect this
+   check exists to prevent.
+3. Run `python3 tools/codedocs.py build` to regenerate this index and the device bundle.
+4. Add the code to the firmware's alert path. The generated `error_codes.h` gives you the
+   enum; emitting it is still your job.
+5. Record it in [`CHANGELOG.md`](../../CHANGELOG.md) and bump `VERSION`.
+6. If the code is operator-facing, update the printed card inside the cabinet door. A
+   screen and a card that disagree are worse than either alone.
+
+## Writing style
+
+These are read on a phone, at a machine, by someone who wants to get back to cutting.
+[`E01.md`](E01.md) is the reference for voice and density. Name every constant by both
+its firmware name and its value. Never tell the operator to bypass anything. Never state
+a fact the repository does not establish.

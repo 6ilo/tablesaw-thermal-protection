@@ -1,0 +1,62 @@
+name: Error code registry
+
+# The operator reads these pages at the machine, off a device with no internet, to
+# decide what to do about a saw that just stopped. A stale threshold or a broken
+# cross-link is a real-world defect, so the registry is gated like code.
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/codes/**', 'tools/**', 'ARCHITECTURE.md', 'README.md', 'VERSION', '.github/workflows/error-codes.yml']
+  pull_request:
+    paths: ['docs/codes/**', 'tools/**', 'ARCHITECTURE.md', 'README.md', 'VERSION', '.github/workflows/error-codes.yml']
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: python3 -m pip install --require-hashes=false -r tools/requirements.txt
+
+      - name: Validate the registry
+        # Schema, required sections, cross-links, ref anchors, and every threshold
+        # quoted in an operator doc against its value in ARCHITECTURE.md.
+        run: python3 tools/codedocs.py check
+
+      - name: Build every artifact
+        # Proves the templates render and the device bundle actually generates —
+        # `check` alone would not catch a broken template.
+        run: python3 tools/codedocs.py build
+
+      - name: Committed index must match the generated one
+        run: git diff --exit-code docs/codes/README.md
+
+      - name: Device bundle must fit its flash budget
+        # Flash is contested by the OTA app slots and the 30-day log ring buffer
+        # (see issue #2). Docs do not get to quietly grow into either.
+        run: |
+          python3 - <<'PY'
+          import json, sys, pathlib
+          budget = 100 * 1024
+          m = json.loads(pathlib.Path('build/site/manifest.json').read_text())
+          total = m['total_gzip_bytes']
+          print(f"device bundle: {total/1024:.1f} KiB gzipped, budget {budget/1024:.0f} KiB")
+          for f in m['files']:
+              print(f"  {f['path']:<24} {f['gzip_bytes']:>6} B")
+          if total > budget:
+              sys.exit(f"FAIL: bundle is {total-budget} B over budget")
+          PY
+
+      - name: Upload device bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-code-bundle
+          path: build/
+          retention-days: 14
