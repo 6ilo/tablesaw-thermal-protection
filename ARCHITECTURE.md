@@ -20,6 +20,7 @@ Hardware and software design for the table saw thermal protection retrofit. Comp
 - [Bill of materials](#bill-of-materials)
 - [Software architecture](#software-architecture)
 - [Reference pseudocode](#reference-pseudocode)
+- [Sensor calibration](#sensor-calibration)
 - [Safety requirements](#safety-requirements)
 - [Commissioning](#commissioning)
 - [Open questions](#open-questions)
@@ -202,7 +203,7 @@ ESP32 and relay live in the **main junction box with the contactor**. The thermo
 
 `3V3 → 10 kΩ fixed → [GPIO34] → NTC 10K → GND`
 
-B3950 curve, β-parameter equation for conversion. ESP32 ADC is nonlinear and noisy — oversample 16×, apply a two-point calibration. Advisory precision only.
+B3950 curve, β-parameter equation for conversion. ESP32 ADC is nonlinear and noisy — oversample 16×. Two-point calibration is required before installation, not a "if we have time" step; see [Sensor calibration](#sensor-calibration). Advisory precision only — never a trip source.
 
 ### Relay polarity — critical
 
@@ -379,16 +380,21 @@ flowchart TB
 
 The protection loop must not depend on Wi-Fi, NTP, filesystem, or the web server. The watchdog is fed **only** after a complete successful cycle — a hung sensor task starves it and forces a reset, which opens the relay.
 
+**Wi-Fi crash isolation.** A task crash on core 1 (typical Wi-Fi stack fault) should terminate only that task, not panic the whole system — the protection loop on core 0 keeps running and the LED keeps updating. If the panic handler is configured to reboot on any panic (`CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT` in ESP-IDF, the default), the ESP32 reboots into the boot self-test, which is a fail-safe transition (relay open, sensor re-verified, state restored from NVS). Explicitly verify this behavior in commissioning — see step 7.
+
 ### State machine
 
 ```mermaid
 stateDiagram-v2
     [*] --> BOOT
     BOOT --> ARMED: sensor OK,<br/>temp < RESET_THRESHOLD
+    BOOT --> TRIPPED: sensor fail<br/>or persisted TRIPPED + hot
     ARMED --> TRIPPED: temp ≥ TRIP_THRESHOLD<br/>or SR-5 fault
-    TRIPPED --> COOLDOWN: temp < RESET_THRESHOLD
+    TRIPPED --> COOLDOWN: temp < RESET_THRESHOLD<br/>and trips < MAX_CONSECUTIVE
+    TRIPPED --> MANUAL_LOCKOUT: trips ≥ MAX_CONSECUTIVE<br/>within TRIP_WINDOW
     COOLDOWN --> ARMED: sustained COOLDOWN_HOLD
     COOLDOWN --> TRIPPED: any fault
+    MANUAL_LOCKOUT --> COOLDOWN: PIN_ACK pressed<br/>and temp < RESET_THRESHOLD
     ARMED --> ARMED: normal running
 ```
 
@@ -396,11 +402,25 @@ stateDiagram-v2
 - `ARMED`: relay closed, saw may run.
 - `TRIPPED`: relay open, event logged, alert raised.
 - `COOLDOWN`: relay still open, timer running to prevent chatter.
+- `MANUAL_LOCKOUT`: relay open, no auto-recovery. Only clears on physical ack.
 
 Notes:
 
 - `TRIPPED → COOLDOWN → ARMED` re-closes the relay automatically. Per SR-4 this is safe: the saw does not restart until the operator presses the physical Start button.
-- Trip events persist across power loss. On boot, if the last state was `TRIPPED`, require a fresh temperature check before arming.
+- **Chatter suppression.** If `MAX_CONSECUTIVE_TRIPS` (default 3) trips occur within a rolling `TRIP_WINDOW_MIN` (default 10) minute window, the state machine drops into `MANUAL_LOCKOUT` instead of auto-cycling. A glitchy sensor, marginal shroud, or intermittent wiring will not silently spin the coil relay open and closed every few minutes writing log spam.
+- Trip events persist across power loss. On boot, if the last state was `TRIPPED` or `MANUAL_LOCKOUT`, the persisted state is honored — a hot power-cycle cannot clear a lockout.
+
+### Ack button behavior (PIN_ACK)
+
+Single-purpose, deliberately narrow — the ack button exists to require a human motion for lockout recovery, not as a general control input.
+
+| Context | Short press (< 2 s) | Long press (≥ 3 s) |
+|---|---|---|
+| `MANUAL_LOCKOUT` and temp < `RESET_THRESHOLD` | Clear lockout → `COOLDOWN` | (same) |
+| `MANUAL_LOCKOUT` and temp ≥ `RESET_THRESHOLD` | Ignored — log `ACK_REJECTED_HOT` | (same) |
+| Any other state | Clear the current dashboard alert flag only | Ignored |
+
+The button cannot arm the relay directly, cannot lower thresholds, and cannot bypass an active fault. It only removes the "we've seen enough trips to distrust the automation" flag, and only when temperature is genuinely safe. Debounce in software (30 ms).
 
 ### Thresholds (defaults, configurable)
 
@@ -439,6 +459,7 @@ The onboard LED (GPIO2) is the operator's primary state indicator at the machine
 | Slow blink (1 Hz) | COOLDOWN | Wait for solid. |
 | Fast blink (5 Hz) | TRIPPED — thermal | Motor overtemperature. |
 | Double-blink then pause | TRIPPED — sensor fault | Check sensor / wiring. |
+| Triple-blink then long pause | MANUAL_LOCKOUT | Too many trips. Press ack after cooling to clear. |
 | SOS pattern | Boot self-test failed | Do not use. Power-cycle. |
 | Off | ESP32 unpowered or crashed pre-boot | Do not use. |
 
@@ -480,7 +501,11 @@ WDT_TIMEOUT_MS   = 5000
 DETACH_MIN_RISE_C = 5      // probe verifies when reading rises this much
 DETACH_ALERT_MIN  = 30     // ARMED-minutes without verification → advisory
 
-STATE = { BOOT, ARMED, TRIPPED, COOLDOWN }
+MAX_CONSECUTIVE_TRIPS = 3  // trips within window before MANUAL_LOCKOUT
+TRIP_WINDOW_MIN       = 10 // rolling window in minutes
+ACK_DEBOUNCE_MS       = 30
+
+STATE = { BOOT, ARMED, TRIPPED, COOLDOWN, MANUAL_LOCKOUT }
 ```
 
 ### Boot
@@ -531,6 +556,15 @@ setup():
     probe_verified            = false
     armed_ms_at_session_start = 0
     detach_alert_raised       = false
+
+    // Chatter suppression: rolling window of consecutive trips.
+    consecutive_trips = 0
+    first_trip_ms     = 0
+
+    // Persisted MANUAL_LOCKOUT overrides the temperature-based decision above.
+    if last_state == MANUAL_LOCKOUT:
+        state = MANUAL_LOCKOUT
+        log_event("BOOT_INTO_LOCKOUT")
 
     watchdog_enable(WDT_TIMEOUT_MS)
     start_task(protection_loop, core=0, priority=HIGHEST)
@@ -585,6 +619,19 @@ protection_loop():
                     // SR-4: relay closing does NOT start the saw.
                     // The 3-wire seal-in requires a physical Start press.
 
+            case MANUAL_LOCKOUT:
+                digitalWrite(PIN_RELAY, LOW)     // stays open, no auto-recovery
+                if ack_button_pressed(debounce_ms=ACK_DEBOUNCE_MS, hold_ms=0):
+                    if r.celsius < RESET_C:
+                        state = COOLDOWN
+                        cooldown_start = now()
+                        consecutive_trips = 0
+                        first_trip_ms = 0
+                        nvs_write("last_state", COOLDOWN)
+                        log_event("LOCKOUT_CLEARED_BY_ACK")
+                    else:
+                        log_event("ACK_REJECTED_HOT", r.celsius)
+
         // Probe self-verification (advisory only, never trips).
         // Once true, stays true — a probe that has warmed once is on.
         if state == ARMED:
@@ -608,11 +655,28 @@ protection_loop():
 ```
 trip(cause):
     digitalWrite(PIN_RELAY, LOW)        // hardware first, bookkeeping after
+    if state == MANUAL_LOCKOUT:
+        return                          // already locked out; don't cascade
+
+    // Rolling window: if the last trip is older than TRIP_WINDOW_MIN, reset.
+    now_ms = now()
+    if (now_ms - first_trip_ms) > TRIP_WINDOW_MIN * 60_000:
+        consecutive_trips = 0
+        first_trip_ms = now_ms
+    consecutive_trips += 1
+
     if state != TRIPPED:
         state = TRIPPED
         nvs_write("last_state", TRIPPED)
-        log_event("TRIP", cause, last_valid_c)
+        log_event("TRIP", cause, last_valid_c, consecutive_trips)
         raise_alert(cause)
+
+    // Chatter escalation: too many trips too fast → require human intervention.
+    if consecutive_trips >= MAX_CONSECUTIVE_TRIPS:
+        state = MANUAL_LOCKOUT
+        nvs_write("last_state", MANUAL_LOCKOUT)
+        log_event("MANUAL_LOCKOUT_ENTERED", consecutive_trips, TRIP_WINDOW_MIN)
+        raise_alert("MANUAL_LOCKOUT")
 ```
 
 ### Network task — core 1, advisory only
@@ -646,7 +710,40 @@ compute_ror():
         raise_alert("HEATING_FASTER_THAN_BASELINE")
 ```
 
-Establish `baseline_ror` from the first commissioning run (Commissioning step 6).
+Establish `baseline_ror` from the first commissioning run (Commissioning step 10).
+
+---
+
+## Sensor calibration
+
+Two-point calibration catches wiring errors, math bugs, and part tolerance in one procedure. Do this at the bench, before either sensor is installed on the motor.
+
+### K-type thermocouple + MAX31855 (primary)
+
+The MAX31855 is already trimmed at the factory and does cold-junction compensation internally. Verification is enough — no coefficient tuning is expected.
+
+1. **Ice bath.** Container of crushed ice with just enough water to cover. Stir 30 seconds. Immerse the junction — not touching the vessel wall or bottom. Wait 2 minutes. Reading should be 0.0 ± 1 °C.
+2. **Boiling water.** Kettle-boil off the flame. Immerse the junction. Wait 30 seconds. Reading should be 100.0 ± 2 °C at sea level (subtract ~1 °C per 300 m elevation).
+3. **Faults observed:** cold reading high and hot reading low → junction inverted (K-type polarity matters: yellow = +, red = −). Both readings offset by the same amount → check the CJC pad temperature is stable (drafts on the MAX31855 chip skew it). Reading unstable → poor SPI wiring or long unshielded lead.
+
+### NTC (secondary, frame)
+
+The B3950 curve has real part-to-part variation, and the fixed divider resistor has tolerance too. Cheap 5% carbon resistors can be off by 500 Ω on a nominal 10 kΩ.
+
+1. **Measure `R_FIXED` with a good meter.** Write that number into `ntc_to_celsius()` as `R_FIXED_ACTUAL`. Don't assume 10000.
+2. **Ice bath.** Same setup as above. Record `raw` and computed °C.
+3. **Boiling water.** Same. Record `raw` and computed °C.
+4. **Both within ±2 °C of target →** you're done. Use as-is.
+5. **Both offset by the same amount →** apply the offset in code (`c_calibrated = c_raw + offset`). Usually from sensor tolerance.
+6. **Off in opposite directions →** β doesn't match. Solve for actual β from the two data points:
+    ```
+    R_ntc(T) = R_FIXED_ACTUAL × V_mid / (3.3 − V_mid)
+    β_actual = ln(R_ntc_100C / R_ntc_0C) / (1/373.15 − 1/273.15)
+    ```
+    Replace 3950 with `β_actual` in the equation.
+7. **Re-verify.** Ice bath should now read 0.0 ± 0.5 °C. Body-heat the tip — should read 30–35 °C.
+
+A miscalibrated NTC reading 5 °C low means the operator sees "70 °C, healthy" when the frame is actually at 75 °C. Not catastrophic (the K-type is the trip source) but it defeats the rate-of-rise warning that this sensor is here to provide.
 
 ---
 
@@ -678,10 +775,22 @@ Do not cut wood until all of these pass.
 
 1. **Bench, no mains.** Verify relay de-energizes on: power removal, firmware crash (force one), sensor disconnect, watchdog timeout. Relay must open in every case.
 2. **Bench, heat gun on sensor.** Verify trip at `TRIP_THRESHOLD`, state machine transitions, log entries.
-3. **Isolation check.** Confirm no continuity between mains side and low-voltage side. Confirm the AlN isolation with a meter before installing the motor's end bell.
-4. **Coil circuit, motor disconnected.** Press Start, confirm contactor pulls in. Force a trip, confirm contactor drops out. Confirm it does **not** re-latch when the trip clears — Start must be pressed.
-5. **Thermostat independent test.** Unplug the ESP32 entirely. Confirm the saw still runs and that the thermostat alone is in circuit.
-6. **First run under load.** Watch the temperature curve through a normal cutting session. Record the steady-state figure — that becomes the baseline the warning threshold is calibrated against.
+3. **Sensor calibration.** Two-point calibration on the K-type / NTC pair — see [Sensor calibration](#sensor-calibration). Ice-water and boiling readings must land within ±2 °C of 0/100. Off by more → fix before proceeding.
+4. **Isolation check.** Confirm no continuity between mains side and low-voltage side. Confirm the AlN isolation with a meter before installing the motor's end bell.
+5. **Thermostat function test.** *Before* mounting the thermostat inside the motor, bench-test it:
+    - Meter across the thermostat terminals — reads closed (0 Ω) at room temperature.
+    - Heat the body slowly with a heat gun on low, monitoring with a probe thermometer.
+    - Confirm it opens (goes to infinite Ω) at its rated open temperature (120–130 °C, ±5 °C).
+    - Confirm it re-closes as the body cools past the reset differential (typically 15 °C below open).
+    If it doesn't open, doesn't close, or opens far from spec — return it. This is a passive backstop with no second chance.
+6. **Coil circuit, motor disconnected.** Press Start, confirm contactor pulls in. Force a trip, confirm contactor drops out. Confirm it does **not** re-latch when the trip clears — Start must be pressed.
+7. **Wi-Fi crash isolation.** With everything installed and ARMED:
+    - Kill Wi-Fi (disable the router or block the ESP32's MAC). Verify: LED stays solid, relay stays closed, temperature keeps updating on serial. The protection loop must not care.
+    - Restore Wi-Fi. Dashboard becomes reachable again without a reboot.
+    - Optional: induce a Wi-Fi panic if you can (malformed traffic, forced re-association loop). If the ESP32 panics, it should reboot into fail-safe (self-test → COOLDOWN or TRIPPED). It should not hang.
+8. **Chatter escalation test.** Force three trips in ten minutes (heat gun bursts). Verify the third pushes the state machine into `MANUAL_LOCKOUT` (triple-blink LED, contactor stays dropped). Confirm the ack button clears it only when temp is below `RESET_THRESHOLD`.
+9. **Thermostat independent test.** Unplug the ESP32 entirely. Confirm the saw still runs and that the thermostat alone is in circuit.
+10. **First run under load.** Watch the temperature curve through a normal cutting session. Record the steady-state figure — that becomes the baseline the warning threshold is calibrated against.
 
 ---
 

@@ -156,6 +156,15 @@ WDT_TIMEOUT_MS = 5000
 // within DETACH_ALERT_MIN minutes of ARMED time, raise an advisory alert.
 DETACH_MIN_RISE_C = 5
 DETACH_ALERT_MIN  = 30
+
+// Chatter suppression. A glitchy NTC or loose connector will otherwise
+// spin the receiver relay open/closed every few minutes, spamming logs
+// and hiding the real problem. After MAX_CONSECUTIVE_TRIPS in
+// TRIP_WINDOW_MIN, drop into MANUAL_LOCKOUT — receiver stays open,
+// no auto-recovery. In this build (no ack button) the lockout clears
+// only by power-cycling the ESP32.
+MAX_CONSECUTIVE_TRIPS = 3
+TRIP_WINDOW_MIN       = 10
 ```
 
 ### The inversion that matters
@@ -206,7 +215,42 @@ setup():
     armed_ms_at_session_start = 0
     detach_alert_raised       = false
 
+    // Chatter suppression: rolling window of consecutive trips.
+    consecutive_trips = 0
+    first_trip_ms     = 0
+
+    // Persisted MANUAL_LOCKOUT overrides the temperature-based decision.
+    if last_state == MANUAL_LOCKOUT:
+        state = MANUAL_LOCKOUT
+        log("BOOT_INTO_LOCKOUT")
+
     watchdog_enable(WDT_TIMEOUT_MS)
+```
+
+### record_trip helper
+
+Centralizes the trip-count bookkeeping and MANUAL_LOCKOUT escalation so both trip sources (SENSOR_FAULT, OVERTEMP) go through the same path.
+
+```
+record_trip(cause, raw, c):
+    if state == MANUAL_LOCKOUT:
+        return                                  // already locked; don't cascade
+
+    now_ms = now()
+    if (now_ms - first_trip_ms) > TRIP_WINDOW_MIN * 60_000:
+        consecutive_trips = 0
+        first_trip_ms = now_ms
+    consecutive_trips += 1
+
+    if state != TRIPPED:
+        state = TRIPPED
+        nvs_write("last_state", TRIPPED)
+        log("TRIP", cause, c, consecutive_trips)
+
+    if consecutive_trips >= MAX_CONSECUTIVE_TRIPS:
+        state = MANUAL_LOCKOUT
+        nvs_write("last_state", MANUAL_LOCKOUT)
+        log("MANUAL_LOCKOUT_ENTERED", consecutive_trips, TRIP_WINDOW_MIN)
 ```
 
 ### LED status patterns
@@ -219,6 +263,7 @@ At the machine, without a dashboard, the LED is how the operator knows what stat
 | Slow blink (1 Hz) | COOLDOWN | Wait for solid. |
 | Fast blink (5 Hz) | TRIPPED — thermal | Motor is hot. Clean the fan shroud. |
 | Double-blink then pause | TRIPPED — sensor fault | Do not use. Check probe wiring. |
+| Triple-blink then long pause | MANUAL_LOCKOUT | Repeated tripping. Investigate root cause, then power-cycle the ESP32 to clear. |
 | SOS (··· − − − ···) | Boot self-test failed | Do not use. Power-cycle. If it repeats, check wiring. |
 | Off | ESP32 unpowered or crashed pre-boot | Do not use. Check the power. |
 
@@ -253,10 +298,7 @@ protection_loop():
            or c < -20 or c > 150
            or abs(c - last_c) > 30:        // primed at boot; safe on first cycle
             digitalWrite(PIN_TX, LOW)
-            if state != TRIPPED:
-                state = TRIPPED
-                nvs_write("last_state", TRIPPED)
-            log("SENSOR_FAULT", raw, c)
+            record_trip("SENSOR_FAULT", raw, c)
             feed_watchdog()
             continue
 
@@ -266,9 +308,7 @@ protection_loop():
             case ARMED:
                 if c >= TRIP_C:
                     digitalWrite(PIN_TX, LOW)
-                    state = TRIPPED
-                    nvs_write("last_state", TRIPPED)
-                    log("OVERTEMP", c)
+                    record_trip("OVERTEMP", raw, c)
                 else:
                     digitalWrite(PIN_TX, HIGH)     // heartbeat continues
                     if c >= WARN_C: raise_alert("APPROACHING_TRIP")
@@ -289,6 +329,12 @@ protection_loop():
                     log("ARMED")
                     // Relay re-closing does NOT start the saw.
                     // Seal-in requires a physical Start press.
+
+            case MANUAL_LOCKOUT:
+                digitalWrite(PIN_TX, LOW)        // stays open, no auto-recovery
+                // No ack button in this build: clear only by power-cycle.
+                // Boot self-test will then land in COOLDOWN (or hold TRIPPED
+                // if the motor is still hot per BOOT_HOT_HOLD).
 
         // Probe-attachment self-verification (advisory only, never trips).
         // Once verified, we never un-verify — a probe that has warmed once is on.
@@ -316,7 +362,27 @@ ntc_to_celsius(raw):
     inv_t = 1/298.15 + (1/3950.0) * ln(r_ntc / 10000.0)
     return (1 / inv_t) - 273.15
 ```
-Sanity-check against a known temperature — ice water reads 0 °C, boiling reads 100 °C. Two points is enough to catch a wiring or math error.
+
+### Two-point calibration procedure
+
+Ice water and boiling water give two known temperature points. This catches wiring errors, math bugs, and part tolerance in one procedure. Do it before mounting the probe on the motor.
+
+1. **Measure `R_FIXED` with a meter.** Write that number into `ntc_to_celsius()` as the actual value, not the nominal 10000. A 5% carbon resistor labeled 10 kΩ can measure 9500–10500. This matters — every 1% off is a fraction of a degree of systematic error.
+2. **Ice bath.** Container of crushed ice with just enough water to cover. Stir 30 seconds. Submerge probe — not touching the vessel wall or bottom. Wait 2 minutes for the mass to equilibrate. Log `raw` and computed °C.
+3. **Boiling water.** Kettle-boil off the flame (avoids splash and steam artifacts). Submerge probe. Wait 30 seconds. Log `raw` and computed °C. Sea level = 100.0 °C; subtract ~1 °C per 300 m elevation.
+4. **Interpret:**
+    - **Both within ±2 °C of target →** you're done. Ship it.
+    - **Both offset by the same amount →** sensor tolerance. Apply an offset (`c_calibrated = c_raw + offset`).
+    - **Off in opposite directions →** β doesn't match the datasheet's 3950. Solve for the actual β:
+      ```
+      R_ntc_0C   = R_FIXED × V_0C   / (3.3 − V_0C)
+      R_ntc_100C = R_FIXED × V_100C / (3.3 − V_100C)
+      β_actual   = ln(R_ntc_100C / R_ntc_0C) / (1/373.15 − 1/273.15)
+      ```
+      Replace 3950 with `β_actual` in `ntc_to_celsius()`.
+5. **Re-verify.** Back in ice water, should read 0.0 ± 0.5 °C. Body-heat the tip between fingers — should read 30–35 °C.
+
+A miscalibrated probe reading 5 °C low means the operator sees "80 °C, healthy" when the frame is actually at 85 °C. Trip threshold effectively shifts up by the offset. Not catastrophic in this build (the receiver momentary-mode heartbeat is still fail-safe on power/firmware faults) but it defeats the whole point of having a temperature-based cutoff.
 
 ### Skip tonight
 Wi-Fi, web dashboard, flash logging. They are not protection. Get the cutout working; add them later. If you want live numbers during commissioning, serial output is enough.
@@ -372,7 +438,11 @@ Also verify the A202C's overload heaters are sized for 14.4 A FLA at SF 1.0 → 
 
 None are needed tonight. The heartbeat design means the ESP32 cannot fail closed, which is what the thermostat mainly protects against.
 
-**The one gap this build does have:** an ESP32 that is running fine but reading a *detached* probe. It would report cool air and keep transmitting. The implausibility checks catch a fully open probe, not one that has fallen off but still reads ambient. Clamp it properly, and during the first few sessions confirm the temperature actually rises when you cut.
+**The one gap this build does have:** an ESP32 that is running fine but reading a *detached* probe. It would report cool air and keep transmitting. The implausibility checks catch a fully open probe, not one that has fallen off but still reads ambient. The `probe_verified` latch in the firmware is a partial mitigation — it will log `PROBE_UNVERIFIED_AT_ARMED_TIME` after 30 minutes ARMED without a rise. During the first few sessions, confirm the temperature actually rises when you cut and that `PROBE_VERIFIED` appears in the serial log.
+
+### Note on FCC Part 15
+
+Continuous 433 MHz transmission during ARMED sits outside the periodic-control-signal duty cycle expectations of 47 CFR § 15.231. For a private shop the point is entirely academic — nobody is coming for you, and the transmit power on these encoder modules is well under the field-strength limits. Flagging it here so that if this design is ever shared, re-published, or scaled up beyond a single benchtop, the RF path is understood to be a compliance conversation rather than a certified solution. Path B replaces the RF link with a directly wired opto-isolated relay, which sidesteps the question entirely.
 
 ---
 
