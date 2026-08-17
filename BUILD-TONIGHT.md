@@ -172,6 +172,12 @@ Do not proceed until momentary behavior and hold time are both confirmed by obse
 
 ## 5. Firmware
 
+**This is now written.** [`firmware/`](firmware/) builds for this exact path as
+`path_a`, and [`firmware/README.md`](firmware/README.md) covers flashing it from a
+terminal in one command. What follows is the design this section originally
+specified, kept because it is the reasoning behind the code rather than a
+restatement of it — read it before changing a threshold.
+
 Same structure as the full handoff, with these changes:
 
 ```
@@ -198,10 +204,12 @@ DETACH_ALERT_MIN  = 30
 // spin the receiver relay open/closed every few minutes, spamming logs
 // and hiding the real problem. After MAX_CONSECUTIVE_TRIPS in
 // TRIP_WINDOW_MIN, drop into MANUAL_LOCKOUT — receiver stays open,
-// no auto-recovery. In this build (no ack button) the lockout clears
-// only by power-cycling the ESP32.
+// no auto-recovery. Clearing it needs a press of the ack button with
+// the motor below RESET_C: the lockout is persisted to NVS, so
+// power-cycling deliberately does NOT clear it (error code E07).
 MAX_CONSECUTIVE_TRIPS = 3
 TRIP_WINDOW_MIN       = 10
+PIN_ACK               = 27   // to GND, internal pullup, 30 ms debounce
 ```
 
 ### The inversion that matters
@@ -300,7 +308,7 @@ At the machine, without a dashboard, the LED is how the operator knows what stat
 | Slow blink (1 Hz) | COOLDOWN | Wait for solid. |
 | Fast blink (5 Hz) | TRIPPED — thermal | Motor is hot. Clean the fan shroud. |
 | Double-blink then pause | TRIPPED — sensor fault | Do not use. Check probe wiring. |
-| Triple-blink then long pause | MANUAL_LOCKOUT | Repeated tripping. Investigate root cause, then power-cycle the ESP32 to clear. |
+| Triple-blink then long pause | MANUAL_LOCKOUT | Repeated tripping. Investigate root cause, then press ack once the motor is cool. |
 | SOS (··· − − − ···) | Boot self-test failed | Do not use. Power-cycle. If it repeats, check wiring. |
 | Off | ESP32 unpowered or crashed pre-boot | Do not use. Check the power. |
 
@@ -369,9 +377,15 @@ protection_loop():
 
             case MANUAL_LOCKOUT:
                 digitalWrite(PIN_TX, LOW)        // stays open, no auto-recovery
-                // No ack button in this build: clear only by power-cycle.
-                // Boot self-test will then land in COOLDOWN (or hold TRIPPED
-                // if the motor is still hot per BOOT_HOT_HOLD).
+                if ack_button_pressed(debounce_ms=30):
+                    if c < RESET_C:
+                        state = COOLDOWN
+                        cooldown_start = now()
+                        consecutive_trips = 0
+                        nvs_write("last_state", COOLDOWN)
+                        log("LOCKOUT_CLEARED_BY_ACK")
+                    else:
+                        log("ACK_REJECTED_HOT", c)   // E08
 
         // Probe-attachment self-verification (advisory only, never trips).
         // Once verified, we never un-verify — a probe that has warmed once is on.
@@ -422,7 +436,12 @@ Ice water and boiling water give two known temperature points. This catches wiri
 A miscalibrated probe reading 5 °C low means the operator sees "80 °C, healthy" when the frame is actually at 85 °C. Trip threshold effectively shifts up by the offset. Not catastrophic in this build (the receiver momentary-mode heartbeat is still fail-safe on power/firmware faults) but it defeats the whole point of having a temperature-based cutoff.
 
 ### Skip tonight
-Wi-Fi, web dashboard, flash logging. They are not protection. Get the cutout working; add them later. If you want live numbers during commissioning, serial output is enough.
+
+Wi-Fi, the web dashboard and flash logging are not protection, so nothing below them
+should hold up getting the cutout working. They are implemented — the dashboard is
+genuinely useful during the baseline run in § 7 — but if any of it misbehaves, build with
+`-DSAW_NET_ENABLED=0` and use the serial output instead. The protection loop does not
+notice the difference; that is what SR-8 is for.
 
 ---
 
@@ -490,7 +509,7 @@ Continuous 433 MHz transmission during ARMED sits outside the periodic-control-s
 | 0:00–0:30 | Find charger and transistor. Clean the fan shroud. |
 | 0:30–1:30 | Bench NTC + ESP32. Verify readings against ice water and boiling. |
 | 1:30–2:30 | Solder transistor to fob. Program receiver to momentary. Verify drop-out. |
-| 2:30–3:30 | Firmware. |
+| 2:30–3:30 | Flash the firmware (`firmware/scripts/flash.sh all`) and calibrate. |
 | 3:30–4:30 | Bench-test all four fault modes in §7. |
 | 4:30–5:30 | Mount probe on frame. Mount ESP32 and charger in enclosure. |
 | 5:30–6:30 | Wire receiver into coil circuit. |

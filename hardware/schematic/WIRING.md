@@ -84,10 +84,29 @@ BSS138, AO3400, IRLML2502, IRLZ44N). Gate through 220 Ω, plus a
 
 | ESP32 pin | Behaviour |
 |---|---|
-| `GPIO2` | Onboard blue LED on the DevKitC. No external wire. Six patterns — see BUILD-TONIGHT.md § 5. |
+| `GPIO2` | Onboard LED on the DevKitC. No external wire. Six patterns — see BUILD-TONIGHT.md § 5. |
 
-There is **no ack button** in this build. `MANUAL_LOCKOUT` clears
-only by power-cycling the ESP32.
+If the board in front of you has no user LED on `GPIO2` — some DevKitC
+revisions only fit a power LED — wire one from `GPIO2` through a 330 Ω
+resistor to GND. Without it the operator loses the only indicator at
+the machine.
+
+## Ack button — GPIO27 to GND
+
+| Node | Goes to | Notes |
+|---|---|---|
+| One side | ESP32 `GPIO27` | Internal pullup, so the pin idles HIGH and a press pulls it LOW. No external resistor. |
+| Other side | Common GND bus | |
+
+The firmware fits this on **both** build paths, and it is the only way
+out of `MANUAL_LOCKOUT`. Power-cycling does not clear a lockout — the
+state is persisted to NVS precisely so that it cannot be, which is what
+error code `E07` publishes.
+
+Any scrounged momentary switch works. So does a bare wire touched from
+`GPIO27` to GND, which is enough to get a build commissioned before a
+proper button is fitted. A press is only accepted below `RESET_C`;
+pressed while the motor is still hot it is logged as `E08` and ignored.
 
 ## Receiver — mains side
 

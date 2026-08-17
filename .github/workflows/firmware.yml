@@ -1,0 +1,111 @@
+name: Firmware
+
+# The protection logic decides whether a table saw stops. Two gates on every change:
+# the host test suite, which exercises the state machine without any hardware, and a real
+# compile of every board environment, because a firmware that does not build is a saw with
+# no supervisor.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware.yml'
+  pull_request:
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-native-${{ hashFiles('firmware/platformio.ini') }}
+          restore-keys: pio-native-
+
+      - name: Install PlatformIO
+        run: python3 -m pip install --upgrade platformio
+
+      - name: Run the protection core's unit tests
+        # State machine, trip counter, SR-5 sensor validation, NTC maths, rate of rise,
+        # LED patterns, and the event-name to error-code mapping.
+        working-directory: firmware
+        run: pio test -e native -v
+
+  build:
+    name: Build ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [path_a, path_a_8mb, path_b, path_b_8mb]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-esp32-${{ hashFiles('firmware/platformio.ini') }}
+          restore-keys: pio-esp32-
+
+      - name: Install PlatformIO
+        run: python3 -m pip install --upgrade platformio
+
+      - name: Build
+        working-directory: firmware
+        run: pio run -e ${{ matrix.env }}
+
+      - name: Report flash and RAM use
+        # The 4 MB layout gives each OTA slot 1.5 MB. Printing the figure on every build
+        # means an overflow shows up as a trend rather than as a surprise.
+        working-directory: firmware
+        run: |
+          BIN=".pio/build/${{ matrix.env }}/firmware.bin"
+          if [ -f "$BIN" ]; then
+            SIZE=$(wc -c < "$BIN")
+            echo "firmware.bin: $SIZE bytes ($((SIZE / 1024)) KiB)"
+            echo "### ${{ matrix.env }}: $((SIZE / 1024)) KiB" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  generated-header:
+    name: Generated header is current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install the doc toolchain
+        run: python3 -m pip install -r tools/requirements.txt
+
+      - name: Regenerate and compare
+        # firmware/generated/error_codes.h is committed so the firmware builds on a machine
+        # with no Python toolchain — the premise of "plug the board in and flash it". The
+        # cost of committing a generated file is this check.
+        run: |
+          python3 tools/codedocs.py build
+          git diff --exit-code firmware/generated/error_codes.h \
+            || { echo "::error::firmware/generated/error_codes.h is stale — run python3 tools/codedocs.py build"; exit 1; }

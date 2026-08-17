@@ -7,6 +7,14 @@ sdkconfig.old
 managed_components/
 dependencies.lock
 
+# LittleFS image staging. scripts/flash.sh fs copies the generated error-code bundle in
+# here before `pio run -t uploadfs`; the source of truth is docs/codes/.
+firmware/data/
+
+# NOT ignored, deliberately: firmware/generated/error_codes.h. It is generated from
+# docs/codes/ but committed, so the firmware builds on a machine with PlatformIO and no
+# Python toolchain. CI fails if it goes stale.
+
 # Wireviz intermediates (keep only the .svg render alongside the .yml source)
 hardware/harness/*.png
 hardware/harness/*.html

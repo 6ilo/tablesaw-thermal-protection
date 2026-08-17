@@ -23,7 +23,62 @@ version bump.
 
 ## [Unreleased]
 
-Nothing yet.
+No registry version bump: no code changes meaning, and no code is added or retired. The
+firmware landing is a hardware/firmware change, and the two operator-page edits below are
+corrections to text that described a firmware limitation that no longer exists.
+
+### Added
+
+- **[`firmware/`](firmware/) — the ESP32 supervisor, written.** Arduino-ESP32 under
+  PlatformIO, with two build environments matching the project's two hardware paths:
+  `path_a` (frame NTC + 433 MHz heartbeat, per [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md)) and
+  `path_b` (winding K-type via MAX31855 + wired relay, per
+  [`ARCHITECTURE.md`](ARCHITECTURE.md)). One state machine and one output pin serve both;
+  GPIO26 means "the coil circuit may be closed" in either case.
+- **Protection logic as a host-testable core.** Everything that decides whether the saw
+  stops lives in `firmware/lib/saw_core/` as pure C++ with no Arduino dependency — the state
+  machine, the SR-5 validation rules, the rolling-window trip counter, the β-equation, the
+  rate-of-rise fit and the LED pattern engine. 76 unit tests run on a laptop in about a
+  second via `pio test -e native`, including a 5000-step pseudo-random walk that asserts the
+  contact is closed **only** in `ARMED`, and a check that every published error code is
+  reachable from an event name the firmware can actually emit.
+- **One-command flashing from a terminal.** `firmware/scripts/flash.sh` installs
+  PlatformIO if absent, finds the serial port, reads the board's real flash size with
+  esptool, picks the matching partition table, runs the tests, and uploads. Companion
+  [`flash-esp32`](.claude/skills/flash-esp32/SKILL.md) skill and [`CLAUDE.md`](CLAUDE.md) so
+  the whole procedure can be driven by asking for it.
+- **Local dashboard and log.** An `ALN Table Saw` access point serving live state, a
+  20-minute chart, the event log and the offline error-code bundle, plus a rotating flash
+  ring holding 30 days of aggregated samples and a streamable CSV export. Advisory only:
+  `POST /api/ack` clears alert bits and is the only mutating endpoint in the firmware.
+- **[`.github/workflows/firmware.yml`](.github/workflows/firmware.yml)** — host tests plus a
+  real compile of all four board environments on every change, and a staleness gate on the
+  generated header.
+
+### Changed
+
+- **`error_codes.h` is now committed at
+  [`firmware/generated/`](firmware/generated/error_codes.h)** rather than written into the
+  gitignored `build/`. The firmware has to compile on a machine that has PlatformIO and no
+  Python doc toolchain — that is the premise of "plug the board in and flash it" — so the
+  header is generated deterministically and CI fails if it drifts, exactly as
+  `docs/codes/README.md` already did.
+- **`E03` is now reachable.** The 1.0.0 notes recorded that the reference pseudocode routed
+  the staleness check through the same `trip("SENSOR_FAULT")` call as every other sensor
+  fault, so `E02` and `E03` could not be told apart. The firmware splits them on whether the
+  sensing chain *answered*: an amplifier reporting an open-circuit flag answers every cycle
+  and stays `E02`, while a bus silent for `SENSOR_TIMEOUT` becomes `E03`. `ARCHITECTURE.md`'s
+  pseudocode and [`E03.md`](docs/codes/E03.md)'s firmware note are updated to match.
+- **The ack button is fitted on both build paths.** `BUILD-TONIGHT.md` § 5 claimed a Path A
+  lockout "clears only by power-cycling the ESP32" while its own `setup()` pseudocode
+  honoured a persisted `MANUAL_LOCKOUT` across reboots — a contradiction, and `E07`
+  publishes the stricter reading. Honouring the persisted lockout is the safe behaviour, so
+  a build with no ack input would have no way out of lockout at all. `BUILD-TONIGHT.md` and
+  [`WIRING.md`](hardware/schematic/WIRING.md) now describe the GPIO27 input, which on Path A
+  can be any scrounged momentary switch or a bare wire touched to GND.
+- **The registry index now flags the Path A / Path B threshold difference.** The code pages
+  quote the winding figures; a Path A unit measures the frame at lower, provisional numbers,
+  and prints what it is really running in its boot log and on its dashboard.
 
 ## [1.0.0] — 2026-08-17
 

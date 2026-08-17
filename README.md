@@ -2,7 +2,7 @@
 
 Replacing a failed Klixon `BEC2921` manual-reset thermal protector on a Powermatic table saw with a two-layer protection system: a passive bimetallic thermostat as primary protection, plus an ESP32 supervisory monitor with logging and a web dashboard.
 
-**Status:** BOM verified. Two purchased parts unusable at the winding and repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)). Two build paths documented — see below.
+**Status:** BOM verified. Two purchased parts unusable at the winding and repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)). Two build paths documented — see below. Firmware written for both and covered by host tests; **not yet run on hardware**, so none of the commissioning procedures has been performed.
 
 ---
 
@@ -150,7 +150,8 @@ If Start doesn't pull in the contactor:
 | [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
 | [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |
 | [`hardware/`](hardware/) | Physical build artifacts — schematics, harnesses, [`BOM.csv`](hardware/BOM.csv). Every diagram is drawn for the parts on hand; the end-state design lives in `ARCHITECTURE.md` as prose and open TASKs. |
-| [`firmware/`](firmware/) | ESP32 supervisor source — src, tests, build config. Stub for now; the design lives in `ARCHITECTURE.md § Reference pseudocode` until it does. |
+| [`firmware/`](firmware/) | ESP32 supervisor source — protection core, drivers, dashboard, host tests, and a one-command flash script. Builds for both paths. |
+| [`CLAUDE.md`](CLAUDE.md) | Working notes for AI assistants — the safety requirements that constrain code, and what is generated rather than written. |
 | [`CHANGELOG.md`](CHANGELOG.md) | Change history, and what the version number in `VERSION` covers. |
 | [`LICENSE`](LICENSE) | MIT + safety-scope notice. |
 

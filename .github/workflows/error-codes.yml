@@ -7,9 +7,9 @@ name: Error code registry
 on:
   push:
     branches: [main]
-    paths: ['docs/codes/**', 'tools/**', 'ARCHITECTURE.md', 'README.md', 'VERSION', '.github/workflows/error-codes.yml']
+    paths: ['docs/codes/**', 'tools/**', 'ARCHITECTURE.md', 'README.md', 'VERSION', 'firmware/generated/**', '.github/workflows/error-codes.yml']
   pull_request:
-    paths: ['docs/codes/**', 'tools/**', 'ARCHITECTURE.md', 'README.md', 'VERSION', '.github/workflows/error-codes.yml']
+    paths: ['docs/codes/**', 'tools/**', 'ARCHITECTURE.md', 'README.md', 'VERSION', 'firmware/generated/**', '.github/workflows/error-codes.yml']
   workflow_dispatch:
 
 jobs:
@@ -37,6 +37,12 @@ jobs:
 
       - name: Committed index must match the generated one
         run: git diff --exit-code docs/codes/README.md
+
+      - name: Committed firmware header must match the generated one
+        # firmware/generated/error_codes.h is committed rather than built, so the firmware
+        # compiles on a machine that has PlatformIO and no Python doc toolchain. That is
+        # the premise of "plug the board in and flash it", and this is what it costs.
+        run: git diff --exit-code firmware/generated/error_codes.h
 
       - name: Device bundle must fit its flash budget
         # Flash is contested by the OTA app slots and the 30-day log ring buffer

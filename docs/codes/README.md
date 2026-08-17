@@ -13,7 +13,7 @@ for each. These pages are the **single source** for three artifacts:
 |---|---|---|
 | This index and the pages beside it | — | GitHub, for reading and review |
 | Offline HTML bundle | `tools/codedocs.py build` | LittleFS on the ESP32, served over the `ALN Table Saw` access point |
-| `error_codes.h` | `tools/codedocs.py build` | Firmware, so the device's code list cannot drift from the docs |
+| `error_codes.h` | `tools/codedocs.py build` | [`firmware/generated/`](../../firmware/generated/), so the device's code list cannot drift from the docs |
 
 Nothing here is hand-copied into firmware. If a code's text changes, the device's copy
 changes with it on the next build. See [issue #1](https://github.com/6ilo/tablesaw-thermal-protection/issues/1).
@@ -24,6 +24,13 @@ changes with it on the next build. See [issue #1](https://github.com/6ilo/tables
 > [ARCHITECTURE.md § Open questions](../../ARCHITECTURE.md#open-questions). Where a code
 > tells you another layer is still protecting the motor, confirm that layer is actually
 > fitted before you act on it.
+>
+> **The temperatures quoted on these pages are the Path B winding thresholds.** A
+> supervisor built to the parts-on-hand Path A measures the motor *frame* instead, at lower
+> and provisional thresholds — see
+> [BUILD-TONIGHT.md](../../BUILD-TONIGHT.md). Every unit prints the thresholds it is
+> actually running in its boot log and at the top of its dashboard; those are the numbers to
+> trust for the machine in front of you.
 
 ## The registry
 

@@ -1,0 +1,14 @@
+# Partition table for an 8 MB ESP32-WROOM-32E — the flash size the BOM's listing claims
+# for B0GF1ZJCCN. Verify before using it: `./scripts/flash.sh doctor` prints the real size
+# from esptool, and flashing an 8 MB table onto a 4 MB part produces a board that does not
+# boot.
+#
+# 2 MB per OTA slot and 3.875 MB of LittleFS, which is why this variant logs one record
+# per 60 s instead of per 120 s.
+#
+# Name,     Type, SubType, Offset,   Size,     Flags
+nvs,        data, nvs,     0x9000,   0x5000,
+otadata,    data, ota,     0xe000,   0x2000,
+app0,       app,  ota_0,   0x10000,  0x200000,
+app1,       app,  ota_1,   0x210000, 0x200000,
+littlefs,   data, spiffs,  0x410000, 0x3F0000,
