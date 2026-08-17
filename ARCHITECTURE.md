@@ -365,7 +365,9 @@ Required by SR-3. Specification:
 
 ## Software architecture
 
-Suggested stack: ESP-IDF or Arduino-ESP32. Wi-Fi and web server run on a separate task/core from the protection loop so a network stall cannot delay a trip.
+Implemented in [`firmware/`](firmware/) on Arduino-ESP32 under PlatformIO. Wi-Fi and web server run on a separate task/core from the protection loop so a network stall cannot delay a trip.
+
+Everything that decides whether the saw stops lives in [`firmware/lib/saw_core/`](firmware/lib/saw_core/) as pure C++ with no Arduino dependency, so the state machine, the sensor-validation rules and the threshold arithmetic are exercised on a host machine by `pio test -e native` before anything is flashed. Places where the implementation deliberately departs from the pseudocode below are listed in [`firmware/README.md § Deviations`](firmware/README.md#deviations-from-the-reference-pseudocode).
 
 ### Task layout
 
@@ -482,10 +484,13 @@ operator document quotes a value that disagrees with them. Changing a threshold 
 forgetting the operator docs is a build failure rather than something discovered at the
 machine.
 
-One gap between the registry and the pseudocode above: the staleness check in the
-protection loop calls `trip("SENSOR_FAULT")` like every other sensor fault, so `E02` and
-`E03` are not currently distinguishable. The timeout branch needs to emit its own cause.
-See [CHANGELOG.md](CHANGELOG.md).
+`E02` and `E03` are distinguished by whether the sensing chain **answered**, not by elapsed
+time alone. An amplifier that keeps reporting an open-circuit flag is answering every cycle,
+so it stays `E02` however long it goes on — the fault is in the probe. A bus that has gone
+silent for `SENSOR_TIMEOUT` becomes `E03`, because the fault is in the SPI link or the
+amplifier. The protection loop below emits the two causes separately, which
+[`firmware/`](firmware/) implements; earlier revisions of this document routed both through
+one `trip("SENSOR_FAULT")` call, which is why `E03` says what it says about the firmware.
 
 ### Status LED patterns
 
@@ -517,7 +522,7 @@ The check is soft by design. False alarms (the operator armed the saw and walked
 
 ## Reference pseudocode
 
-Structure only — not intended to compile. The protection task must be independent of Wi-Fi, NTP, and the web server.
+Structure only — not intended to compile; the compiling implementation is [`firmware/`](firmware/). The protection task must be independent of Wi-Fi, NTP, and the web server.
 
 ### Pin and constant definitions
 
@@ -616,13 +621,23 @@ protection_loop():
     loop forever:
         r = read_thermocouple()
 
-        // SR-5: any sensor doubt is a trip
-        if not r.ok
-           or r.fault_open or r.fault_short_gnd or r.fault_short_vcc
-           or r.celsius < -20 or r.celsius > 400
-           or (now() - last_valid_ms) > SENSOR_TIMEOUT_MS
-           or abs(r.celsius - last_valid_c) > 50:      // implausible jump
-            trip("SENSOR_FAULT")
+        // SR-5: any sensor doubt is a trip. Two causes, because they send the operator to
+        // different hardware — E02 is "answered and not believed" (the probe, its leads,
+        // its terminals), E03 is "did not answer at all" (the SPI bus, the amplifier).
+        believable = r.ok
+                     and not (r.fault_open or r.fault_short_gnd or r.fault_short_vcc)
+                     and r.celsius >= -20 and r.celsius <= 400
+                     and abs(r.celsius - last_valid_c) <= 50    // implausible jump
+
+        stale = (now() - last_valid_ms) > SENSOR_TIMEOUT_MS
+
+        if not believable or stale:
+            if stale and (believable or not r.ok):
+                trip("SENSOR_TIMEOUT")     // E03. A believable-but-stale reading lands
+                                           // here too: the loop was blind for the same
+                                           // interval a dead bus would have been.
+            else:
+                trip("SENSOR_FAULT")       // E02
             feed_watchdog()
             continue
 

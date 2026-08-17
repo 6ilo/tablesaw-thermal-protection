@@ -47,7 +47,10 @@ README = REPO / "README.md"
 INDEX_MD = CODES_DIR / "README.md"
 BUILD = REPO / "build"
 SITE_OUT = BUILD / "site"
-FW_OUT = BUILD / "firmware"
+# Committed, not a build artifact: the firmware has to compile on a machine with no
+# Python toolchain, which is the whole premise of "plug the board in and flash it".
+# render_error_codes_h() is therefore deterministic, and CI fails if this file is stale.
+FW_OUT = REPO / "firmware" / "generated"
 
 REPO_BLOB = "https://github.com/6ilo/tablesaw-thermal-protection/blob/main/"
 REPO_URL = "https://github.com/6ilo/tablesaw-thermal-protection"
@@ -567,17 +570,27 @@ def build(docs: list[Doc], *, with_qr: bool = True) -> list[str]:
     )
     written.append(str((SITE_OUT / "manifest.json").relative_to(REPO)))
 
-    header = env.get_template("error_codes.h.j2").render(
-        docs=[d.front for d in docs], registry_version=version,
-        commit=commit, commit_date=commit_date,
+    (FW_OUT / "error_codes.h").write_text(
+        render_error_codes_h(env, docs), encoding="utf-8"
     )
-    (FW_OUT / "error_codes.h").write_text(header, encoding="utf-8")
     written.append(str((FW_OUT / "error_codes.h").relative_to(REPO)))
 
     INDEX_MD.write_text(render_index_md(env, docs), encoding="utf-8")
     written.append(str(INDEX_MD.relative_to(REPO)))
 
     return written
+
+
+def render_error_codes_h(env: Environment, docs: list[Doc]) -> str:
+    """Deterministic — no commit or timestamp, because this artifact is committed.
+
+    It is committed because the firmware must build without this script having been run:
+    a Mac with PlatformIO and no Python doc toolchain has to be able to compile and flash.
+    Freshness is enforced in CI instead, the same way docs/codes/README.md is.
+    """
+    return env.get_template("error_codes.h.j2").render(
+        docs=[d.front for d in docs], registry_version=registry_version()
+    )
 
 
 def render_index_md(env: Environment, docs: list[Doc]) -> str:

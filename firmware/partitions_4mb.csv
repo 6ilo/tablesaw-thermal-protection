@@ -1,0 +1,19 @@
+# Partition table for a 4 MB ESP32-WROOM-32E. This is the default because it boots on a
+# 4 MB or an 8 MB part; an 8 MB table on a 4 MB chip does not boot at all.
+#
+# Two OTA slots so thresholds can be retuned after the commissioning baseline run without
+# opening the starter enclosure, and 896 KB of LittleFS for the log ring plus the offline
+# error-code bundle:
+#
+#   sample ring   360 000 B   (30 days at one 16-byte record per 120 s)
+#   event log      98 304 B   rotating, two generations
+#   codes bundle  ~40 000 B   gzipped HTML, CI caps it at 100 KiB
+#   ------------------------
+#   ~500 KB used of 896 KB
+#
+# Name,     Type, SubType, Offset,   Size,     Flags
+nvs,        data, nvs,     0x9000,   0x5000,
+otadata,    data, ota,     0xe000,   0x2000,
+app0,       app,  ota_0,   0x10000,  0x180000,
+app1,       app,  ota_1,   0x190000, 0x180000,
+littlefs,   data, spiffs,  0x310000, 0xE0000,
