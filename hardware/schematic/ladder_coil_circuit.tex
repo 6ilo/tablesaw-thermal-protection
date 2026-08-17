@@ -52,6 +52,16 @@
 \begin{circuitikz}[line width=0.9pt]
 
 % ============================================================
+% Provenance banner — which hardware this sheet is drawn for
+% ============================================================
+\node[font=\scriptsize\bfseries, tsmains, anchor=south west] at (0,3.6)
+  {PATH B TARGET --- THE THERMOSTAT (TASK-6) AND THE GPIO-DRIVEN
+   RELAY (TASK-3) ARE \textbf{NOT PURCHASED}.};
+\node[font=\scriptsize, tsmute, anchor=south west] at (0,3.2)
+  {The coil circuit as it can be built today is on
+   \texttt{pathA\_ladder\_coil\_circuit.svg}.};
+
+% ============================================================
 % Retrofit highlight — drawn first, behind everything
 % ============================================================
 \begin{scope}[on background layer]
@@ -68,9 +78,13 @@
 \draw[buswire] (0,2.6) -- (0,-4.8);
 \draw[buswire] (22,2.6) -- (22,-4.8);
 \node[font=\small\bfseries, anchor=south] at (0,2.7) {L1};
-\node[note, anchor=north west] at (0.15,2.62) {120\,V hot};
+% The A202C is available with either a 120 V or a 240 V coil and the
+% saw's has not been read off the coil label yet. Do not assert a
+% number here — it changes what the control rails are and, on the
+% Path A sheet, what the RF receiver's supply is tapped from.
+\node[note, anchor=north west] at (0.15,2.62) {control circuit hot};
 \node[font=\small\bfseries, anchor=south] at (22,2.7) {L2};
-\node[note, anchor=north east] at (21.85,2.62) {neutral / return};
+\node[note, anchor=north east] at (21.85,2.62) {control circuit return};
 \node[note, anchor=east] at (-0.25,0) {Rung 1};
 
 % ============================================================
@@ -110,8 +124,12 @@
 \node[note, anchor=north, align=center] at (7.4,-4.06)
   {NO auxiliary contact on M1.\\Carries the seal after START releases.};
 
+% TSTAT must open ABOVE the firmware's TRIP_THRESHOLD (110 °C) so
+% the ESP32 always acts first and the thermostat stays a backstop.
+% ARCHITECTURE.md § TASK-6 specifies 120–130 °C; this label used to
+% read 110 °C, which would have put both layers on the same number.
 \ncc{12.4}{0}
-\dlabel{12.4}{TSTAT}{NC bimetallic,\\opens $\sim$110\,\textdegree C,\\autoresets $\sim$70\,\textdegree C}
+\dlabel{12.4}{TSTAT}{NC bimetallic,\\opens 120--130\,\textdegree C,\\auto-reset}
 
 \noc{15.2}{0}
 \dlabel{15.2}{KA}{ESP32 relay, NO,\\opto-isolated,\\active-HIGH}
@@ -120,7 +138,7 @@
 \dlabel{18.0}{OL}{NC overload aux}
 
 \coilsym{20.6}{0}
-\dlabel{20.6}{M1}{contactor coil,\\Gould/ITE A202C,\\NEMA Size 1, 120\,V}
+\dlabel{20.6}{M1}{contactor coil,\\Gould/ITE A202C,\\NEMA Size 1.\\Read the coil voltage\\off the coil label.}
 
 % ============================================================
 % Series callout under TSTAT + KA
@@ -143,7 +161,7 @@
     STOP   & NC & operator command; broken wire also opens\\[1pt]
     START  & NO & --- (must be held until M1 aux seals in)\\[1pt]
     M1 aux & NO & loss of coil power breaks the seal\\[1pt]
-    TSTAT  & NC & winding $\sim$110\,\textdegree C, or a broken lead\\[1pt]
+    TSTAT  & NC & winding 120--130\,\textdegree C, or a broken lead\\[1pt]
     KA     & NO & anything that stops GPIO26 being driven HIGH\\[1pt]
     OL     & NC & sustained overcurrent\\
   \end{tabular}

@@ -1,0 +1,316 @@
+% ============================================================
+% pathA_supervisor.tex — low-voltage side, HARDWARE ON HAND.
+%
+% This sheet draws the three parts that were actually purchased
+% and nothing else:
+%
+%   B0GF1ZJCCN  ESP32-DevKitC-32E, 2-pack, USB-C, 38-pin
+%   B0F8NQ9S4R  DROK 10K/B3950 NTC probe, 3-pack, JST XH2.54
+%   B07CTL3TG6  VONVOFF 433 MHz RF switch kit (2 fobs + receiver)
+%
+% Companion sheet esp32_supervisor.svg draws the Path B target
+% hardware — MAX31855, opto relay module, isolated PSU module —
+% none of which has been bought. Do not build from that sheet.
+%
+% Differences from the Path B sheet that will bite a builder:
+%   * Power arrives through the board's USB-C connector, not VIN.
+%   * There is no MAX31855 and no thermocouple. The DROK NTC on
+%     GPIO34 is the only sensor, and here it IS the trip source.
+%   * GPIO26 does not drive a relay module. It gates the fob's
+%     ON-button pad through a level shifter, and the resulting
+%     433 MHz carrier is the heartbeat.
+%   * There is no ack button in this build (see BUILD-TONIGHT.md
+%     § 5 — MANUAL_LOCKOUT clears by power-cycle).
+%
+% Layout bands:
+%   y = 5.0 .. 10.4   USB supply, NTC divider, DROK probe
+%   y = 1.0 ..  5.0   GPIO26 -> pulldown -> level shifter -> fob
+%   y < -0.8          legends and title block
+%
+% Regenerate with:  make pathA_supervisor.svg
+% ============================================================
+\def\pgfsysdriver{pgfsys-dvisvgm.def}
+\documentclass[border=10pt,dvisvgm]{standalone}
+\input{tsstyle.tex}
+
+\begin{document}
+\begin{circuitikz}[line width=0.9pt]
+
+% ============================================================
+% Provenance banner — the whole point of this sheet
+% ============================================================
+\node[font=\scriptsize\bfseries, tssafe, anchor=south west] at (-11.4,11.0)
+  {PATH A --- DRAWN FOR THE HARDWARE ON HAND (BUILD-TONIGHT.md).
+   Every part on this sheet has an ASIN.};
+
+% ============================================================
+% UL-listed USB charger — the isolation barrier for this build
+% ============================================================
+\draw[block, fill=white] (-11.4,7.6) rectangle (-6.4,10.4);
+\draw[isoline] (-8.9,7.6) -- (-8.9,10.4);
+\node[font=\scriptsize\bfseries, tsmains, anchor=north] at (-10.15,10.3)
+  {PRIMARY};
+\node[font=\scriptsize\bfseries, tsselv, anchor=north] at (-7.65,10.3)
+  {SECONDARY};
+\node[note, anchor=north, tsmains] at (-10.15,9.3) {120\,V AC};
+\node[note, anchor=north, tsselv]  at (-7.65,9.3) {5\,V DC};
+
+\node[pinlbl, anchor=west] at (-11.28,9.6) {L};
+\node[pinlbl, anchor=west] at (-11.28,8.6) {N};
+\node[pinlbl, anchor=east] at (-6.52,9.4) {+5V};
+\node[pinlbl, anchor=east] at (-6.52,8.4) {GND};
+
+\node[font=\small\bfseries, tsink, anchor=north] at (-8.9,7.45)
+  {UL-listed USB charger};
+\node[note, anchor=north, align=center] at (-8.9,6.95)
+  {Any phone charger, $\geq$500\,mA. A listed charger \emph{is} a\\
+   certified reinforced-isolation AC-DC supply, so it needs\\
+   no verification the way the unidentified buck module does.\\[3pt]
+   Power enters through the board's \textbf{USB-C connector}.\\
+   There is no VIN wire anywhere in this build.};
+
+% mains cord — the only mains-potential wiring on this sheet
+\draw[mainswire] (-11.4,9.6) -- (-13.4,9.6);
+\draw[mainswire] (-11.4,8.6) -- (-13.4,8.6);
+\node[danger, anchor=east, align=right] at (-13.55,9.1)
+  {120\,V\\wall outlet};
+
+% ============================================================
+% USB-C cable into the DevKitC
+% ============================================================
+\draw[selvwire] (-6.4,9.4) -- (0,9.4);
+\node[netlbl, anchor=south, tsselv] at (-3.2,9.48) {+5\,V (SELV)};
+\draw[selvwire] (-6.4,8.4) -- (-5.2,8.4);
+\draw[selvwire] (-5.2,8.4) -- (-5.2,7.9);
+\draw (-5.2,7.9) node[ground, color=tsselv]{};
+
+% ============================================================
+% ESP32-DevKitC-32E — the board actually purchased
+% ============================================================
+\draw[block, fill=tspanelb] (0,0.6) rectangle (4.4,10.0);
+\node[font=\small\bfseries, tsink, align=center] at (2.2,6.4)
+  {ESP32-\\DevKitC-32E};
+\node[font=\scriptsize, tsmute, align=center] at (2.2,5.3)
+  {\texttt{B0GF1ZJCCN}\\ESP32-WROOM-32E\\\textbf{38-pin, USB-C}\\
+   8\,MB flash\\3.3\,V logic};
+
+% ---- left edge ----
+\node[pinlbl, anchor=west] at (0.12,9.4) {USB-C};
+\node[pinlbl, anchor=west] at (0.12,2.2) {GPIO2};
+
+\draw[wire] (0,2.2) -- (-1.5,2.2);
+\draw (-1.5,2.2) node[ocirc]{};
+\node[note, anchor=east, align=right] at (-1.75,2.2)
+  {onboard blue LED, internal to\\the module --- no external wire.\\
+   Six patterns; see BUILD-TONIGHT.md § 5.};
+
+% ---- right edge ----
+\node[pinlbl, anchor=east] at (4.28,8.6) {3V3};
+\node[pinlbl, anchor=east] at (4.28,7.0) {GPIO34};
+\node[pinlbl, anchor=east] at (4.28,3.2) {GPIO26};
+\node[pinlbl, anchor=east] at (4.28,1.2) {GND};
+
+\draw[wire] (4.4,1.2) -- (5.4,1.2);
+\draw[wire] (5.4,1.2) -- (5.4,0.75);
+\draw (5.4,0.75) node[ground]{};
+
+% ============================================================
+% NTC divider — 3V3 -> 10k -> GPIO34 -> DROK probe -> GND
+%
+% On this build the NTC is the TRIP SOURCE, not an advisory
+% secondary. That is the biggest behavioural difference from
+% the Path B sheet, where the K-type holds trip authority.
+% ============================================================
+\draw[wire] (4.4,8.6) -- (6.9,8.6);
+\draw[wire] (6.9,8.6) -- (6.9,8.25);
+\draw[wire] (6.9,7.0) to[R] (6.9,8.25);
+\node[pinlbl, anchor=west] at (7.15,7.75) {10\,k$\Omega$ 1\%};
+
+\draw[wire] (4.4,7.0) -- (6.9,7.0);
+\draw (6.9,7.0) node[circ]{};
+\node[siglbl, anchor=south] at (5.5,7.08) {ADC1\_CH6};
+
+% run out to the JST mating point
+\draw[wire] (6.9,7.0) -- (9.9,7.0);
+\draw[wire] (9.9,6.0) -- (8.4,6.0);
+\draw[wire] (8.4,6.0) -- (8.4,5.45);
+\draw (8.4,5.45) node[ground]{};
+\draw (9.9,7.0) node[ocirc]{};
+\draw (9.9,6.0) node[ocirc]{};
+\node[note, anchor=east] at (9.6,6.5) {JST XH 2.54, 2-pin};
+
+% ---- the DROK probe itself ----
+\draw[tsrule, line width=0.7pt, densely dashed, rounded corners=3pt]
+      (11.0,5.0) rectangle (17.4,9.0);
+\draw[wire] (9.9,7.0) -- (12.2,7.0);
+\draw[wire] (12.2,7.0) to[thermistor] (12.2,6.0);
+\draw[wire] (12.2,6.0) -- (9.9,6.0);
+\node[font=\small\bfseries, tsink, anchor=north west] at (13.0,8.85)
+  {DROK NTC probe};
+\node[note, anchor=north west, align=left] at (13.0,8.35)
+  {\texttt{B0F8NQ9S4R}, supplied as a 3-pack\\
+   10\,k$\Omega$ / B3950, 1\,\% --- $-25$ to $+125$\,\textdegree C\\
+   5$\times$25\,mm stainless body, 1\,m PVC lead\\
+   3--5\,V, 0--10\,mA};
+\node[note, anchor=north west, align=left, tssafe] at (13.0,6.7)
+  {Seated in a fin channel on the \textbf{motor}\\
+   \textbf{frame} with thermal grease, insulated\\
+   on the outboard face. Not at the winding:\\
+   the PVC lead and the 125\,\textdegree C ceiling both\\
+   rule that out. See BUILD-TONIGHT.md § 6.};
+
+% ============================================================
+% GPIO26 -> fail-safe pulldown -> level shifter -> fob
+% ============================================================
+\draw[wire] (4.4,3.2) -- (7.6,3.2);
+\draw[wire] (7.6,3.2) to[R] (8.9,3.2);
+\draw[wire] (8.9,3.2) -- (9.6,3.2);
+\node[siglbl, anchor=south] at (5.2,3.28) {heartbeat};
+\node[pinlbl, anchor=south] at (8.25,3.42) {330\,$\Omega$};
+
+% 10k pulldown — same mandatory part as Path B, different load
+\draw (6.2,3.2) node[circ]{};
+\draw[wire] (6.2,3.2) to[R] (6.2,1.95);
+\draw[wire] (6.2,1.95) -- (6.2,1.65);
+\draw (6.2,1.65) node[ground]{};
+\node[note, anchor=east, tssafe, align=right] at (5.95,2.5)
+  {10\,k$\Omega$ pulldown\\(mandatory)};
+
+% ---- optocoupler: the recommended level shifter ----
+% Same treatment as the charger block above: the dashed line down
+% the middle IS the barrier, so no lettering may sit on it.
+\draw[block, fill=white] (9.6,1.6) rectangle (13.4,4.2);
+\draw[isoline] (11.5,1.6) -- (11.5,4.2);
+\node[font=\scriptsize\bfseries, tsink, anchor=north] at (10.55,4.1)
+  {INPUT LED};
+\node[font=\scriptsize\bfseries, tsselv, anchor=north] at (12.45,4.1)
+  {OUTPUT};
+\node[pinlbl, anchor=west] at (9.72,3.2) {A};
+\node[pinlbl, anchor=west] at (9.72,2.2) {K};
+\node[pinlbl, anchor=east] at (13.28,3.2) {C};
+\node[pinlbl, anchor=east] at (13.28,2.2) {E};
+\node[font=\small\bfseries, tsink, anchor=north] at (11.5,1.45)
+  {Optocoupler};
+\node[note, anchor=north, align=center, tssafe] at (11.5,0.95)
+  {PC817 / 4N25 / 4N35. Galvanic isolation between\\
+   the ESP32 and the fob --- no shared ground needed.};
+
+\draw[wire] (9.6,2.2) -- (8.0,2.2);
+\draw[wire] (8.0,2.2) -- (8.0,1.65);
+\draw (8.0,1.65) node[ground]{};
+
+% ============================================================
+% VONVOFF fob — the transmitter half of B07CTL3TG6
+% ============================================================
+\draw[block, fill=tspanel] (15.2,1.2) rectangle (19.6,5.0);
+\node[font=\small\bfseries, tsink, anchor=north] at (17.4,4.88)
+  {VONVOFF fob};
+\node[note, anchor=north, align=center] at (17.4,4.42)
+  {\texttt{B07CTL3TG6} --- two supplied\\
+   433\,MHz, EV1527 / PT2262-style\\encoder, 12\,V A23 cell};
+\node[pinlbl, anchor=west] at (15.32,3.2) {ON pad};
+\node[pinlbl, anchor=west] at (15.32,2.2) {BAT$-$};
+
+\draw[wire] (13.4,3.2) -- (15.2,3.2);
+\draw[wire] (13.4,2.2) -- (15.2,2.2);
+\node[note, anchor=south] at (14.3,3.32) {encoder side};
+
+% RF emission
+\draw[tsselv, line width=1pt] (19.6,4.0) -- (20.3,4.0);
+\foreach \r in {0.45,0.8,1.15}{
+  \draw[tsselv, line width=0.8pt] (20.3,4.0) ++(-34:\r) arc (-34:34:\r);
+}
+\node[note, anchor=west, tsselv, align=left] at (21.8,4.0)
+  {433\,MHz carrier, emitted \emph{continuously}\\
+   while GPIO26 is HIGH. The receiver and the\\
+   coil circuit are on\\\texttt{pathA\_ladder\_coil\_circuit.svg}.};
+
+% ============================================================
+% Legends
+% ============================================================
+\node[legendbox, anchor=north west, text width=8.2cm] at (-13.6,-0.8) {%
+  \textbf{The inversion that makes this fail-safe}\\[4pt]
+  There is no relay the ESP32 can \emph{open}. The receiver is
+  programmed to \textbf{momentary} mode instead, so its contact is
+  closed only while a carrier is arriving. GPIO26 HIGH $=$ fob
+  transmitting $=$ contact closed $=$ the coil may be
+  energised.\\[5pt]
+  \begin{tabular}{@{}p{4.0cm}@{\hspace{4pt}}p{3.5cm}@{}}
+    \textbf{Fault} & \textbf{Result}\\[2pt]
+    ESP32 power loss        & TX stops, contact opens\\[1pt]
+    Firmware hang           & watchdog stops TX\\[1pt]
+    NTC open or shorted     & firmware stops TX\\[1pt]
+    Fob cell dies           & TX stops\\[1pt]
+    Jammed or out of range  & no carrier decoded\\[1pt]
+    GPIO26 floating at boot & 10\,k$\Omega$ pulldown wins\\
+  \end{tabular}\\[5pt]
+  Every one of them stops the saw. Nuisance stops are the accepted
+  cost of having protection at all.
+};
+
+\node[legendbox, anchor=north west, text width=8.0cm] at (-4.8,-0.8) {%
+  \textbf{If no optocoupler turns up}\\[4pt]
+  Same node, different part. All three keep the 10\,k$\Omega$
+  pulldown on GPIO26.\\[4pt]
+  \begin{tabular}{@{}p{1.75cm}@{\hspace{4pt}}p{5.45cm}@{}}
+    NPN & 2N3904 / 2N2222 / BC547, 1\,k$\Omega$ base resistor,
+          collector to the ON pad, emitter to fob BAT$-$.
+          \textbf{Ties ESP32 GND to fob GND.}\\[3pt]
+    MOSFET & 2N7000 / BSS138 / AO3400 low-side on the fob's battery
+          negative, 100\,k$\Omega$ gate to source. Switches fob
+          \emph{power} rather than the button.\\[3pt]
+    Reed relay & Coil driven by the NPN circuit with a flyback diode,
+          contacts in the fob's battery positive lead.\\
+  \end{tabular}\\[4pt]
+  \textcolor{tsmains}{\textbf{Never}} wire GPIO26 straight to the ON
+  pad. The pad sits on the fob's 12\,V rail and will destroy the
+  ESP32.
+};
+
+\node[legendbox, anchor=north west, text width=7.4cm] at (4.0,-0.8) {%
+  \textbf{Bench checks before this goes near the saw}\\[4pt]
+  \begin{tabular}{@{}p{0.35cm}@{}p{6.5cm}@{}}
+    1 & Measure the 10\,k$\Omega$ divider resistor and put the
+        \emph{actual} value into the $\beta$ equation. A 5\,\% part
+        can measure 9.5--10.5\,k$\Omega$.\\[3pt]
+    2 & Two-point calibrate in ice water and boiling water before
+        the probe is mounted (§ 5).\\[3pt]
+    3 & With the ESP32 unpowered, confirm the fob is \emph{not}
+        transmitting and the receiver contact is open.\\[3pt]
+    4 & GPIO34 is input-only and on ADC1. Do not move the divider
+        to an ADC2 pin --- those read zero once Wi-Fi is up.\\[3pt]
+    5 & Watch the contact for 60\,s with the probe cold. Any
+        drop-out means the encoder is not producing a continuous
+        frame stream.\\
+  \end{tabular}
+};
+
+\node[legendbox, anchor=north west, text width=6.8cm] at (11.6,-0.8) {%
+  \textbf{Deliberately absent}\\[4pt]
+  No MAX31855, no thermocouple, no opto relay module, no bimetallic
+  thermostat, no isolated PSU module, no ack button. None of those
+  parts has been purchased. They appear on the Path B sheets, which
+  are a \emph{target}, not a build.\\[6pt]
+  \textbf{Elsewhere}\\[3pt]
+  \begin{tabular}{@{}p{2.6cm}@{\hspace{4pt}}p{3.4cm}@{}}
+    Receiver, coil circuit & \texttt{pathA\_ladder\_}\\
+                           & \texttt{coil\_circuit.svg}\\[2pt]
+    Pin-to-pin table       & \texttt{WIRING-PATH-A.md}\\[2pt]
+    Firmware, thresholds   & \texttt{BUILD-TONIGHT.md} § 5\\[2pt]
+    Probe mounting         & \texttt{BUILD-TONIGHT.md} § 6\\
+  \end{tabular}
+};
+
+% ============================================================
+% Title block
+% ============================================================
+\node[titleblock, anchor=north west, text width=6.6cm] at (19.4,-0.8) {%
+  {\normalsize\bfseries Supervisor --- Path A (parts on hand)}\\[2pt]
+  {\color{tsmute}Signal schematic, low-voltage side}\\[5pt]
+  {\color{tsmute}Table-saw thermal protection retrofit}\\
+  {\color{tsmute}Pin-level truth: \texttt{WIRING-PATH-A.md}}\\
+  {\color{tsmute}Source: \texttt{pathA\_supervisor.tex}}%
+};
+
+\end{circuitikz}
+\end{document}

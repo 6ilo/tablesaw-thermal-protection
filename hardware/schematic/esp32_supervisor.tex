@@ -1,5 +1,5 @@
 % ============================================================
-% esp32_supervisor.tex — low-voltage side, design of record.
+% esp32_supervisor.tex — low-voltage side, Path B target.
 %
 % Board-level view of the enclosure interior: isolated 5 V rail
 % feeding the ESP32, MAX31855 SPI thermocouple front-end, NTC
@@ -25,13 +25,28 @@
 \begin{circuitikz}[line width=0.9pt]
 
 % ============================================================
+% Provenance banner — which hardware this sheet is drawn for
+% ============================================================
+\node[font=\scriptsize\bfseries, tsmains, anchor=south west] at (-4.6,10.6)
+  {PATH B TARGET --- MAX31855, RELAY MODULE AND ISOLATED PSU ARE
+   \textbf{NOT PURCHASED} (TASK-1/2/3).};
+\node[font=\scriptsize, tsmute, anchor=south west] at (-4.6,10.2)
+  {For the hardware actually on hand, build from
+   \texttt{pathA\_supervisor.svg} and \texttt{WIRING-PATH-A.md}.};
+
+% ============================================================
 % ESP32-DevKitC-32E
+%
+% The purchased board (B0GF1ZJCCN) is the 38-pin USB-C variant.
+% Every GPIO used below is present on it. The pin assignments
+% are unchanged from the 30-pin DOIT-style board, which also
+% carries all of them — but the label has to match the part.
 % ============================================================
 \draw[block, fill=tspanelb] (0,0.6) rectangle (4.2,9.8);
 \node[font=\small\bfseries, tsink, align=center] at (2.1,5.6)
   {ESP32-\\DevKitC-32E};
 \node[font=\scriptsize, tsmute, align=center] at (2.1,4.6)
-  {30-pin variant\\3.3\,V logic};
+  {\texttt{B0GF1ZJCCN}\\38-pin, USB-C\\3.3\,V logic};
 
 % ---- left edge: power ----
 \node[pinlbl, anchor=west] at (0.12,9.0) {VIN};

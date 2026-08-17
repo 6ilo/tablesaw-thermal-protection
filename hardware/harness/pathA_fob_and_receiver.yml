@@ -1,0 +1,177 @@
+# Wireviz source for the Path A heartbeat path: ESP32 GPIO26 through a
+# level shifter into the VONVOFF fob, and the VONVOFF receiver landed
+# in the coil circuit.
+#
+# PATH A — HARDWARE ON HAND. The Path B equivalent is mains_and_coil.yml,
+# which models a dry COM/NO/NC relay module and an isolated PSU module.
+# Neither part has been purchased.
+#
+# Two properties of the purchased receiver drive this harness and are
+# not properties of a relay module:
+#
+#   1. It is LINE-POWERED. Its AC-IN pair is tapped across the control
+#      rails AHEAD of the seal-in, so the unit is powered and listening
+#      before START is pressed.
+#   2. Its OUT pair may not be a dry contact. Meter AC-IN L against each
+#      OUT pin with the unit unpowered before wiring — see the notes on
+#      the RX connector.
+#
+# Render:  wireviz hardware/harness/pathA_fob_and_receiver.yml
+
+metadata:
+  title: Path A heartbeat path — fob drive and receiver landings
+  description: |
+    The ESP32 has no relay to open. It holds the fob's ON pad asserted
+    through an optocoupler, the fob emits a continuous 433 MHz carrier,
+    and a receiver programmed to MOMENTARY mode holds its contact closed
+    only while that carrier arrives. Anything that stops the carrier
+    opens the contact and drops the contactor coil.
+
+    The RF hop is deliberately NOT drawn as a cable — it is an air gap,
+    and treating it as a conductor is how someone talks themselves into
+    trusting it. See pathA_ladder_coil_circuit.svg for the coil circuit
+    and pathA_supervisor.svg for the board.
+
+options:
+  fontname: sans-serif
+  bgcolor: white
+  color_mode: full
+
+connectors:
+  # ----- low-voltage side, SELV throughout -----
+  ESP:
+    type: ESP32-DevKitC-32E
+    subtype: B0GF1ZJCCN, 38-pin USB-C
+    pincount: 2
+    pinlabels: [GPIO26, GND]
+    notes: |
+      A 10 kΩ pulldown from GPIO26 to GND is mandatory and is fitted at
+      the board, not here. Floating GPIO26 on boot, crash or brown-out
+      must mean not-transmitting.
+  OPTO:
+    type: Optocoupler
+    subtype: PC817 / 4N25 / 4N35
+    pincount: 4
+    pinlabels: [A, K, C, E]
+    notes: |
+      330 Ω in series with the anode. Galvanic isolation means the ESP32
+      and the fob need no shared ground. Substituting an NPN (2N3904 etc.)
+      works but does tie ESP32 GND to fob GND.
+  FOB:
+    type: VONVOFF key fob
+    subtype: B07CTL3TG6, 433 MHz, 12 V A23 cell
+    pincount: 2
+    pinlabels: [ON-pad, BAT-]
+    notes: |
+      Open the fob and meter the ON button's two pads. One is fob ground;
+      the other goes to the encoder IC. Solder to the encoder side. The
+      pad sits on the fob's 12 V rail — a direct GPIO connection destroys
+      the ESP32. Two fobs are supplied; keep the second sealed as a spare.
+
+  # ----- mains side, inside the starter enclosure -----
+  L1CTL:
+    type: Control circuit L1
+    pincount: 1
+    pinlabels: [L1]
+    notes: |
+      Ahead of STOP and the seal-in. Read the A202C's coil voltage off
+      the coil label before tapping — the receiver accepts AC 100–240 V
+      single phase, so either a 120 V or a 240 V control circuit is fine,
+      but the tap has to match it.
+  L2CTL:
+    type: Control circuit L2 / return
+    pincount: 1
+    pinlabels: [L2]
+  RX:
+    type: VONVOFF RF receiver
+    subtype: B07CTL3TG6, AC 100-240 V, 30 A on a 40 A relay
+    pincount: 4
+    pinlabels: [AC-IN L, AC-IN N, OUT 1, OUT 2]
+    notes: |
+      MUST be programmed to momentary --- point movement, one press of the
+      learn button --- before it goes anywhere near the coil circuit. The
+      factory default is interlock, which latches and is fail-dangerous.
+
+      Before wiring, with the receiver UNPOWERED, meter continuity from
+      AC-IN L to OUT 1 and to OUT 2:
+        * isolated on both: a genuine dry contact
+        * one pin bonded: an internally-derived switched line
+      The head-of-rung placement drawn in pathA_ladder_coil_circuit.svg
+      is correct either way, which is why it is drawn there.
+  SEAL:
+    type: Starter seal-in network
+    subtype: STOP, START and A202C aux
+    pincount: 1
+    pinlabels: [in]
+    notes: Downstream of the receiver. Feeds OL, then the M1 coil, then L2.
+
+cables:
+  W_GPIO_OPTO:
+    gauge: 24 AWG
+    length: 0.1
+    wirecount: 2
+    colors: [BN, BK]
+    notes: Brown carries the heartbeat through the 330 Ω series resistor.
+  W_OPTO_FOB:
+    gauge: 24 AWG
+    length: 0.2
+    wirecount: 2
+    colors: [BN, BK]
+    notes: |
+      Keep this short and strain-relieve it at the fob. The fob is a
+      moulded plastic case being asked to live in a shop enclosure.
+  W_L1_RX:
+    gauge: 16 AWG
+    length: 0.3
+    wirecount: 1
+    colors: [BK]
+    notes: Supply tap for the receiver's own electronics.
+  W_L2_RX:
+    gauge: 16 AWG
+    length: 0.5
+    wirecount: 1
+    colors: [WH]
+  W_L1_OUT1:
+    gauge: 16 AWG
+    length: 0.2
+    wirecount: 1
+    colors: [BK]
+    notes: |
+      Jumper feeding the contact's line side. FIT THIS ONLY IF the meter
+      check on the RX connector showed a genuine dry contact. If OUT 1 is
+      internally bonded to AC-IN L, the bond already does this and adding
+      the jumper just doubles a conductor.
+  W_RX_SEAL:
+    gauge: 16 AWG
+    length: 0.3
+    wirecount: 1
+    colors: [BK]
+    notes: |
+      Ring terminals, torqued per the A202C label (#14–#10 at 35 in-lb).
+      30 A contacts on a roughly 1 A coil load is enormous margin.
+
+connections:
+  # ----- heartbeat drive, SELV -----
+  - - ESP: [1, 2]
+    - W_GPIO_OPTO: [1, 2]
+    - OPTO: [1, 2]        # A, K
+  - - OPTO: [3, 4]        # C, E
+    - W_OPTO_FOB: [1, 2]
+    - FOB: [1, 2]
+
+  # ----- receiver supply: across the rails, upstream of the seal-in -----
+  - - L1CTL: [1]
+    - W_L1_RX: [1]
+    - RX: [1]             # AC-IN L
+  - - L2CTL: [1]
+    - W_L2_RX: [1]
+    - RX: [2]             # AC-IN N
+
+  # ----- receiver output: head of the rung, into the seal-in network -----
+  # Dry-contact case only; see the W_L1_OUT1 note.
+  - - L1CTL: [1]
+    - W_L1_OUT1: [1]
+    - RX: [3]             # OUT 1
+  - - RX: [4]             # OUT 2
+    - W_RX_SEAL: [1]
+    - SEAL: [1]

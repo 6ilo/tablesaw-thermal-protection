@@ -6,6 +6,17 @@
 
 **What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
 
+**Diagrams for this build** — drawn for these exact parts, not the Path B target:
+
+| Sheet | Shows |
+|---|---|
+| [`hardware/schematic/pathA_supervisor.svg`](hardware/schematic/pathA_supervisor.svg) | Board side — USB-C power, NTC divider, fob drive |
+| [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg) | Receiver in the coil circuit |
+| [`hardware/schematic/WIRING-PATH-A.md`](hardware/schematic/WIRING-PATH-A.md) | Pin-to-pin table |
+| [`hardware/harness/`](hardware/harness/) | `pathA_frame_probe.yml`, `pathA_fob_and_receiver.yml` |
+
+Everything under `hardware/` whose name does *not* start with `pathA` is Path B and contains parts that have not been bought.
+
 ---
 
 ## 1. Architecture
@@ -17,8 +28,8 @@ NTC probe on motor frame
    ESP32  ──(transistor)──▶  433 MHz fob  ))) ▶  Receiver (MOMENTARY mode)
    in old switch compartment                          │
    powered by USB charger                             ▼
-                                          relay contacts in series
-                                          with contactor coil
+                                          receiver at the head of the
+                                          coil-circuit rung — see § 3
 ```
 
 **The fail-safe principle:** the receiver is programmed to **momentary** mode. Its relay is closed *only while receiving*. The ESP32 holds the fob button continuously while the motor is safe. Anything that stops transmission opens the relay.
@@ -102,11 +113,28 @@ Galvanic isolation between ESP32 and fob. No shared ground needed.
 - Verify: with the ESP32 unpowered, the fob must not transmit and the receiver relay must be open.
 
 ### Receiver into the coil circuit
+
+Drawn in [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg).
+
 ```
-… seal-in ──▶ Receiver COM/NO ──▶ Coil ──▶ OL ──▶ L2
+L1 ──▶ Receiver ──▶ STOP ──▶ [START ∥ M1 aux] ──▶ OL ──▶ Coil ──▶ L2
+        ▲     ▲
+        └─────┴── AC-IN pair, tapped across L1/L2 ahead of everything
 ```
-- Use COM and NO only. Leave NC unconnected.
+
+**The receiver goes at the head of the rung, not between the seal-in and the coil.** This is not a stylistic choice — it follows from the part:
+
+- **It is line-powered.** Unlike a dry relay module, this unit needs its own AC supply to run its receiver and relay. Tap that supply across the control rails *upstream of the seal-in*. Feed it from downstream and the receiver is dead — contact open — at the instant START is pressed, so the coil never latches and the saw never starts.
+- **Head-of-rung works whether or not the output is a dry contact.** Before wiring, with the receiver **unpowered**, meter continuity from the AC input line terminal to each output terminal:
+
+  | Meter says | What you have |
+  |---|---|
+  | Output isolated from AC-IN on both pins | A genuine dry contact. Fit a jumper from L1 to the output's line-side terminal. |
+  | An output pin bonded to AC-IN L (or N) | An internally-derived switched line. The internal bond already feeds it — no jumper. |
+
+- **Everything downstream is unchanged.** STOP still breaks the rung. The seal-in still requires a physical START press after any trip.
 - 30 A contacts on a ~1 A coil load — enormous margin.
+- Read the A202C's **coil voltage off the coil label** before tapping. The receiver accepts AC 100–240 V single phase, so a 120 V or a 240 V control circuit both work, but the tap has to match the one you actually have.
 - Ring terminals on the coil-circuit taps, torqued per the A202C label (#14–#10 at 35 in-lb).
 
 ---

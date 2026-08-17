@@ -1,0 +1,90 @@
+# Wireviz source for the Path A sensor run: the DROK NTC probe on the
+# motor frame back to the ESP32 enclosure.
+#
+# PATH A — HARDWARE ON HAND. The Path B equivalent is motor_pigtail.yml,
+# which carries a K-type thermocouple and thermostat leads into the
+# motor interior. Neither of those parts has been purchased, and this
+# run does not enter the motor at all: the probe clamps to the outside
+# of the frame.
+#
+# Render:  wireviz hardware/harness/pathA_frame_probe.yml
+
+metadata:
+  title: Path A frame-temperature probe run
+  description: |
+    DROK B0F8NQ9S4R NTC probe (10 kΩ / B3950, −25 to +125 °C) seated in
+    a fin channel on the motor frame with thermal grease, clamped, and
+    insulated on its outboard face. The 1 m PVC lead is extended to the
+    ESP32 enclosure.
+
+    This probe is the TRIP SOURCE in Path A — there is no K-type and no
+    thermostat. It reads frame temperature, which trails the winding, so
+    thresholds come from an observed baseline (BUILD-TONIGHT.md § 7
+    steps 8–9), not from the 110 °C winding figure in ARCHITECTURE.md.
+
+    Nothing on this run is at mains potential. The motor frame is bonded
+    to safety ground, which is why the stainless probe body may contact
+    it directly and no AlN substrate is needed here.
+
+options:
+  fontname: sans-serif
+  bgcolor: white
+  color_mode: full
+
+connectors:
+  PROBE:
+    type: DROK NTC probe
+    subtype: B0F8NQ9S4R, 5 x 25 mm stainless, 10 kΩ B3950 1%
+    pincount: 2
+    pinlabels: [NTC-A, NTC-B]
+    notes: |
+      Non-polarised — it is a thermistor, not a diode. Rated −25 to
+      +125 °C, 3–5 V, 0–10 mA. Supplied as a 3-pack, so a spare can be
+      kept on the bench for calibration comparison.
+  JST:
+    type: Factory JST connector
+    subtype: XH 2.54 mm, 2-pin
+    pincount: 2
+    # Quoted: bare YAML scalars here would parse as ints and crash wireviz.
+    pinlabels: ["1", "2"]
+    notes: |
+      Cut it off and solder to the extension if you do not have the
+      mating half. Keep the joint inside the enclosure, not out on the
+      motor where dust and vibration reach it.
+  ENC:
+    type: Enclosure terminal block
+    subtype: 2-way, screw
+    pincount: 2
+    pinlabels: [ADC, GND]
+    notes: |
+      ADC lands on the divider junction (ESP32 GPIO34, ADC1_CH6).
+      GND lands on the common ground bus.
+
+cables:
+  PROBE_LEAD:
+    gauge: 26 AWG
+    length: 1.0
+    wirecount: 2
+    colors: [RD, BK]
+    notes: |
+      The probe's own moulded PVC lead. PVC is fine here — the frame
+      runs 60–75 °C on a healthy TEFC motor. It is exactly why this
+      probe cannot go at the winding.
+  EXTENSION:
+    gauge: 22 AWG
+    length: 2.0
+    wirecount: 2
+    colors: [RD, BK]
+    notes: |
+      Scrap hookup wire is acceptable. Route clear of the belt, the
+      pulleys, and the fan shroud outlet — and do not let it obstruct
+      cooling airflow to a motor whose failure mode is restricted
+      cooling airflow.
+
+connections:
+  - - PROBE: [1, 2]
+    - PROBE_LEAD: [1, 2]
+    - JST: [1, 2]
+  - - JST: [1, 2]
+    - EXTENSION: [1, 2]
+    - ENC: [1, 2]

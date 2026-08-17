@@ -52,6 +52,8 @@ Same-day protection using only parts on hand. Fail-safe via a **heartbeat** desi
 - No passive thermostat yet.
 - Nuisance-stop-prone by design. That's the correct direction — the alternative is unprotected running.
 
+Drawn for these exact parts: [`hardware/schematic/pathA_supervisor.svg`](hardware/schematic/pathA_supervisor.svg) (board), [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg) (coil circuit), [`hardware/schematic/WIRING-PATH-A.md`](hardware/schematic/WIRING-PATH-A.md) (pin table).
+
 ### Path B — Full retrofit → [ARCHITECTURE.md](ARCHITECTURE.md)
 
 End-state design. Two independent layers wired in series with the contactor coil:
@@ -69,6 +71,8 @@ flowchart LR
 - **Layer 2 — ESP32 supervisor.** K-type thermocouple bonded to the winding end turns via an AlN substrate, read through a MAX31855. Drives a **wired, opto-isolated relay** (energized-to-close) directly from a GPIO — no RF in the safety path.
 - Trip threshold below the thermostat's, so the ESP32 acts first in normal operation. The thermostat is the backstop.
 - Rate-of-rise tracking on a local web dashboard warns before a trip — the genuinely new capability, because it can tell the operator the shroud needs cleaning *before* the motor cooks.
+
+Drawn as the target: [`hardware/schematic/esp32_supervisor.svg`](hardware/schematic/esp32_supervisor.svg), [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg), [`hardware/schematic/oneline_mains.svg`](hardware/schematic/oneline_mains.svg). Each carries a banner naming the parts on it that have not been bought.
 
 Path B is what the saw ends up with. Path A is what gets it running until the missing parts (thermostat, K-type + MAX31855, isolated bench supply) arrive.
 
@@ -135,7 +139,7 @@ If Start doesn't pull in the contactor:
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
 | [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
-| [`hardware/`](hardware/) | Physical build artifacts — schematics, BOM.csv, photos, datasheets. Stub for now; the design lives in `ARCHITECTURE.md` until it does. |
+| [`hardware/`](hardware/) | Physical build artifacts — schematics, harnesses, [`BOM.csv`](hardware/BOM.csv). Drawings are split by build path: `pathA_*` sheets are drawn for the parts on hand, everything else is the Path B target and contains unpurchased components. |
 | [`firmware/`](firmware/) | ESP32 supervisor source — src, tests, build config. Stub for now; the design lives in `ARCHITECTURE.md § Reference pseudocode` until it does. |
 | [`LICENSE`](LICENSE) | MIT + safety-scope notice. |
 

@@ -1,12 +1,25 @@
-# Wiring table — ESP32 supervisor
+# Wiring table — ESP32 supervisor (Path B target)
+
+> **Most of the parts in this table have not been purchased.** The
+> MAX31855 (TASK-1), the opto-isolated relay module (TASK-3), the
+> Mean Well PSU (TASK-2) and the bimetallic thermostat (TASK-6) are
+> all still to be sourced. This table describes the end-state design.
+>
+> **To wire the build that can be made from parts on hand, use
+> [`WIRING-PATH-A.md`](WIRING-PATH-A.md).** Do not mix rows between
+> the two tables — the sensor, the power path, and the coil-circuit
+> interface are all different parts.
 
 The pin-level, build-without-translating-a-schematic reference. If you
 are wiring the board and only want to look at one thing, look at this
 table. The schematic (`esp32_supervisor.svg`) and pictorial
 (`esp32_pictorial.svg`) are cross-checks.
 
-All ESP32 pin numbers refer to the printed silkscreen on an
-**ESP32-DevKitC-32E** (the 30-pin variant used in this build).
+All ESP32 pin numbers refer to the printed silkscreen on the purchased
+**ESP32-DevKitC-32E** (`B0GF1ZJCCN`) — the **38-pin USB-C** variant
+carrying an ESP32-WROOM-32E with 8 MB of flash. Every GPIO used below
+is also present on the 30-pin DOIT-style boards, so the assignments
+port unchanged if you substitute one.
 
 ## ESP32 power
 
@@ -23,7 +36,7 @@ All ESP32 pin numbers refer to the printed silkscreen on an
 |---|---|---|---|
 | `VCC` | ESP32 `3V3` | orange | Do not use 5 V — MAX31855 is 3.3 V only. |
 | `GND` | Common GND bus | black | |
-| `SCK` | ESP32 `GPIO18` | yellow | SPI clock. HSPI default. |
+| `SCK` | ESP32 `GPIO18` | yellow | SPI clock. GPIO18/19/23/5 is the **VSPI** (SPI3) default pin group — not HSPI, which is GPIO14/12/13/15. |
 | `SO` (a.k.a. MISO / DO) | ESP32 `GPIO19` | green | SPI data out from MAX31855. |
 | `CS` | ESP32 `GPIO5` | blue | Chip select. Active-LOW; firmware drives this. |
 | `T+` (yellow) | Motor pigtail: **yellow** K-type wire | yellow (K-type) | See `../harness/motor_pigtail.yml`. Do not swap polarity — K-type is polarised. |
@@ -38,7 +51,7 @@ Divider topology: `3V3 → 10 kΩ 1% (pullup) → GPIO34 → NTC 10 kΩ B3950 �
 | Top of 10 kΩ pullup | ESP32 `3V3` | orange | |
 | Junction (pullup / NTC) | ESP32 `GPIO34` | purple | GPIO34 is ADC1_CH6 — **input only**, and ADC1 stays usable when Wi-Fi is active. Do **not** move this to an ADC2 pin. |
 | Bottom of NTC | Common GND bus | black | |
-| NTC body | Motor frame, thermal grease under stainless housing | — | DROK B0F8NQ9S4R or equivalent. Advisory only — winding K-type is the trip authority. |
+| NTC body | Motor frame, thermal grease under stainless housing | — | DROK `B0F8NQ9S4R` — 10 kΩ / B3950 1%, −25 to +125 °C, 5 × 25 mm stainless, 1 m PVC, JST XH 2.54. Supplied as a 3-pack, so this is the one purchased part both build paths share. Advisory only here — the winding K-type is the trip authority in Path B. |
 
 ## Relay module (opto-isolated, active-HIGH, NO output)
 

@@ -33,6 +33,16 @@
 \ctikzset{bipoles/length=1.1cm}
 
 % ============================================================
+% Provenance banner — which hardware this sheet is drawn for
+% ============================================================
+\node[font=\scriptsize\bfseries, tsmains, anchor=south west] at (0,2.6)
+  {PATH B TARGET --- THE ISOLATED AC-DC MODULE IS
+   \textbf{NOT PURCHASED} (TASK-2, blocking).};
+\node[font=\scriptsize, tsmute, anchor=south west] at (0,2.2)
+  {Path A powers the ESP32 from a UL-listed USB charger on a 120\,V
+   outlet instead --- see \texttt{pathA\_supervisor.svg}.};
+
+% ============================================================
 % Retrofit highlight — drawn behind everything
 % ============================================================
 \begin{scope}[on background layer]
@@ -114,10 +124,14 @@
   {PRIMARY};
 \node[font=\scriptsize\bfseries, tsselv, anchor=north] at (12.05,-3.35)
   {SECONDARY};
-\node[note, anchor=north, tsmains] at (9.75,-4.55) {120\,V AC};
+% The tap is drawn L1-to-L2 on a 240 V split-phase service, so the
+% module sees 240 V line-to-line and there is no neutral involved.
+% ARCHITECTURE.md § Power supply is explicit about this; the label
+% used to read 120 V, which contradicted the drawing beside it.
+\node[note, anchor=north, tsmains] at (9.75,-4.55) {240\,V AC};
 \node[note, anchor=north, tsselv]  at (12.05,-4.55) {5\,V DC};
-\node[pinlbl, anchor=west] at (8.72,-4.2) {L};
-\node[pinlbl, anchor=west] at (8.72,-5.2) {N};
+\node[pinlbl, anchor=west] at (8.72,-4.2) {L1};
+\node[pinlbl, anchor=west] at (8.72,-5.2) {L2};
 \node[pinlbl, anchor=east] at (13.08,-4.2) {+V};
 \node[pinlbl, anchor=east] at (13.08,-5.2) {$-$V};
 \node[font=\small\bfseries, tsink, anchor=north, align=center] at (10.9,-6.05)
@@ -125,7 +139,7 @@
 \node[note, anchor=north, align=center] at (10.9,-6.55)
   {Mean Well IRM-05-5 or Recom RAC03-05SK};
 
-% Neutral back to L2
+% Second leg back to L2 — line-to-line, no neutral in this circuit
 \draw[mainswire] (8.6,-5.2) -- (4.2,-5.2) -- (4.2,-9.0);
 \draw (4.2,-9.0) node[circ, color=tsmains]{};
 

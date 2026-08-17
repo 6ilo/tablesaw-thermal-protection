@@ -2,15 +2,24 @@
 # Both live inside the starter enclosure alongside the ESP32 supervisor.
 # Render:  wireviz hardware/harness/mains_and_coil.yml
 # Requires: graphviz + wireviz (see hardware/harness/README.md)
+#
+# PATH B TARGET. Neither the isolated PSU module (TASK-2), the dry
+# GPIO-driven relay module (TASK-3), nor the bimetallic thermostat
+# (TASK-6) has been purchased. For the mains-side wiring that can be
+# built from parts on hand, see pathA_fob_and_receiver.yml — the
+# purchased RF receiver is line-powered and lands quite differently.
 
 metadata:
-  title: Mains tap + coil circuit after retrofit
+  title: Mains tap + coil circuit after retrofit (Path B target)
   description: |
     Both new protective contacts (bimetallic thermostat, ESP32 relay) sit
     in series with the contactor coil. The isolated PSU is tapped in
     parallel with L1/L2 upstream of the contactor, downstream of the
     disconnect. Motor line current is NOT shown — it goes straight
     through the contactor's main power contacts.
+
+    None of the three added parts on this sheet is on hand. This is the
+    end-state design, not a build sheet.
 
 options:
   fontname: sans-serif
@@ -52,10 +61,22 @@ connectors:
     pinlabels: [in, out]
   RLY:
     type: ESP32 supervisor relay
-    subtype: NO, energized-to-close
+    subtype: NO, energized-to-close, opto-isolated module (TASK-3)
     pincount: 3
-    pinlabels: [COM, NO, NC]
-    notes: NC left unconnected.
+    # "NO" MUST stay quoted. YAML 1.1 parses a bare NO as boolean false,
+    # which reaches wireviz as a non-string pinlabel and crashes the
+    # render with `TypeError: sequence item 2: expected str instance,
+    # bool found`. Same trap applies to ON/OFF/YES/Y/N.
+    pinlabels: [COM, "NO", NC]
+    notes: |
+      NC left unconnected.
+
+      This is a DRY three-terminal relay module, which is what makes the
+      between-the-seal-in-and-the-coil position valid. The purchased
+      VONVOFF receiver (B07CTL3TG6) is NOT this part: it is line-powered,
+      needs its own supply across the control rails, and may not offer a
+      dry contact at all. Do not substitute one for the other here — see
+      pathA_fob_and_receiver.yml.
   COIL:
     type: Contactor coil
     subtype: A202C 120/240 V AC coil

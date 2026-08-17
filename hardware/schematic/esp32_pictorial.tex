@@ -43,6 +43,16 @@
 \begin{circuitikz}[line width=0.9pt]
 
 % ============================================================
+% Provenance banner — which hardware this sheet is drawn for
+% ============================================================
+\node[font=\scriptsize\bfseries, tsmains, anchor=south west] at (-10.9,10.6)
+  {PATH B TARGET --- MAX31855, RELAY MODULE AND ISOLATED PSU ARE
+   \textbf{NOT PURCHASED} (TASK-1/2/3).};
+\node[font=\scriptsize, tsmute, anchor=south west] at (-10.9,10.2)
+  {For the hardware actually on hand, build from
+   \texttt{pathA\_supervisor.svg} and \texttt{WIRING-PATH-A.md}.};
+
+% ============================================================
 % Power rails (breadboard convention: rails along the bottom)
 % ============================================================
 \draw[w, wred]   (-5.4,-1.6) -- (9.6,-1.6);
@@ -94,7 +104,7 @@
 \node[font=\small\bfseries, anchor=north, align=center] at (2.5,7.1)
   {ESP32-\\DevKitC-32E};
 \node[note, anchor=north, align=center] at (2.5,5.6)
-  {30-pin\\3.3\,V logic};
+  {\texttt{B0GF1ZJCCN}\\38-pin, USB-C\\3.3\,V logic};
 \node[note, anchor=north, align=center, tssafe] at (2.5,3.5)
   {GPIO2 drives the\\onboard blue LED —\\no external wire};
 

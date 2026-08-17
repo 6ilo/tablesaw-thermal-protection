@@ -265,12 +265,14 @@ BOM has been checked against actual Amazon purchases. Two parts cannot be used a
 ### Verified — keep as-is
 
 **ESP32 — `B0GF1ZJCCN`, ESP32-DevKitC-32E, 2-pack**
-Genuine ESP32-WROOM-32E, dual-core 240 MHz, 8 MB flash, USB-C, 38 GPIO (10 RTC), rated −40 to 85 °C. Arduino IDE / MicroPython / ESP-IDF supported. 8 MB flash is ample for the logging requirement; the second board is a spare for bench testing without pulling the installed one.
+Genuine ESP32-WROOM-32E, dual-core 240 MHz, 8 MB flash, **USB-C**, **38-pin header**, rated −40 to 85 °C. Arduino IDE / MicroPython / ESP-IDF supported. 8 MB flash is ample for the logging requirement; the second board is a spare for bench testing without pulling the installed one.
+
+Two consequences the diagrams have to reflect: the header is the 38-pin variant, not the 30-pin DOIT layout (every GPIO this project uses is on both, so the pin assignments port unchanged), and **power arrives through the USB-C connector**. In Path A that removes the VIN wire entirely — the board is fed from a USB charger.
 
 ### Verified — cannot be used at the winding; repurposed
 
-**Temperature sensor — `B0F8NQ9S4R`, DROK 10K NTC thermistor probe**
-Specs: NTC 10K / B3950, 1% tolerance, range **−25 °C to 125 °C**, 5 × 25 mm stainless probe, 1 m PVC cable, JST XH 2.54 mm 2-pin, 3–5 V.
+**Temperature sensor — `B0F8NQ9S4R`, DROK 10K NTC thermistor probe, 3-pack**
+Specs: NTC 10K / B3950, 1% tolerance, range **−25 °C to 125 °C**, 5 × 25 mm stainless probe, 1 m PVC cable, JST XH 2.54 mm 2-pin, 3–5 V, 0–10 mA. Three probes are supplied, so one can stay on the bench as a calibration comparison.
 
 Three disqualifying problems for end-turn mounting:
 
@@ -280,10 +282,17 @@ Three disqualifying problems for end-turn mounting:
 
 **Repurposed** to motor frame monitoring as a **secondary, advisory-only** input — never a trip source. Frame surface temperature on a TEFC motor runs well inside the 125 °C range, and the delta between frame and winding temperatures is the airflow-restriction signal. Use a fixed divider, oversample, and calibrate.
 
-**Wireless switch — `B0836KDYGH`, VONVOFF 433 MHz RF remote switch**
-Specs: 433 MHz RF receiver, 30 A relay, AC 110/120/240 V, learning-code, two fobs, 328 ft range, momentary/toggle/latched modes.
+**Wireless switch — `B07CTL3TG6`, VONVOFF (DONJON) 433 MHz RF remote switch**
+Specs: 433 MHz RF receiver, **AC 100–240 V single phase**, **30 A rated on a 40 A relay**, learning-code, **two fobs + one receiver**, 328 ft range. Working modes are *point movement* (momentary / jog), *self-locking* (toggle) and *interlock* — **interlock is the factory default**, and the mode is selected by the number of learn-button presses.
 
 Not usable in the coil circuit as the primary relay. It is **not GPIO-controllable** — it is a standalone RF receiver commanded by a key fob, not a relay module the ESP32 can drive. Putting a fob-commanded device in a safety path also violates SR-8, and its default latched behavior is fail-dangerous (see [Why RF was rejected as the primary path](#why-rf-was-rejected-as-the-primary-path)).
+
+Two further properties matter to anyone wiring it, and neither is true of the relay module TASK-3 specifies:
+
+- **It is line-powered, not a dry relay module.** The receiver takes its own operating supply from an AC input pair. That supply must be tapped across the control rails *ahead of the seal-in network* — feed it from downstream and the unit is unpowered, its contact open, at the moment START is pressed, so the coil never latches.
+- **Its output pair may not be a dry contact.** These units ship both ways and the listing does not say which. Before wiring, with the receiver unpowered, meter continuity from the AC input line terminal to each output terminal. If one is bonded, the output is an internally-derived switched line rather than an isolated contact.
+
+Both are drawn in [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg).
 
 **Repurposed** to dust collector remote — the highest-value repurpose in the box, since inadequate dust extraction is the root cause of the original motor failure.
 
