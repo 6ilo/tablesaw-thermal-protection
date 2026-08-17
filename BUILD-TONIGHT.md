@@ -116,9 +116,12 @@ Procedure:
 1. Press learn 8 times to clear all paired codes and start clean.
 2. Press learn **once** (LED flashes once, then goes steady).
 3. Press the fob ON button to pair.
-4. **Verify:** hold the fob button — relay closes. Release — relay opens within about a second. If the relay stays closed after release, you are in toggle or latched mode. Clear and redo.
+4. **Verify momentary behavior:** hold the fob button — relay closes. Release — relay opens within about a second. If the relay stays closed after release, you are in toggle or latched mode. Clear and redo.
+5. **Measure the hold time.** Press and release the fob several times, timing from release to relay drop with a stopwatch or scope. This is the receiver's momentary decay period — typical 300–800 ms. Record the number; it is the timing budget the heartbeat must beat.
 
-Do not proceed until momentary behavior is confirmed by observation.
+The heartbeat model relies on the 433 MHz encoder in the fob emitting continuous frames while its input pad is held HIGH (PT2262 / EV1527 style — frame period ~40–100 ms). The ESP32 drives that pad HIGH via the transistor whenever it is ARMED and does not have to explicitly re-trigger — the encoder produces the frame stream. The receiver's hold timer bridges gaps between decoded frames. All three windows (encoder frame period ≪ receiver hold time ≪ firmware loop period) must be true for the link to sustain without chatter, and are verified in § 7 step 1.
+
+Do not proceed until momentary behavior and hold time are both confirmed by observation.
 
 ---
 
@@ -141,27 +144,67 @@ WDT_TIMEOUT_MS = 5000
 ```
 
 ### The inversion that matters
+
+Transmission is **asserted only in ARMED**. Every other state, every fault, every early return leaves `PIN_TX` LOW. Write it so that doing nothing is safe. `setup()` must also refuse to arm without a proven-good sensor and must not clear a persisted TRIPPED state by power-cycling into a still-hot motor.
+
 ```
 setup():
     pinMode(PIN_TX, OUTPUT)
-    digitalWrite(PIN_TX, LOW)      // FIRST LINE. Not transmitting = relay open.
-    ...
-```
+    digitalWrite(PIN_TX, LOW)              // FIRST LINE. Not transmitting = relay open.
 
-Transmission is **asserted only in ARMED**. Every other state, every fault, every early return leaves `PIN_TX` LOW. Write it so that doing nothing is safe.
+    pinMode(PIN_LED, OUTPUT)
+    nvs_open()
+    last_state = nvs_read("last_state", default=COOLDOWN)
+
+    // Boot self-test: N consecutive valid reads before arming.
+    // Any partial-failure result leaves state = TRIPPED and PIN_TX = LOW.
+    valid = 0
+    last_c_boot = null
+    for i in 1..10:
+        raw = analogRead_oversampled(PIN_NTC, 16)
+        if raw > 20 and raw < 4090:        // separates shorted / open from valid range
+            c = ntc_to_celsius(raw)
+            if c > -20 and c < 150:
+                valid += 1
+                last_c_boot = c
+        delay(100)
+
+    if valid < 8 or last_c_boot == null:
+        state = TRIPPED
+        log("BOOT_SENSOR_FAIL")
+        // PIN_TX stays LOW → no transmission → relay open. Fall through to loop.
+    else if last_state == TRIPPED and last_c_boot >= RESET_C:
+        state = TRIPPED                    // hot motor + persisted trip: hold
+        log("BOOT_HOT_HOLD", last_c_boot)
+    else:
+        state = COOLDOWN
+        cooldown_start = now()
+
+    // Prime the running-loop guards from the self-test result so the
+    // implausible-jump check has a valid reference on the very first cycle.
+    last_c = (last_c_boot != null) ? last_c_boot : 25    // 25 = plausible ambient fallback
+
+    watchdog_enable(WDT_TIMEOUT_MS)
+```
 
 ```
 protection_loop():
     loop forever:
         raw = analogRead_oversampled(PIN_NTC, 16)
-        c   = ntc_to_celsius(raw)      // B3950 beta equation
+        c   = ntc_to_celsius(raw)          // B3950 beta equation
 
-        if raw < 100 or raw > 4000          // open or shorted probe
+        // Separate the electrical checks from the temperature range check.
+        // raw < 20 catches a probe shorted to GND; raw > 4090 catches an
+        // open probe. Legitimate high temperature is caught by c > 150
+        // without conflating it with the short-check bound.
+        if raw < 20 or raw > 4090
            or c < -20 or c > 150
-           or abs(c - last_c) > 30:         // implausible jump
+           or abs(c - last_c) > 30:        // primed at boot; safe on first cycle
             digitalWrite(PIN_TX, LOW)
-            state = TRIPPED
-            log("SENSOR_FAULT")
+            if state != TRIPPED:
+                state = TRIPPED
+                nvs_write("last_state", TRIPPED)
+            log("SENSOR_FAULT", raw, c)
             feed_watchdog()
             continue
 
@@ -190,6 +233,7 @@ protection_loop():
                     state = TRIPPED
                 else if now() - cooldown_start > COOLDOWN_HOLD_S:
                     state = ARMED
+                    nvs_write("last_state", ARMED)
                     log("ARMED")
                     // Relay re-closing does NOT start the saw.
                     // Seal-in requires a physical Start press.
@@ -228,17 +272,19 @@ Position matters more than anything else here.
 ## 7. Commissioning — do not skip
 
 ### Bench first, motor disconnected
-1. Heat the probe with a heat gun or hot water. Verify the reading tracks and that trip fires at `TRIP_C`.
-2. **Pull ESP32 power while ARMED.** Relay must open. This is the core safety claim — verify it by observation.
-3. Disconnect the NTC while ARMED. Relay must open.
-4. Force a crash (infinite loop). Watchdog must reset, relay must open.
+1. **Heartbeat timing baseline.** With ESP32 running ARMED (probe cold), watch the receiver relay for 60 seconds continuously. No drop-outs allowed. If you see chatter, the encoder is not producing a continuous frame stream — the fob wiring or transistor drive is wrong. Then time the drop by pulling ESP32 power: relay must open within one receiver hold period (the value recorded in § 4 step 5, typically 300–800 ms). If the drop is slower than that, something upstream is latching.
+2. Heat the probe with a heat gun or hot water. Verify the reading tracks and that trip fires at `TRIP_C`.
+3. **Pull ESP32 power while ARMED.** Relay must open within one hold period. Core safety claim — verify it by observation.
+4. Disconnect the NTC while ARMED. Relay must open.
+5. Force a crash (infinite loop). Watchdog must reset, relay must open. Worst-case latency: `WDT_TIMEOUT_MS` + reset (~200 ms) + receiver hold time.
+6. **Persisted-trip test.** Force a trip. Immediately power-cycle the ESP32 while the probe is still above `RESET_C` (heat it and hold). Boot must resume in TRIPPED, not COOLDOWN — verify by log line `BOOT_HOT_HOLD`.
 
 ### Coil circuit, motor still disconnected
-5. Press Start — contactor pulls in. Force a trip — contactor drops out. Clear the trip and confirm the contactor does **not** re-latch. Start must be pressed.
+7. Press Start — contactor pulls in. Force a trip — contactor drops out. Clear the trip and confirm the contactor does **not** re-latch. Start must be pressed.
 
 ### Baseline run
-6. Set `TRIP_C = 110` temporarily (still under the 125 °C sensor limit). Run normal cuts, watch the serial output, record steady-state frame temperature.
-7. Set `TRIP_C = baseline + 20`, `WARN_C = baseline + 10`, `RESET_C = baseline − 10`. Reflash.
+8. Set `TRIP_C = 110` temporarily (still under the 125 °C sensor limit). Run normal cuts, watch the serial output, record steady-state frame temperature.
+9. Set `TRIP_C = baseline + 20`, `WARN_C = baseline + 10`, `RESET_C = baseline − 10`. Reflash.
 
 Typical healthy TEFC frame temperature is 60–75 °C, which puts trip around 85–95 °C. If your baseline is already above 90 °C, the shroud is still restricted — stop and clean it before setting thresholds around a bad number.
 

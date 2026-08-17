@@ -459,27 +459,37 @@ setup():
     pinMode(PIN_LED, OUTPUT)
 
     nvs_open()
-    last_state = nvs_read("last_state")
+    last_state = nvs_read("last_state", default=COOLDOWN)
 
     tc = MAX31855(PIN_TC_CS, PIN_TC_SCK, PIN_TC_DO)
 
-    // Self-test: must get N consecutive valid reads before arming
+    // Self-test: must get N valid reads before arming. Track the LAST VALID
+    // reading (not just the last read) — the loop's final r may be a failure.
     valid = 0
+    last_valid_r = null
     for i in 1..10:
         r = read_thermocouple()
-        if r.ok: valid += 1
+        if r.ok:
+            valid += 1
+            last_valid_r = r
         delay(100)
 
-    if valid < 8:
+    if valid < 8 or last_valid_r == null:
         state = TRIPPED
         log_event("BOOT_SENSOR_FAIL")
         return                          // relay stays open
 
-    if last_state == TRIPPED and r.celsius >= RESET_C:
-        state = TRIPPED                 // don't clear a trip by power-cycling
+    if last_state == TRIPPED and last_valid_r.celsius >= RESET_C:
+        state = TRIPPED                 // don't clear a trip by power-cycling hot
+        log_event("BOOT_HOT_HOLD", last_valid_r.celsius)
     else:
         state = COOLDOWN
         cooldown_start = now()
+
+    // Prime the protection loop's guards so the first cycle's
+    // implausible-jump and staleness checks have valid references.
+    last_valid_c  = last_valid_r.celsius
+    last_valid_ms = now()
 
     watchdog_enable(WDT_TIMEOUT_MS)
     start_task(protection_loop, core=0, priority=HIGHEST)
