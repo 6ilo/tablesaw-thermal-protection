@@ -72,7 +72,7 @@ See `../harness/motor_pigtail.yml` for the full cable. Landing points:
 |---|---|---|
 | K-type at winding, yellow (+) | MAX31855 `T+` | AlN substrate at the sensor tip for isolation from mains potential. |
 | K-type at winding, red (−) | MAX31855 `T−` | |
-| Thermostat lead 1 (black, fiberglass) | Relay `COM` (jumper on terminal block) | Bimetallic snap-action, NC, opens ~110 °C. See ARCHITECTURE.md § BOM. |
+| Thermostat lead 1 (black, fiberglass) | Relay `COM` (jumper on terminal block) | Bimetallic snap-action, NC, auto-reset, **opens 120–130 °C** — see [TASK-6](../../ARCHITECTURE.md#task-6--source-the-bimetallic-thermostat), which is the specification of record. Not yet sourced, so this is a purchasing spec. It must stay **above** the ESP32's `TRIP_THRESHOLD` (110 °C): the supervisor is meant to act first and log the trip, with this contact as the unmonitored backstop. Ordering a ~110 °C part collapses the two layers into one. |
 | Thermostat lead 2 (black, fiberglass) | M1 contactor coil `A1` (via relay `NO` — the coil-circuit chain) | The thermostat is upstream of the relay in the coil circuit — see `ladder_coil_circuit.svg`. |
 
 ## Mains-side coil-circuit landings
