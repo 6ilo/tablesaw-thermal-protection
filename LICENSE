@@ -1,0 +1,47 @@
+MIT License
+
+Copyright (c) 2026 the tablesaw-thermal-protection contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this documentation, firmware, hardware design, and associated material
+(the "Work"), to deal in the Work without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Work, and to permit persons to whom
+the Work is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Work.
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+ARISING FROM, OUT OF, OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER
+DEALINGS IN THE WORK.
+
+================================================================================
+                          SAFETY AND SCOPE NOTICE
+================================================================================
+
+This Work describes a modification to a UL-listed electric motor and its
+motor starter. Performing this modification voids the motor's UL listing.
+
+The Work is intended for private, personal use in a shop owned and
+operated by the person building and validating the system. It is NOT
+appropriate for, and MUST NOT be used in:
+
+  - Any commercial workshop, business, or production environment
+  - Any institutional setting: school, museum, community shop, makerspace
+  - Any insured workspace where insurance is contingent on equipment
+    remaining in its listed configuration
+  - Any teaching or instructional context
+  - Any environment where the operator is not the person who built and
+    validated the system
+
+In any of those settings, a listed replacement thermal protector is the
+correct solution and this Work is not.
+
+The reader is responsible for their own competence in mains-voltage
+wiring, for compliance with electrical codes in their jurisdiction, and
+for any harm that arises from following the guidance in this Work.

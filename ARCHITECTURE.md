@@ -314,13 +314,13 @@ Must read reliably past 180 °C to give headroom above the 110 °C trip point. T
 
 Either mates well to the AlN substrate. Specify high-temperature lead insulation at purchase — this is the detail that gets missed.
 
-### TASK-2 — Power supply isolation (blocking)
+### TASK-2 — Power supply isolation (blocking for Path B)
 
 "220 to 12 V buck converter" is ambiguous. A *buck* converter is DC-DC. If the purchased module is a non-isolated AC-line supply, the ESP32 ground floats at mains potential — lethal at the USB port, and incompatible with SR-7.
 
-**Required:** an isolated AC-DC supply with reinforced isolation, 230 VAC input, 5 V or 12 V output, from a manufacturer with real safety certification (Mean Well, Recom, TDK-Lambda). Not a bare module. See [Power supply](#power-supply) for the installation topology (tap point, fuse, and enclosure requirements) and specific recommended parts.
+**Resolution path is now documented.** See [Power supply](#power-supply) for the installation topology (tap point, fuse, enclosure requirements) and the specific recommended parts — Mean Well IRM-05-5 or Recom RAC03-05SK, both under $15. Either replaces the purchased module unconditionally; the purchased part is only reusable if positively identified as an isolated AC-DC module with a certification mark.
 
-Do not energize anything until this is resolved. Identify what was purchased and report. (For same-day expedient power, BUILD-TONIGHT.md uses a UL-listed USB phone charger — an isolated AC-DC supply that happens to be a wall wart.)
+Status: **blocking for Path B**. Not blocking for BUILD-TONIGHT — that path uses a UL-listed USB phone charger, which *is* a certified isolated AC-DC supply and sidesteps the question until the isolated module is on hand.
 
 ### TASK-3 — Source a GPIO-driven relay
 

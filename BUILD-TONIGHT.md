@@ -467,6 +467,35 @@ If you fall behind, cut in this order: web/Wi-Fi (already cut), flash logging, w
 
 ## 11. If the transistor doesn't turn up
 
-Fallback: leave the fob's ON button mechanically held closed and switch the fob's **battery** with a small relay or reed switch driven from the ESP32. Same heartbeat behavior — power the fob to transmit, cut power to stop. Uglier and needs a relay you may not have, but it is the same logic.
+Same underlying idea in every fallback: leave the fob's ON button mechanically held closed with tape or a solder bridge, and use the ESP32 to switch the fob's **power** instead of the button. Heartbeat behavior is identical — power the fob to transmit, cut power to stop.
 
-If neither works, do not improvise a bypass. A saw with no thermal protection is how you got here. Leave it down until you're back.
+### Fallback A — logic-level N-channel MOSFET (preferred)
+
+Cheaper, cleaner, and often already in the ESP32 kit or on any dead motherboard.
+
+```
+GPIO26 ──[220 Ω]── G
+                   D ── fob battery negative
+                   S ── circuit ground
+              +
+GPIO26 ──[100 kΩ]── GND   (defined off-state)
+GPIO26 ──[ 10 kΩ]── GND   (fail-safe pulldown, same as the transistor build)
+```
+
+- Any logic-level N-FET with Vgs(th) ≤ 2 V and Id ≥ 100 mA works: **2N7000, IRLML2502, AO3400, BSS138, IRLZ44N**. Pull one off a dead PC power supply, router, or LED strip driver if the parts drawer is bare.
+- The 100 kΩ from gate to source guarantees the FET is off when the GPIO is floating during boot. The 10 kΩ pulldown on GPIO26 is still required — same fail-safe pin discipline as the transistor build.
+- Wire the FET on the **low side** of the fob battery (source to ground, drain to battery negative). High-side switching an N-FET needs a level shifter and is not worth the complexity here.
+
+### Fallback B — small reed relay
+
+Uglier, slower, but works if no MOSFET is on hand.
+
+- Reed relay coil driven by the same NPN-transistor circuit described in § 3, with a flyback diode across the coil.
+- Contacts in series with the fob's battery positive lead (mechanical isolation is a small side benefit).
+- Same fail-safe pin discipline on GPIO26.
+
+### Commissioning still applies
+
+Whichever fallback is used, the § 7 fault tests are the only evidence the assembly is fail-safe. Do not skip them because the parts are scrounged. In particular: **verify that pulling the ESP32's power drops the receiver relay within one hold period**. If it doesn't, you have a latent path around the intended cut and the whole design collapses.
+
+If none of NPN, optocoupler, MOSFET, or reed relay turns up: do not improvise a bypass. A saw with no thermal protection is how you got here. Leave it down until you're back.
