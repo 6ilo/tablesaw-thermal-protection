@@ -1,0 +1,225 @@
+% ============================================================
+% esp32_supervisor.tex — low-voltage side, design of record.
+%
+% Board-level view of the enclosure interior: isolated 5 V rail
+% feeding the ESP32, MAX31855 SPI thermocouple front-end, NTC
+% frame-temperature divider, opto-isolated relay module driving
+% the contactor coil circuit, local ack button, onboard LED.
+%
+% Nothing left of the dashed boundary sits at mains potential.
+%
+% Layout is banded to keep every conductor orthogonal and
+% crossing-free:
+%   y = 7.0 .. 9.0   SPI bus + MAX31855
+%   y = 2.6 .. 5.4   NTC frame divider
+%   y = -0.7 .. 3.0  relay module + pulldown
+%   x < 0            power in, ack, status LED
+%
+% Regenerate with:  make esp32_supervisor.svg
+% ============================================================
+\def\pgfsysdriver{pgfsys-dvisvgm.def}
+\documentclass[border=10pt,dvisvgm]{standalone}
+\input{tsstyle.tex}
+
+\begin{document}
+\begin{circuitikz}[line width=0.9pt]
+
+% ============================================================
+% ESP32-DevKitC-32E
+% ============================================================
+\draw[block, fill=tspanelb] (0,0.6) rectangle (4.2,9.8);
+\node[font=\small\bfseries, tsink, align=center] at (2.1,5.6)
+  {ESP32-\\DevKitC-32E};
+\node[font=\scriptsize, tsmute, align=center] at (2.1,4.6)
+  {30-pin variant\\3.3\,V logic};
+
+% ---- left edge: power ----
+\node[pinlbl, anchor=west] at (0.12,9.0) {VIN};
+\node[pinlbl, anchor=west] at (0.12,8.0) {3V3};
+\node[pinlbl, anchor=west] at (0.12,7.0) {GND};
+\node[pinlbl, anchor=west] at (0.12,6.0) {GND};
+
+% +5 V in from the isolated PSU
+\draw[selvwire] (0,9.0) -- (-3.0,9.0);
+\node[netlbl, anchor=south, tsselv] at (-1.5,9.08) {+5\,V};
+\node[note, anchor=east, tsselv] at (-3.1,9.0) {isolated PSU\\(SELV)};
+\draw[selvwire] (-3.0,9.15) -- (-3.0,8.85);
+
+% 3V3 rail — regulated on the module, feeds MAX31855 + divider
+\draw[wire] (0,8.0) -- (-2.4,8.0);
+\node[netlbl, anchor=south] at (-1.2,8.08) {3V3};
+\node[note, anchor=east] at (-2.5,8.0) {regulated on\\the DevKitC};
+
+% Both GND pins tied to one common bus — see WIRING.md checklist #1
+\draw[wire] (0,7.0) -- (-1.3,7.0);
+\draw[wire] (0,6.0) -- (-1.3,6.0);
+\draw[wire] (-1.3,7.0) -- (-1.3,5.4);
+\draw (-1.3,6.0) node[circ]{};
+\draw (-1.3,5.4) node[ground]{};
+\node[note, anchor=east] at (-1.6,6.6) {common GND bus\\(both pins jumpered)};
+
+% ---- left edge: operator I/O ----
+\node[pinlbl, anchor=west] at (0.12,2.6) {GPIO2};
+\node[pinlbl, anchor=west] at (0.12,1.4) {GPIO27};
+
+% Status LED — onboard on the DevKitC, no external wiring
+\draw[wire] (0,2.6) -- (-1.4,2.6);
+\draw (-1.4,2.6) node[ocirc]{};
+\node[note, anchor=east] at (-1.65,2.6) {onboard blue LED\\(internal to module)};
+
+% Ack button — GPIO27 to GND, firmware enables the internal pullup
+\draw[wire] (0,1.4) -- (-3.4,1.4);
+\draw[wire] (-3.4,1.4) to[push button] (-3.4,0.0);
+\draw (-3.4,0.0) node[ground]{};
+\node[note, anchor=east] at (-3.75,0.85) {ACK button\\(momentary NO,\\firmware pullup)};
+
+% ---- right edge: signals ----
+\node[pinlbl, anchor=east] at (4.08,9.0) {GPIO18};
+\node[pinlbl, anchor=east] at (4.08,8.0) {GPIO19};
+\node[pinlbl, anchor=east] at (4.08,7.0) {GPIO5};
+\node[pinlbl, anchor=east] at (4.08,3.8) {GPIO34};
+\node[pinlbl, anchor=east] at (4.08,1.4) {GPIO26};
+
+% ============================================================
+% SPI bus — three straight runs, no crossings
+% ============================================================
+\draw[wire] (4.2,9.0) -- (9.6,9.0);
+\draw[wire] (4.2,8.0) -- (9.6,8.0);
+\draw[wire] (4.2,7.0) -- (9.6,7.0);
+\node[siglbl, anchor=south] at (6.9,9.08) {SCK};
+\node[siglbl, anchor=south] at (6.9,8.08) {MISO};
+\node[siglbl, anchor=south] at (6.9,7.08) {CS (active-LOW)};
+
+% ============================================================
+% MAX31855 — K-type thermocouple front-end
+% ============================================================
+\draw[block] (9.6,6.2) rectangle (13.2,9.8);
+\node[font=\small\bfseries, tsink, align=center] at (11.4,7.5)
+  {MAX31855};
+\node[font=\scriptsize, tsmute, align=center] at (11.4,6.75)
+  {K-type, SPI\\3.3\,V only};
+\node[pinlbl, anchor=west] at (9.72,9.0) {SCK};
+\node[pinlbl, anchor=west] at (9.72,8.0) {SO};
+\node[pinlbl, anchor=west] at (9.72,7.0) {CS};
+\node[pinlbl, anchor=east] at (13.08,8.8) {T+};
+\node[pinlbl, anchor=east] at (13.08,7.6) {T$-$};
+
+% VCC — 3.3 V, never 5 V
+\draw[wire] (11.0,9.8) -- (11.0,10.5);
+\draw (11.0,10.5) node[vcc]{3V3};
+\node[note, anchor=west] at (11.25,10.25) {\textbf{not} 5\,V};
+
+% GND
+\draw[wire] (11.0,6.2) -- (11.0,5.5);
+\draw (11.0,5.5) node[ground]{};
+
+% Thermocouple leads out to the motor pigtail
+\draw[wire] (13.2,8.8) -- (15.4,8.8);
+\draw[wire] (13.2,7.6) -- (15.4,7.6);
+\draw (15.4,8.8) node[ocirc]{};
+\draw (15.4,7.6) node[ocirc]{};
+\node[note, anchor=west] at (15.65,8.8) {TC+ \textbf{yellow} $\rightarrow$ winding};
+\node[note, anchor=west] at (15.65,7.6) {TC$-$ \textbf{red} $\rightarrow$ winding};
+\node[note, anchor=west, tssafe] at (15.65,6.75)
+  {K-type is polarised.\\Red is the \emph{negative} lead.\\AlN substrate at the tip\\isolates from winding potential.};
+
+% ============================================================
+% NTC frame divider:  3V3 -> 10k -> GPIO34 -> NTC -> GND
+% ============================================================
+\draw[wire] (4.2,3.8) -- (6.8,3.8);
+\node[siglbl, anchor=south] at (5.5,3.88) {ADC1\_CH6};
+\draw[wire] (6.8,3.8) to[R] (6.8,5.1);
+\draw[wire] (6.8,5.1) -- (6.8,5.4);
+\draw (6.8,5.4) node[vcc]{3V3};
+\node[pinlbl, anchor=west] at (7.05,4.45) {10\,k$\Omega$ 1\%};
+
+\draw[wire] (6.8,3.8) to[thermistor] (6.8,2.9);
+\draw[wire] (6.8,2.9) -- (6.8,2.6);
+\draw (6.8,2.6) node[ground]{};
+\draw (6.8,3.8) node[circ]{};
+\node[pinlbl, anchor=west] at (7.05,3.25) {NTC 10\,k$\Omega$};
+\node[note, anchor=west] at (7.05,2.85) {B3950, on frame\\(advisory only)};
+
+% ============================================================
+% Relay module — opto-isolated, active-HIGH, NO contacts
+% ============================================================
+\draw[wire] (4.2,1.4) -- (9.6,1.4);
+\node[siglbl, anchor=south] at (5.6,1.48) {relay drive};
+
+% 10k pulldown — non-optional. Floating GPIO26 must leave the relay OPEN.
+\draw (8.4,1.4) node[circ]{};
+\draw[wire] (8.4,1.4) to[R] (8.4,0.1);
+\draw[wire] (8.4,0.1) -- (8.4,-0.2);
+\draw (8.4,-0.2) node[ground]{};
+\node[pinlbl, anchor=east] at (8.15,0.78) {10\,k$\Omega$};
+\node[note, anchor=east, tssafe] at (8.15,0.38) {pulldown\\(mandatory)};
+
+\draw[block] (9.6,0.0) rectangle (13.6,3.0);
+\node[font=\small\bfseries, tsink, align=center] at (11.6,1.85)
+  {Relay module};
+\node[font=\scriptsize, tsmute, align=center] at (11.6,1.0)
+  {opto-isolated\\active-HIGH, N.O.\\5\,V coil};
+\node[pinlbl, anchor=west] at (9.72,1.4) {IN};
+\node[pinlbl, anchor=east] at (13.48,2.3) {COM};
+\node[pinlbl, anchor=east] at (13.48,1.4) {NO};
+\node[pinlbl, anchor=east] at (13.48,0.5) {NC};
+
+\draw[selvwire] (10.6,3.0) -- (10.6,3.7);
+\draw (10.6,3.7) node[vcc, color=tsselv]{+5\,V};
+\draw[wire] (10.6,0.0) -- (10.6,-0.7);
+\draw (10.6,-0.7) node[ground]{};
+
+% ---- contacts out to the mains-side coil circuit ----
+\draw[mainswire] (13.6,2.3) -- (15.4,2.3);
+\draw[mainswire] (13.6,1.4) -- (15.4,1.4);
+\draw[wire] (13.6,0.5) -- (14.4,0.5);
+\draw (15.4,2.3) node[ocirc, color=tsmains]{};
+\draw (15.4,1.4) node[ocirc, color=tsmains]{};
+\draw (14.4,0.5) node[ocirc]{};
+\node[note, anchor=west, tsmains] at (15.65,2.3)
+  {$\rightarrow$ thermostat NC lead};
+\node[note, anchor=west, tsmains] at (15.65,1.4)
+  {$\rightarrow$ M1 coil terminal A1};
+\node[note, anchor=north] at (14.1,0.34) {leave open};
+
+% ---- isolation boundary ----
+\draw[isoline] (14.9,-0.9) -- (14.9,3.2);
+\node[danger, anchor=south west] at (14.55,3.32)
+  {MAINS POTENTIAL BEYOND THIS LINE};
+
+% ============================================================
+% Isolation legend
+% ============================================================
+\node[legendbox, anchor=north west, text width=7.3cm] at (-4.6,-1.6) {%
+  \textbf{Three isolation barriers} (all external to this sheet)\\[3pt]
+  \begin{tabular}{@{}p{1.85cm}@{\hspace{4pt}}p{4.9cm}@{}}
+    PSU input   & reinforced, UL 61010 / IEC 60950 rated part\\[1pt]
+    Thermocouple& AlN dielectric substrate at the winding\\[1pt]
+    Relay       & opto-input \emph{and} contact-gap output\\
+  \end{tabular}
+};
+
+\node[legendbox, anchor=north west, text width=7.6cm] at (3.4,-1.6) {%
+  \textbf{Fail-safe behaviour}\\[3pt]
+  \textcolor{tssafe}{\textbf{SR-1}}\quad Relay is N.O., energised-to-close.
+  Floating GPIO26 $=$ relay open $=$ coil dropped.\\[2pt]
+  \textcolor{tssafe}{\textbf{SR-3}}\quad The passive thermostat sits in series
+  ahead of COM, on the mains side. It cuts the coil with no
+  firmware involvement.\\[2pt]
+  Coil circuit is \emph{not} on this sheet — see
+  \texttt{ladder\_coil\_circuit.svg}.
+};
+
+% ============================================================
+% Title block
+% ============================================================
+\node[titleblock, anchor=north east, text width=6.2cm] at (22.6,-1.6) {%
+  {\normalsize\bfseries Low-voltage supervisor}\\[2pt]
+  {\color{tsmute}Signal schematic — design of record}\\[5pt]
+  {\color{tsmute}Table-saw thermal protection retrofit}\\
+  {\color{tsmute}Pin-level truth: \texttt{WIRING.md}}\\
+  {\color{tsmute}Source: \texttt{esp32\_supervisor.tex}}%
+};
+
+\end{circuitikz}
+\end{document}

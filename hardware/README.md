@@ -6,7 +6,7 @@ Physical build artifacts for the retrofit.
 
 | Path | Contents |
 |---|---|
-| [`schematic/`](schematic/) | Board-level signal schematic of the ESP32 supervisor. SchemDraw source + rendered SVG. |
+| [`schematic/`](schematic/) | Signal schematic + pictorial + ladder-logic view of the coil circuit + one-line of the mains distribution + a pin-to-pin wiring table (`WIRING.md`). SchemDraw source + rendered SVGs. |
 | [`harness/`](harness/) | Cable and mains-interconnect diagrams. Wireviz YAML source; render locally per the harness README. |
 
 ## Intended structure (not yet created)
@@ -24,6 +24,9 @@ Until the intended-structure artifacts land, the design lives in:
 
 - [`../ARCHITECTURE.md`](../ARCHITECTURE.md) — Coil circuit, Power supply, Wiring diagram, Pin assignments, Sensor mounting, Bill of materials
 - [`../BUILD-TONIGHT.md`](../BUILD-TONIGHT.md) — § 3 Wiring, § 6 Sensor mounting for the same-day expedient build
+- [`schematic/WIRING.md`](schematic/WIRING.md) — pin-to-pin wiring table for the ESP32 side (start here if you are building on the bench)
+- [`schematic/ladder_coil_circuit.svg`](schematic/ladder_coil_circuit.svg) — coil-circuit ladder (start here for a safety review)
+- [`schematic/oneline_mains.svg`](schematic/oneline_mains.svg) — mains one-line
 - [`schematic/`](schematic/) and [`harness/`](harness/) — as they populate, extract the corresponding BOM rows to `BOM.csv` and reduce duplication in the top-level docs
 
 ## Safety
