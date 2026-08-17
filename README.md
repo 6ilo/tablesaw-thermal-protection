@@ -106,6 +106,11 @@ For the person who uses the saw day-to-day. Print this page and stick it inside 
 | **SOS pattern** | Boot failure. | Do not use. Power-cycle. If it repeats, get the builder. |
 | **Off** | No power to the monitor. | Do not use. Check the wall disconnect and the ESP32's power. |
 
+The LED tells you the *family* of problem. For the specific fault and what to do about
+it, see the **error codes** in [`docs/codes/`](docs/codes/) — one page per fault, written
+to be read at the machine. The same pages are served from the saw itself, so they work
+with no internet.
+
 ### After a trip
 
 1. Wait for the LED to stop flashing and go solid.
@@ -135,8 +140,11 @@ If Start doesn't pull in the contactor:
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
 | [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
+| [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
+| [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |
 | [`hardware/`](hardware/) | Physical build artifacts — schematics, BOM.csv, photos, datasheets. Stub for now; the design lives in `ARCHITECTURE.md` until it does. |
 | [`firmware/`](firmware/) | ESP32 supervisor source — src, tests, build config. Stub for now; the design lives in `ARCHITECTURE.md § Reference pseudocode` until it does. |
+| [`CHANGELOG.md`](CHANGELOG.md) | Change history, and what the version number in `VERSION` covers. |
 | [`LICENSE`](LICENSE) | MIT + safety-scope notice. |
 
 ---

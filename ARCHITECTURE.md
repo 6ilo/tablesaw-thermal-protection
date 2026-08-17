@@ -449,6 +449,32 @@ Confirm against the thermostat's actual rating once TASK-6 is closed. `TRIP_THRE
 - Alert display for `WARN_THRESHOLD`, rate-of-rise anomalies, and `PROBE_UNVERIFIED_AT_ARMED_TIME` (see [Probe self-verification](#probe-self-verification)).
 - **Read-only with respect to protection.** May acknowledge alerts. May not lower thresholds, force-arm, or close the relay. Enforce server-side, not just in the UI.
 
+### Error codes
+
+Every operator-visible fault and advisory has a stable identifier — `E01`–`E08` for trips
+and lockouts, `W01`–`W03` for advisories. The registry, and the remediation text for each
+code, lives in [`docs/codes/`](docs/codes/).
+
+That directory is the **single source** for three artifacts: the pages rendered on GitHub,
+the offline HTML bundle served from the ESP32 over the `ALN Table Saw` access point, and
+`error_codes.h` in the firmware. Nothing is hand-copied between them — `tools/codedocs.py
+build` regenerates all three.
+
+Codes are **append-only**. A published code never changes meaning and is never reused,
+because it may be printed on the operator card inside the cabinet door.
+
+`tools/codedocs.py check` runs in CI and enforces the link back to this document: it
+parses the [Thresholds](#thresholds-defaults-configurable) table and the
+[Status LED patterns](#status-led-patterns) table below, and fails the build if any
+operator document quotes a value that disagrees with them. Changing a threshold here and
+forgetting the operator docs is a build failure rather than something discovered at the
+machine.
+
+One gap between the registry and the pseudocode above: the staleness check in the
+protection loop calls `trip("SENSOR_FAULT")` like every other sensor fault, so `E02` and
+`E03` are not currently distinguishable. The timeout branch needs to emit its own cause.
+See [CHANGELOG.md](CHANGELOG.md).
+
 ### Status LED patterns
 
 The onboard LED (GPIO2) is the operator's primary state indicator at the machine, since the dashboard may not be visible. Six distinguishable patterns cover every state that matters:

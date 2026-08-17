@@ -1,0 +1,9 @@
+# Build dependencies for tools/codedocs.py
+#
+# All pure-Python, no compiled extensions, so this installs anywhere Python does.
+# Install with:  python3 -m pip install -r tools/requirements.txt
+
+PyYAML>=6.0        # front matter parsing
+Markdown>=3.4      # markdown -> HTML for the on-device pages
+Jinja2>=3.1        # HTML / header / index templating
+segno>=1.5         # QR code SVGs, generated offline with no external service
