@@ -1,0 +1,175 @@
+# Wireviz source for the Path A heartbeat path: ESP32 GPIO26 through a
+# level shifter into the VONVOFF fob, and the VONVOFF receiver landed
+# in the coil circuit.
+#
+# Terminal names and internal topology come from the manufacturer's own
+# wiring diagram in the listing gallery. Two properties of the purchased
+# receiver drive this harness and are not properties of a relay module:
+#
+#   1. It is LINE-POWERED. AC IN L/N is the unit's own supply, tapped
+#      across the control rails AHEAD of the seal-in so it is powered
+#      and listening before START is pressed.
+#   2. Its output is NOT a dry contact. The relay switches L only, so
+#      AC OUT L is simply switched AC IN L, and the two N terminals are
+#      a bonded common bus rather than a second pole.
+#
+# The manufacturer diagram runs AC OUT L/N straight to a contactor coil
+# (A1/A2). Do NOT copy that here — it bypasses the 3-wire seal-in, so
+# the saw would restart by itself when the RF link recovers. SR-4.
+#
+# Render:  wireviz hardware/harness/fob_and_receiver.yml
+
+metadata:
+  title: Heartbeat path — fob drive and receiver landings
+  description: |
+    The ESP32 has no relay to open. It holds the fob's ON pad asserted
+    through an optocoupler, the fob emits a continuous 433 MHz carrier,
+    and a receiver programmed to MOMENTARY mode holds its contact closed
+    only while that carrier arrives. Anything that stops the carrier
+    opens the contact and drops the contactor coil.
+
+    The RF hop is deliberately NOT drawn as a cable — it is an air gap,
+    and treating it as a conductor is how someone talks themselves into
+    trusting it. See ladder_coil_circuit.svg for the coil circuit
+    and esp32_supervisor.svg for the board.
+
+options:
+  fontname: sans-serif
+  bgcolor: white
+  color_mode: full
+
+connectors:
+  # ----- low-voltage side, SELV throughout -----
+  ESP:
+    type: ESP32-DevKitC-32E
+    subtype: B0GF1ZJCCN, 38-pin USB-C
+    pincount: 2
+    pinlabels: [GPIO26, GND]
+    notes: |
+      A 10 kΩ pulldown from GPIO26 to GND is mandatory and is fitted at
+      the board, not here. Floating GPIO26 on boot, crash or brown-out
+      must mean not-transmitting.
+  OPTO:
+    type: Optocoupler
+    subtype: PC817 / 4N25 / 4N35
+    pincount: 4
+    pinlabels: [A, K, C, E]
+    notes: |
+      330 Ω in series with the anode. Galvanic isolation means the ESP32
+      and the fob need no shared ground. Substituting an NPN (2N3904 etc.)
+      works but does tie ESP32 GND to fob GND.
+  FOB:
+    type: VONVOFF key fob
+    subtype: B07CTL3TG6, 433 MHz, 12 V A23 cell
+    pincount: 2
+    pinlabels: [ON-pad, BAT-]
+    notes: |
+      Open the fob and meter the ON button's two pads. One is fob ground;
+      the other goes to the encoder IC. Solder to the encoder side. The
+      pad sits on the fob's 12 V rail — a direct GPIO connection destroys
+      the ESP32. Two fobs are supplied; keep the second sealed as a spare.
+
+  # ----- mains side, inside the starter enclosure -----
+  L1CTL:
+    type: Control circuit L1
+    pincount: 1
+    pinlabels: [L1]
+    notes: |
+      Ahead of STOP and the seal-in. Read the A202C's coil voltage off
+      the coil label before tapping — the receiver accepts AC 100–240 V
+      single phase, so either a 120 V or a 240 V control circuit is fine,
+      but the tap has to match it.
+  L2CTL:
+    type: Control circuit L2 / return
+    pincount: 1
+    pinlabels: [L2]
+  RX:
+    type: VONVOFF RF receiver
+    subtype: B07CTL3TG6, AC 100-240 V, 30 A on a 40 A relay
+    pincount: 4
+    pinlabels: [AC IN L, AC IN N, AC OUT L, AC OUT N]
+    notes: |
+      MUST be programmed to momentary --- point movement, one press of the
+      learn button --- before it goes anywhere near the coil circuit. The
+      factory default is interlock, which latches and is fail-dangerous.
+
+      The relay switches L only. AC OUT L is switched AC IN L, not a dry
+      contact, so AC IN L has to stay permanently live and the receiver
+      belongs at the head of the rung. The two N terminals are a bonded
+      common bus; the manufacturer lands the incoming return on AC OUT N
+      and either one works.
+
+      The listing's spec table claims Contact Type: Normally Closed.
+      Settle it by observation during the momentary-mode check, not from
+      the listing. A contact that is closed while nothing is
+      transmitting means the fail-safe inversion is absent — stop.
+  SEAL:
+    type: Starter seal-in network
+    subtype: STOP, START and A202C aux
+    pincount: 1
+    pinlabels: [in]
+    notes: Downstream of the receiver. Feeds OL, then the M1 coil, then L2.
+
+cables:
+  W_GPIO_OPTO:
+    gauge: 24 AWG
+    length: 0.1
+    wirecount: 2
+    colors: [BN, BK]
+    notes: Brown carries the heartbeat through the 330 Ω series resistor.
+  W_OPTO_FOB:
+    gauge: 24 AWG
+    length: 0.2
+    wirecount: 2
+    colors: [BN, BK]
+    notes: |
+      Keep this short and strain-relieve it at the fob. The fob is a
+      moulded plastic case being asked to live in a shop enclosure.
+  W_L1_RX:
+    gauge: 16 AWG
+    length: 0.3
+    wirecount: 1
+    colors: [BK]
+    notes: |
+      Carries the control hot into AC IN L. This is both the receiver's
+      own supply and the line side of its relay — the unit does not
+      separate them, which is the whole reason it sits here.
+  W_L2_RX:
+    gauge: 16 AWG
+    length: 0.5
+    wirecount: 1
+    colors: [WH]
+    notes: |
+      Control-circuit return to the bonded N bus. Landed on AC OUT N to
+      match the manufacturer's diagram; AC IN N is the same node.
+  W_RX_SEAL:
+    gauge: 16 AWG
+    length: 0.3
+    wirecount: 1
+    colors: [BK]
+    notes: |
+      Ring terminals, torqued per the A202C label (#14–#10 at 35 in-lb).
+      30 A contacts on a roughly 1 A coil load is enormous margin.
+
+connections:
+  # ----- heartbeat drive, SELV -----
+  - - ESP: [1, 2]
+    - W_GPIO_OPTO: [1, 2]
+    - OPTO: [1, 2]        # A, K
+  - - OPTO: [3, 4]        # C, E
+    - W_OPTO_FOB: [1, 2]
+    - FOB: [1, 2]
+
+  # ----- receiver supply and relay line side: one and the same terminal,
+  #       tapped across the rails upstream of the seal-in -----
+  - - L1CTL: [1]
+    - W_L1_RX: [1]
+    - RX: [1]             # AC IN L
+  - - L2CTL: [1]
+    - W_L2_RX: [1]
+    - RX: [4]             # AC OUT N (bonded to AC IN N)
+
+  # ----- switched hot: head of the rung, into the seal-in network -----
+  - - RX: [3]             # AC OUT L
+    - W_RX_SEAL: [1]
+    - SEAL: [1]

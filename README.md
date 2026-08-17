@@ -52,6 +52,8 @@ Same-day protection using only parts on hand. Fail-safe via a **heartbeat** desi
 - No passive thermostat yet.
 - Nuisance-stop-prone by design. That's the correct direction — the alternative is unprotected running.
 
+This is what [`hardware/`](hardware/) is drawn for — every sheet, plus [`WIRING.md`](hardware/schematic/WIRING.md) and [`BOM.csv`](hardware/BOM.csv).
+
 ### Path B — Full retrofit → [ARCHITECTURE.md](ARCHITECTURE.md)
 
 End-state design. Two independent layers wired in series with the contactor coil:
@@ -69,6 +71,8 @@ flowchart LR
 - **Layer 2 — ESP32 supervisor.** K-type thermocouple bonded to the winding end turns via an AlN substrate, read through a MAX31855. Drives a **wired, opto-isolated relay** (energized-to-close) directly from a GPIO — no RF in the safety path.
 - Trip threshold below the thermostat's, so the ESP32 acts first in normal operation. The thermostat is the backstop.
 - Rate-of-rise tracking on a local web dashboard warns before a trip — the genuinely new capability, because it can tell the operator the shroud needs cleaning *before* the motor cooks.
+
+Deliberately **not drawn.** The diagrams under [`hardware/`](hardware/) show the parts that exist; a sheet full of components nobody owns is how a builder ends up wiring the wrong thing. Path B lives here as prose and as the open TASKs in [ARCHITECTURE.md](ARCHITECTURE.md), with each unpurchased part tracked in [`BOM.csv`](hardware/BOM.csv) and the thermostat's landing point marked as a ghost slot on the ladder sheet.
 
 Path B is what the saw ends up with. Path A is what gets it running until the missing parts (thermostat, K-type + MAX31855, isolated bench supply) arrive.
 
@@ -145,7 +149,7 @@ If Start doesn't pull in the contactor:
 | [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
 | [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
 | [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |
-| [`hardware/`](hardware/) | Physical build artifacts — schematics, BOM.csv, photos, datasheets. Stub for now; the design lives in `ARCHITECTURE.md` until it does. |
+| [`hardware/`](hardware/) | Physical build artifacts — schematics, harnesses, [`BOM.csv`](hardware/BOM.csv). Every diagram is drawn for the parts on hand; the end-state design lives in `ARCHITECTURE.md` as prose and open TASKs. |
 | [`firmware/`](firmware/) | ESP32 supervisor source — src, tests, build config. Stub for now; the design lives in `ARCHITECTURE.md § Reference pseudocode` until it does. |
 | [`CHANGELOG.md`](CHANGELOG.md) | Change history, and what the version number in `VERSION` covers. |
 | [`LICENSE`](LICENSE) | MIT + safety-scope notice. |

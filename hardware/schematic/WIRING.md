@@ -2,108 +2,180 @@
 
 The pin-level, build-without-translating-a-schematic reference. If you
 are wiring the board and only want to look at one thing, look at this
-table. The schematic (`esp32_supervisor.svg`) and pictorial
-(`esp32_pictorial.svg`) are cross-checks.
+table.
 
-All ESP32 pin numbers refer to the printed silkscreen on an
-**ESP32-DevKitC-32E** (the 30-pin variant used in this build).
+Schematic cross-checks: [`esp32_supervisor.svg`](esp32_supervisor.svg)
+for signal topology, [`esp32_pictorial.svg`](esp32_pictorial.svg) for
+where the modules physically sit,
+[`ladder_coil_circuit.svg`](ladder_coil_circuit.svg) for the coil
+circuit.
 
-## ESP32 power
+Parts, ASINs and full specs: [`../BOM.csv`](../BOM.csv). Everything
+here that isn't one of the three purchased parts is scrounged — one
+level-shifting part, three resistors, a USB phone charger, hookup wire.
 
-| ESP32 pin | Goes to | Wire colour | Notes |
-|---|---|---|---|
-| `VIN` | Isolated PSU **+5V** | red | PSU is Mean Well IRM-05-5 or equivalent. 5 V SELV. Do **not** feed 3V3 to VIN. |
-| `GND` (right, near VIN) | PSU **return** | black | Common bus with everything else's GND. |
-| `GND` (left, mid-column) | Same common GND bus | black | Tie both ESP32 GND pins together, do not run separate returns. |
-| `3V3` | MAX31855 `VCC` and NTC divider top | orange | Regulated on the DevKitC — do not connect an external 3V3 supply here. |
+## ESP32 power — through the USB-C connector
 
-## MAX31855 K-type thermocouple breakout
+| ESP32 | Goes to | Notes |
+|---|---|---|
+| `USB-C` port | UL-listed USB phone charger | **No VIN wire.** The board is powered through its own USB-C connector. A listed charger is a certified reinforced-isolation AC-DC supply, so the isolation question in TASK-2 does not arise here. |
+| `GND` | Common GND bus | Everything else's ground lands here. The DevKitC-32E has several GND pins; tie the ones you use together. |
+| `3V3` | NTC divider top | Regulated on the module. Do not connect an external 3.3 V supply here. |
 
-| MAX31855 pin | Goes to | Wire colour | Notes |
-|---|---|---|---|
-| `VCC` | ESP32 `3V3` | orange | Do not use 5 V — MAX31855 is 3.3 V only. |
-| `GND` | Common GND bus | black | |
-| `SCK` | ESP32 `GPIO18` | yellow | SPI clock. HSPI default. |
-| `SO` (a.k.a. MISO / DO) | ESP32 `GPIO19` | green | SPI data out from MAX31855. |
-| `CS` | ESP32 `GPIO5` | blue | Chip select. Active-LOW; firmware drives this. |
-| `T+` (yellow) | Motor pigtail: **yellow** K-type wire | yellow (K-type) | See `../harness/motor_pigtail.yml`. Do not swap polarity — K-type is polarised. |
-| `T−` (red) | Motor pigtail: **red** K-type wire | red (K-type) | The red lead is the negative on K-type — this is not a typo. |
+## DROK NTC divider — the trip source
 
-## NTC frame-temperature divider (advisory secondary sensor)
-
-Divider topology: `3V3 → 10 kΩ 1% (pullup) → GPIO34 → NTC 10 kΩ B3950 → GND`
+Divider topology: `3V3 → 10 kΩ 1% → GPIO34 → NTC 10 kΩ B3950 → GND`
 
 | Node | Goes to | Wire colour | Notes |
 |---|---|---|---|
-| Top of 10 kΩ pullup | ESP32 `3V3` | orange | |
-| Junction (pullup / NTC) | ESP32 `GPIO34` | purple | GPIO34 is ADC1_CH6 — **input only**, and ADC1 stays usable when Wi-Fi is active. Do **not** move this to an ADC2 pin. |
+| Top of 10 kΩ | ESP32 `3V3` | orange | Any resistor near 10 kΩ works. **Measure it** and put the measured value into the β equation — a 5% part can read 9.5–10.5 kΩ. |
+| Junction | ESP32 `GPIO34` | purple | ADC1_CH6, **input-only**. ADC1 stays usable while Wi-Fi is up. Do not move this to an ADC2 pin (GPIO0/2/4/12–15/25–27) — those read zero. |
 | Bottom of NTC | Common GND bus | black | |
-| NTC body | Motor frame, thermal grease under stainless housing | — | DROK B0F8NQ9S4R or equivalent. Advisory only — winding K-type is the trip authority. |
+| Probe body | Motor **frame**, fin channel near the drive end | — | Thermal grease, hose-clamped, insulated on the outboard face. Not the winding: the PVC lead and the 125 °C ceiling both rule that out. |
 
-## Relay module (opto-isolated, active-HIGH, NO output)
+The probe ships with a JST XH 2.54 2-pin connector. Cut it off and
+solder to hookup wire if you do not have the mate.
 
-| Relay pin | Goes to | Wire colour | Notes |
+**This NTC holds trip authority on its own.** There is no K-type and
+no thermostat yet, so thresholds are set from an observed baseline
+(BUILD-TONIGHT.md § 7 steps 8–9), not from the 110 °C winding figure
+in ARCHITECTURE.md.
+
+## Fob drive — GPIO26 through a level shifter
+
+The fob's ON-button pad sits on the fob's own ~12 V rail.
+**Never connect GPIO26 to it directly.**
+
+### Optocoupler version (recommended — galvanic isolation)
+
+| Pin | Goes to | Wire colour | Notes |
 |---|---|---|---|
-| `VCC` | +5 V bus (same as ESP32 VIN) | red | Not 3.3 V — cheap opto-relay modules are 5 V. |
-| `GND` | Common GND bus | black | |
-| `IN` | ESP32 `GPIO26` **and** 10 kΩ pulldown to GND | brown | The pulldown is non-optional. Floating GPIO26 during boot / crash / brown-out must leave the relay OPEN. |
-| `COM` | Passive thermostat NC lead (mains side) | 14 AWG mains-rated | Mains potential — see the DANGER block in `../../ARCHITECTURE.md`. |
-| `NO` | M1 contactor coil terminal `A1` | 14 AWG mains-rated | The relay is in series with the thermostat; either open drops the coil. |
-| `NC` | *not connected* | — | Leave open. NC is unused in a fail-safe topology. |
+| `A` (anode) | ESP32 `GPIO26` via 330 Ω | brown | |
+| `K` (cathode) | Common GND bus | black | |
+| `C` (collector) | Fob ON-button pad, encoder side | brown | Meter the two pads to find which one is *not* fob ground. |
+| `E` (emitter) | Fob battery negative | black | |
 
-## Ack button
+No shared ground between the ESP32 and the fob is required.
 
-| Wire | Goes to | Wire colour | Notes |
-|---|---|---|---|
-| Button pole 1 | ESP32 `GPIO27` | grey | Firmware enables the internal pullup — external pullup not required. |
-| Button pole 2 | Common GND bus | black | Momentary, normally-open. |
+### NPN version
 
-## Onboard status LED
-
-| ESP32 pin | Behaviour | Notes |
+| Pin | Goes to | Notes |
 |---|---|---|
-| `GPIO2` | Onboard blue LED on the DevKitC-32E | No external wire needed. See ARCHITECTURE.md for the LED-pattern-per-state table. |
+| Base | ESP32 `GPIO26` via 1 kΩ | 470 Ω–10 kΩ all work |
+| Collector | Fob ON-button pad, encoder side | |
+| Emitter | Fob battery negative | **Ties ESP32 GND to fob GND** — that common reference is required for this version to switch at all |
 
-## Motor pigtail — cable that leaves the motor
+2N3904 / 2N2222 / BC547 / S8050 are all fine.
 
-See `../harness/motor_pigtail.yml` for the full cable. Landing points:
+### MOSFET fallback (switches fob power, not the button)
 
-| Motor-side termination | Terminal-block landing (inside ESP32 enclosure) | Notes |
+Tape or solder-bridge the fob's ON button closed, then switch the
+fob's battery negative low-side with a logic-level N-FET (2N7000,
+BSS138, AO3400, IRLML2502, IRLZ44N). Gate through 220 Ω, plus a
+100 kΩ gate-to-source resistor for a defined off-state.
+
+### Mandatory on every version
+
+| Component | Between | Why |
 |---|---|---|
-| K-type at winding, yellow (+) | MAX31855 `T+` | AlN substrate at the sensor tip for isolation from mains potential. |
-| K-type at winding, red (−) | MAX31855 `T−` | |
-| Thermostat lead 1 (black, fiberglass) | Relay `COM` (jumper on terminal block) | Bimetallic snap-action, NC, auto-reset, **opens 120–130 °C** — see [TASK-6](../../ARCHITECTURE.md#task-6--source-the-bimetallic-thermostat), which is the specification of record. Not yet sourced, so this is a purchasing spec. It must stay **above** the ESP32's `TRIP_THRESHOLD` (110 °C): the supervisor is meant to act first and log the trip, with this contact as the unmonitored backstop. Ordering a ~110 °C part collapses the two layers into one. |
-| Thermostat lead 2 (black, fiberglass) | M1 contactor coil `A1` (via relay `NO` — the coil-circuit chain) | The thermostat is upstream of the relay in the coil circuit — see `ladder_coil_circuit.svg`. |
+| 10 kΩ pulldown | `GPIO26` and GND | ESP32 GPIOs float during boot, after a crash, and through a brown-out. Floating must mean *not transmitting*, which means the receiver contact opens. This is not optional. |
 
-## Mains-side coil-circuit landings
+## Status LED
 
-Not on the low-voltage sheet. Full chain in `ladder_coil_circuit.svg`:
+| ESP32 pin | Behaviour |
+|---|---|
+| `GPIO2` | Onboard blue LED on the DevKitC. No external wire. Six patterns — see BUILD-TONIGHT.md § 5. |
+
+There is **no ack button** in this build. `MANUAL_LOCKOUT` clears
+only by power-cycling the ESP32.
+
+## Receiver — mains side
+
+Not on the low-voltage sheet. Full chain in
+[`ladder_coil_circuit.svg`](ladder_coil_circuit.svg):
 
 ```
-L1 → STOP → [START ∥ M1 aux] → TSTAT (NC) → KA (ESP32 relay, NO) → OL → M1 coil → L2
+L1 → RX → STOP → [START ∥ M1 aux] → OL → M1 coil → L2
 ```
 
-Where `KA` is the relay `COM/NO` pair from this table. See
-`../harness/mains_and_coil.yml` for the physical harness inside the
-starter enclosure.
+### Terminals
+
+Four screw terminals in two pairs, per the manufacturer's wiring
+diagram in the listing gallery:
+
+| Terminal | Goes to | Notes |
+|---|---|---|
+| `AC IN L` | Control-circuit **L1**, ahead of STOP and the seal-in | Both the receiver's own supply *and* the line side of its relay. The unit does not separate them. |
+| `AC IN N` | — | Bonded to `AC OUT N` internally. Same node; use either. |
+| `AC OUT L` | **STOP**, then the rest of the rung | *Switched* `AC IN L`. **Not a dry contact.** |
+| `AC OUT N` | Control-circuit **L2** / return | The manufacturer's diagram lands the incoming return here. |
+
+Two consequences a dry relay module would not impose:
+
+1. **`AC IN L` must stay permanently live**, so the receiver goes at
+   the head of the rung. Feed it from downstream of the seal-in and
+   the unit is unpowered — relay open — at the moment START is
+   pressed, so the coil never latches and the saw never runs.
+2. **There is no dry contact to relocate and no jumper to fit.** One L
+   pair carries the rung, the N pair carries the return. Do not move
+   the receiver between the seal-in and the coil — that position
+   assumes the dry relay module of TASK-3, which the project does not
+   own.
+
+### Do not follow the manufacturer's diagram literally
+
+That diagram runs `AC OUT L` and `AC OUT N` straight to a contactor's
+coil terminals `A1`/`A2`. For a pump or a dust collector that is
+correct, and it is the right general idea — let the small relay switch
+a coil rather than the load.
+
+**On a saw it is unsafe.** Wiring the coil directly bypasses the
+3-wire seal-in, so the coil is energised whenever the relay is closed
+and **the saw restarts by itself** the moment the RF link recovers or
+the motor cools below `RESET_C`. That is exactly what SR-4 forbids.
+
+Keep the seal-in. `AC OUT L` feeds STOP, and after any trip the coil
+stays dropped until a human presses START.
+
+### One listing claim to distrust
+
+The listing's spec table says **"Contact Type: Normally Closed."** Do
+not act on that either way. Settle it by observation in the
+momentary-mode check: hold a fob button and the contact must close;
+release it and the contact must open. **If the contact is closed while
+nothing is transmitting, stop** — the fail-safe inversion this whole
+design rests on is not there.
 
 ## Sanity checklist before first power-up
 
-1. **Both ESP32 GND pins are jumpered together.** Test with a
-   multimeter (continuity) with the module unpowered.
-2. **10 kΩ pulldown between relay `IN` and GND.** Measure
-   resistance across relay IN and GND: should be ~10 kΩ.
-   Without this, GPIO26 float on boot could momentarily energise the
-   coil.
-3. **MAX31855 VCC reads 3.3 V**, not 5 V, when the ESP32 is powered.
-   A 5 V feed to VCC destroys the part.
-4. **K-type polarity.** Yellow is +, red is −. Reversing this reads
-   as a large negative temperature and the firmware will trip
-   immediately — annoying but safe.
-5. **NTC is on GPIO34, not on a GPIO0/2/4/12–15/25–27 (ADC2) pin.**
-   ADC2 conflicts with Wi-Fi and will read zeros.
-6. **Thermostat is wired IN SERIES with the ESP32 relay on the coil
-   circuit** — not in parallel, not on the low-voltage side. See
-   the ladder diagram.
-7. **PSU output is SELV, isolated from mains input.** Do not
-   substitute a non-isolated buck converter.
+1. **10 kΩ pulldown between GPIO26 and GND.** Measure it: ~10 kΩ.
+   Without it a floating GPIO26 on boot can transmit.
+2. **With the ESP32 unpowered, the fob must not transmit** and the
+   receiver contact must be open. Verify by observation.
+3. **Divider resistor measured**, and the measured value is in the
+   firmware's β equation.
+4. **NTC on GPIO34 (ADC1)**, not on an ADC2 pin.
+5. **Two-point calibration done** — ice water and boiling water,
+   both within ±2 °C, before the probe is mounted.
+6. **Receiver programmed to momentary**, verified by holding a fob
+   button and watching the contact drop within about a second of
+   release. Record the decay time; the heartbeat has to beat it. The
+   contact must be **open** with nothing transmitting.
+7. **Receiver `AC IN L` tapped upstream of the seal-in**, `AC OUT L`
+   feeding STOP, and the N bus on the control return. Not wired
+   straight to the coil.
+8. **Charger is a listed USB wall wart**, not the unidentified
+   "220 to 12 V buck converter" (see ARCHITECTURE.md TASK-2).
+
+## What this build does not have
+
+- **No passive layer.** SR-3 is unmet until the bimetallic
+  thermostat (TASK-6) is fitted. Every protective function on the
+  rung depends on the ESP32 continuing to transmit.
+- **Frame temperature, not winding temperature.** The NTC trails the
+  winding, so it is slower and less direct than the K-type of TASK-1.
+- **Continuous 433 MHz transmission** during ARMED — see
+  BUILD-TONIGHT.md § 9 on FCC Part 15.
+- **A probe that has fallen off but still reads shop ambient** is the
+  one fault the heartbeat does not catch. The `probe_verified` latch
+  in the firmware is a partial mitigation.

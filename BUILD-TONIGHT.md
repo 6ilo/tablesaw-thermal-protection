@@ -6,6 +6,19 @@
 
 **What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
 
+**Diagrams for this build** — everything under [`hardware/`](hardware/) is drawn for these exact parts:
+
+| Sheet | Shows |
+|---|---|
+| [`hardware/schematic/WIRING.md`](hardware/schematic/WIRING.md) | Pin-to-pin table |
+| [`hardware/schematic/esp32_supervisor.svg`](hardware/schematic/esp32_supervisor.svg) | Board side — USB-C power, NTC divider, fob drive |
+| [`hardware/schematic/esp32_pictorial.svg`](hardware/schematic/esp32_pictorial.svg) | Where each module sits, colour-coded wires |
+| [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg) | Receiver in the coil circuit |
+| [`hardware/schematic/oneline_mains.svg`](hardware/schematic/oneline_mains.svg) | Mains distribution and the supervisor's separate supply |
+| [`hardware/harness/`](hardware/harness/) | `frame_probe.yml`, `fob_and_receiver.yml` |
+
+Parts and purchase status: [`hardware/BOM.csv`](hardware/BOM.csv).
+
 ---
 
 ## 1. Architecture
@@ -17,8 +30,8 @@ NTC probe on motor frame
    ESP32  ──(transistor)──▶  433 MHz fob  ))) ▶  Receiver (MOMENTARY mode)
    in old switch compartment                          │
    powered by USB charger                             ▼
-                                          relay contacts in series
-                                          with contactor coil
+                                          receiver at the head of the
+                                          coil-circuit rung — see § 3
 ```
 
 **The fail-safe principle:** the receiver is programmed to **momentary** mode. Its relay is closed *only while receiving*. The ESP32 holds the fob button continuously while the motor is safe. Anything that stops transmission opens the relay.
@@ -102,12 +115,34 @@ Galvanic isolation between ESP32 and fob. No shared ground needed.
 - Verify: with the ESP32 unpowered, the fob must not transmit and the receiver relay must be open.
 
 ### Receiver into the coil circuit
+
+Drawn in [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg).
+
+The receiver has four screw terminals in two pairs. Per the manufacturer's own wiring diagram:
+
+| Terminal | Goes to |
+|---|---|
+| `AC IN L` | Control-circuit **L1**, ahead of STOP and the seal-in |
+| `AC IN N` | — (bonded to `AC OUT N` internally; same node) |
+| `AC OUT L` | **STOP**, then the rest of the rung |
+| `AC OUT N` | Control-circuit **L2** / return |
+
 ```
-… seal-in ──▶ Receiver COM/NO ──▶ Coil ──▶ OL ──▶ L2
+L1 ──▶ AC IN L ─[relay]─ AC OUT L ──▶ STOP ──▶ [START ∥ M1 aux] ──▶ OL ──▶ Coil ──▶ L2
+                    │
+              AC OUT N ─────────────────────────────────────────────────────────────▶ L2
 ```
-- Use COM and NO only. Leave NC unconnected.
+
+**The receiver goes at the head of the rung, not between the seal-in and the coil.** This follows from the part:
+
+- **`AC IN L` is both its supply and the line side of its relay.** The unit doesn't separate them, so that terminal has to stay permanently live. Feed it from downstream of the seal-in and the receiver is dead — relay open — at the instant START is pressed, so the coil never latches and the saw never starts.
+- **`AC OUT L` is switched `AC IN L`, not a dry contact.** Nothing to relocate, no jumper to fit.
+- **Everything downstream is unchanged.** STOP still breaks the rung. The seal-in still requires a physical START press after any trip.
 - 30 A contacts on a ~1 A coil load — enormous margin.
+- Read the A202C's **coil voltage off the coil label** before tapping. The receiver accepts AC 100–240 V single phase, so a 120 V or a 240 V control circuit both work, but the tap has to match the one you actually have.
 - Ring terminals on the coil-circuit taps, torqued per the A202C label (#14–#10 at 35 in-lb).
+
+> **Do not follow the manufacturer's diagram literally.** It runs `AC OUT L` and `AC OUT N` straight to a contactor's coil terminals `A1`/`A2`. For a pump or a dust collector that's correct — and the general idea is right, let the small relay switch a coil rather than the load. **On a saw it is unsafe:** wiring the coil directly bypasses the 3-wire seal-in, so the coil is energised whenever the relay is closed and **the saw restarts by itself** the moment the link recovers or the motor cools below `RESET_C`. That is what §1's "restart is always manual" claim depends on, and it is what SR-4 forbids.
 
 ---
 
@@ -125,6 +160,8 @@ Procedure:
 2. Press learn **once** (LED flashes once, then goes steady).
 3. Press the fob ON button to pair.
 4. **Verify momentary behavior:** hold the fob button — relay closes. Release — relay opens within about a second. If the relay stays closed after release, you are in toggle or latched mode. Clear and redo.
+
+    The listing's spec table claims **"Contact Type: Normally Closed."** Don't act on that either way — this step is what settles it. **If the relay is closed while nothing is transmitting, stop.** The entire fail-safe inversion in §1 depends on "not transmitting" meaning "contact open," and a genuinely NC output would invert it.
 5. **Measure the hold time.** Press and release the fob several times, timing from release to relay drop with a stopwatch or scope. This is the receiver's momentary decay period — typical 300–800 ms. Record the number; it is the timing budget the heartbeat must beat.
 
 The heartbeat model relies on the 433 MHz encoder in the fob emitting continuous frames while its input pad is held HIGH (PT2262 / EV1527 style — frame period ~40–100 ms). The ESP32 drives that pad HIGH via the transistor whenever it is ARMED and does not have to explicitly re-trigger — the encoder produces the frame stream. The receiver's hold timer bridges gaps between decoded frames. All three windows (encoder frame period ≪ receiver hold time ≪ firmware loop period) must be true for the link to sustain without chatter, and are verified in § 7 step 1.

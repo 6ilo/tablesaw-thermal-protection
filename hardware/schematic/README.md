@@ -1,21 +1,27 @@
 # Schematics and wiring
 
-Documentation-grade diagrams and pin tables for the retrofit. Not a
-PCB / EDA design — the eventual PCB port will be KiCad. Everything
+Documentation-grade diagrams and the pin table for the retrofit. Not
+a PCB / EDA design — the eventual PCB port will be KiCad. Everything
 here is drawn with [CircuiTikZ](https://ctan.org/pkg/circuitikz) and
 rendered to SVG, so it diffs as source, reviews on GitHub without any
 tooling, and uses the same IEC/IEEE symbol set an electrician already
 reads.
+
+**Every sheet is drawn for the hardware actually on hand.** Parts,
+ASINs and purchase status live in [`../BOM.csv`](../BOM.csv) — that is
+the single source for what exists and what is still TASK-*n*. The
+end-state design these sheets are a waypoint towards is described in
+[`../../ARCHITECTURE.md`](../../ARCHITECTURE.md).
 
 ## Contents
 
 | Artifact | Role | Rendered from |
 |---|---|---|
 | [`WIRING.md`](WIRING.md) | Full pin-to-pin table. **Start here if you are wiring the board.** | (markdown, no render step) |
-| [`esp32_supervisor.svg`](esp32_supervisor.svg) | Signal-level schematic — design of record for the low-voltage side | [`esp32_supervisor.tex`](esp32_supervisor.tex) |
+| [`esp32_supervisor.svg`](esp32_supervisor.svg) | Signal-level schematic — authoritative for signal topology | [`esp32_supervisor.tex`](esp32_supervisor.tex) |
 | [`esp32_pictorial.svg`](esp32_pictorial.svg) | Block-and-wire pictorial — where each module sits, colour-coded wires | [`esp32_pictorial.tex`](esp32_pictorial.tex) |
 | [`ladder_coil_circuit.svg`](ladder_coil_circuit.svg) | Ladder-logic view of the 3-wire seal-in with the retrofit interposed | [`ladder_coil_circuit.tex`](ladder_coil_circuit.tex) |
-| [`oneline_mains.svg`](oneline_mains.svg) | One-line diagram of the mains distribution + control-supply tap | [`oneline_mains.tex`](oneline_mains.tex) |
+| [`oneline_mains.svg`](oneline_mains.svg) | One-line of the mains distribution, control branch and supervisor supply | [`oneline_mains.tex`](oneline_mains.tex) |
 
 Shared style lives in [`tsstyle.tex`](tsstyle.tex) — palette, line
 weights, block and label styles, the isolation-boundary style, and the
@@ -24,15 +30,14 @@ change is a one-file edit.
 
 Which one to look at when:
 
-- **Bench-building the ESP32 side** — `WIRING.md` then cross-check
-  against `esp32_pictorial.svg`.
+- **Bench-building the board** — `WIRING.md`, then cross-check against
+  `esp32_pictorial.svg`.
 - **Reviewing the safety logic** — `ladder_coil_circuit.svg`. The
   ladder is the primary audit artifact for an electrician.
 - **Wiring inside the starter enclosure or the wall disconnect** —
-  `oneline_mains.svg` and `../harness/mains_and_coil.yml`.
-- **Understanding a specific ESP32 GPIO / SPI wire** —
-  `esp32_supervisor.svg` (the schematic is authoritative for signal
-  topology; the pictorial is just spatial).
+  `oneline_mains.svg` and [`../harness/`](../harness/).
+- **Understanding a specific GPIO** — `esp32_supervisor.svg` is
+  authoritative for signal topology; the pictorial is spatial only.
 
 ## Rendering
 
@@ -72,12 +77,13 @@ These hold across all four sheets.
 | Convention | Meaning |
 |---|---|
 | Red conductor | at mains potential |
-| Blue conductor | SELV (the isolated 5 V rail) |
+| Blue conductor | SELV (the isolated 5 V from the charger) |
 | Black conductor | logic / signal, or DC ground |
 | Dashed red line | isolation boundary — nothing may be drawn across it |
 | Filled dot | a junction. The **only** thing that means "connected" |
 | White break in a wire | a crossing, not a connection |
 | Green tint panel | added by the retrofit (vs. the OEM machine) |
+| Dashed grey outline | a part that is not fitted yet, or an off-board assembly |
 
 Prose belongs in the legend boxes and title block, not scattered
 across the canvas. If a note needs more than a few lines, it belongs
@@ -85,58 +91,65 @@ in `WIRING.md` or `../../ARCHITECTURE.md` instead.
 
 ## What's on each sheet
 
-### `esp32_supervisor.svg` — signal schematic (design of record)
+### `esp32_supervisor.svg` — signal schematic
 
-- ESP32-DevKitC-32E with the pin assignments from
-  [`../../ARCHITECTURE.md § Pin assignments`](../../ARCHITECTURE.md#pin-assignments)
-- MAX31855 SPI thermocouple front-end (SCK / MISO / CS to GPIO18 / 19 / 5)
-- NTC divider for the frame secondary sensor
-  (3V3 → 10 kΩ → GPIO34 → NTC → GND)
-- Opto-isolated relay module driven by GPIO26 with the 10 kΩ
-  pulldown that guarantees floating-GPIO = relay-open
-- Ack button (GPIO27 to GND, firmware pullup)
-- Status LED annotation on GPIO2 (onboard on the DevKitC)
-- The mains boundary at the relay contacts, drawn rather than
-  described
+- ESP32-DevKitC-32E fed through its **USB-C connector** from a
+  UL-listed phone charger. No VIN wire, and no isolated-PSU module —
+  the charger is the reinforced-isolation barrier.
+- DROK NTC divider on GPIO34 (3V3 → 10 kΩ → GPIO34 → NTC → GND). The
+  NTC is the **trip source**, not an advisory second sensor.
+- GPIO26 → 330 Ω → optocoupler → the fob's ON-button pad, with the
+  10 kΩ pulldown that guarantees floating-GPIO = not transmitting.
+  NPN, MOSFET and reed-relay alternates are legended.
+- The 433 MHz hop drawn as an air gap, not a conductor.
+- A "not fitted, and why" legend tying each absent part to its TASK.
 
 ### `esp32_pictorial.svg` — spatial / colour-coded view
 
-Laid out the way a breadboard actually sits: two power rails along the
-bottom, modules above them. Wire colours match the `WIRING.md` colour
-code exactly. Pin-level truth lives in `WIRING.md` and
-`esp32_supervisor.svg`; this drawing is spatial only.
+Laid out the way a breadboard actually sits: the shared rails along
+the bottom, modules above them. There are only two rails — 3V3 and
+GND — because nothing in this build runs off 5 V. Wire colours match
+the `WIRING.md` colour code exactly. Pin-level truth lives in
+`WIRING.md` and `esp32_supervisor.svg`; this drawing is spatial only.
 
 ### `ladder_coil_circuit.svg` — coil-circuit ladder
 
-The retrofit as an electrician sees it:
-
 ```
-L1 → STOP → [START ∥ M1 aux] → TSTAT (NC) → KA (ESP32 relay, NO)
-   → OL → M1 coil → L2
+L1 → RX → STOP → [START ∥ M1 aux] → OL → M1 coil → L2
 ```
 
-`TSTAT` and `KA` are in series — either open drops the coil, which
-breaks the M1-aux seal-in, which means the motor cannot restart on
-its own. Fail-safe topology. The legend tabulates what opens each
-element and what opens `KA` specifically.
+- The receiver's four real terminals (`AC IN L`/`N`, `AC OUT L`/`N`)
+  with its internal relay drawn across the L pair and the N pair shown
+  as the bonded bus it is. `AC OUT L` is switched `AC IN L`, so there
+  is no dry contact anywhere on the part.
+- `AC IN L` tapped from L1 **ahead of the seal-in**, because it is both
+  the receiver's supply and the line side of its relay.
+- A legend on why the manufacturer's own diagram — output straight to
+  a contactor coil `A1`/`A2` — must not be copied here: it bypasses the
+  seal-in and lets the saw restart by itself. SR-4.
+- The learn-button mode table (1 press = momentary; 2 = toggle; 3 =
+  interlock, the fail-dangerous factory default), plus the listing's
+  "Normally Closed" spec-table claim flagged for verification.
+- A ghost slot marking where the passive thermostat lands once TASK-6
+  is bought, so the gap is visible rather than implied.
 
 ### `oneline_mains.svg` — mains distribution
 
-- Utility → wall disconnect → tap point → 30 A motor branch → M1 →
-  OL → motor
-- Retrofit control-supply branch: tap → 250 mA fuse → isolated
-  AC-DC PSU → 5 V SELV → ESP32
-- The PSU's reinforced isolation barrier drawn through the middle of
-  the part, primary and secondary labelled
-- L2 return conductor closes the loop
-- Isolation and "what changed vs. OEM" summary in the legend
+- Utility → wall disconnect → 30 A motor branch → M1 → OL → motor.
+  **Untouched by the retrofit** — same disconnect, same branch, same
+  contactor, same overload heaters.
+- Control branch: tap → receiver `AC IN L`/`N` → `AC OUT L` into the
+  seal-in rung.
+- Supervisor supply drawn as what it is: a **separate wall outlet**,
+  not a tap off the machine. The legend spells out the consequence —
+  opening the machine disconnect does not de-energise the ESP32.
 
 ## What's *not* here
 
-- The mains coil circuit wiring inside the starter enclosure — see
-  [`../harness/mains_and_coil.yml`](../harness/mains_and_coil.yml)
-- Motor sensor pigtail — see
-  [`../harness/motor_pigtail.yml`](../harness/motor_pigtail.yml)
+Cable and interconnect diagrams live in [`../harness/`](../harness/):
+[`frame_probe.yml`](../harness/frame_probe.yml) for the sensor run,
+[`fob_and_receiver.yml`](../harness/fob_and_receiver.yml) for the
+heartbeat path and the receiver's mains landings.
 
 ## Long-term
 

@@ -265,12 +265,14 @@ BOM has been checked against actual Amazon purchases. Two parts cannot be used a
 ### Verified — keep as-is
 
 **ESP32 — `B0GF1ZJCCN`, ESP32-DevKitC-32E, 2-pack**
-Genuine ESP32-WROOM-32E, dual-core 240 MHz, 8 MB flash, USB-C, 38 GPIO (10 RTC), rated −40 to 85 °C. Arduino IDE / MicroPython / ESP-IDF supported. 8 MB flash is ample for the logging requirement; the second board is a spare for bench testing without pulling the installed one.
+Genuine ESP32-WROOM-32E, dual-core 240 MHz, 8 MB flash, **USB-C**, **38-pin header**, rated −40 to 85 °C. Arduino IDE / MicroPython / ESP-IDF supported. 8 MB flash is ample for the logging requirement; the second board is a spare for bench testing without pulling the installed one.
+
+Two consequences the diagrams have to reflect: the header is the 38-pin variant, not the 30-pin DOIT layout (every GPIO this project uses is on both, so the pin assignments port unchanged), and **power arrives through the USB-C connector**. In Path A that removes the VIN wire entirely — the board is fed from a USB charger.
 
 ### Verified — cannot be used at the winding; repurposed
 
-**Temperature sensor — `B0F8NQ9S4R`, DROK 10K NTC thermistor probe**
-Specs: NTC 10K / B3950, 1% tolerance, range **−25 °C to 125 °C**, 5 × 25 mm stainless probe, 1 m PVC cable, JST XH 2.54 mm 2-pin, 3–5 V.
+**Temperature sensor — `B0F8NQ9S4R`, DROK 10K NTC thermistor probe, 3-pack**
+Specs: NTC 10K / B3950, 1% tolerance, range **−25 °C to 125 °C**, 5 × 25 mm stainless probe, 1 m PVC cable, JST XH 2.54 mm 2-pin, 3–5 V, 0–10 mA. Three probes are supplied, so one can stay on the bench as a calibration comparison.
 
 Three disqualifying problems for end-turn mounting:
 
@@ -280,10 +282,20 @@ Three disqualifying problems for end-turn mounting:
 
 **Repurposed** to motor frame monitoring as a **secondary, advisory-only** input — never a trip source. Frame surface temperature on a TEFC motor runs well inside the 125 °C range, and the delta between frame and winding temperatures is the airflow-restriction signal. Use a fixed divider, oversample, and calibrate.
 
-**Wireless switch — `B0836KDYGH`, VONVOFF 433 MHz RF remote switch**
-Specs: 433 MHz RF receiver, 30 A relay, AC 110/120/240 V, learning-code, two fobs, 328 ft range, momentary/toggle/latched modes.
+**Wireless switch — `B07CTL3TG6`, VONVOFF (DONJON) 433 MHz RF remote switch**
+Specs: 433 MHz RF receiver, **AC 100–240 V single phase**, **30 A rated on a 40 A relay**, learning-code, **two fobs + one receiver**, 328 ft range. Working modes are *point movement* (momentary / jog), *self-locking* (toggle) and *interlock* — **interlock is the factory default**, and the mode is selected by the number of learn-button presses.
 
 Not usable in the coil circuit as the primary relay. It is **not GPIO-controllable** — it is a standalone RF receiver commanded by a key fob, not a relay module the ESP32 can drive. Putting a fob-commanded device in a safety path also violates SR-8, and its default latched behavior is fail-dangerous (see [Why RF was rejected as the primary path](#why-rf-was-rejected-as-the-primary-path)).
+
+Terminals, per the manufacturer's own wiring diagram in the listing gallery: **four screws in two pairs — `AC IN L` / `AC IN N` and `AC OUT L` / `AC OUT N`.** Three properties matter to anyone wiring it, and none is true of the relay module TASK-3 specifies:
+
+- **It is line-powered, and `AC IN L` is both its supply and the line side of its relay.** The unit does not separate them, so that terminal must stay permanently live. Tap it across the control rails *ahead of the seal-in network* — feed it from downstream and the unit is unpowered, its relay open, at the moment START is pressed, so the coil never latches.
+- **`AC OUT L` is switched `AC IN L`, not a dry contact.** The relay makes and breaks L only; the two N terminals are a bonded common bus rather than a second pole.
+- **The manufacturer's diagram wires `AC OUT L`/`AC OUT N` straight to a contactor coil `A1`/`A2`.** That is right for a pump or a dust collector and wrong here: it bypasses the 3-wire seal-in, so the coil is energised whenever the relay closes and the saw restarts by itself when the link recovers. SR-4 forbids that. Keep the seal-in; `AC OUT L` feeds STOP.
+
+All three are drawn in [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg).
+
+One listing claim to distrust: the spec table says *"Contact Type: Normally Closed."* Settle it by observation during the momentary-mode check (BUILD-TONIGHT.md § 4 step 4), not from the listing — a contact closed while nothing is transmitting would invert the fail-safe premise entirely.
 
 **Repurposed** to dust collector remote — the highest-value repurpose in the box, since inadequate dust extraction is the root cause of the original motor failure.
 
