@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install build dependencies
-        run: python3 -m pip install --require-hashes=false -r tools/requirements.txt
+        run: python3 -m pip install -r tools/requirements.txt
 
       - name: Validate the registry
         # Schema, required sections, cross-links, ref anchors, and every threshold
