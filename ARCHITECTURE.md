@@ -2,6 +2,13 @@
 
 Hardware and software design for the table saw thermal protection retrofit. Companion to the [README](README.md), which covers the *why*. For the same-day expedient build using only parts on hand, see [BUILD-TONIGHT.md](BUILD-TONIGHT.md).
 
+> **DANGER — 240 VAC throughout.** Every wiring section in this document sits on live mains. Before touching any of it:
+> - Lock out and tag out the machine disconnect. Physically lock a breaker in the OFF position.
+> - Verify L1, L2, and the coil-circuit terminals read 0 V with a multimeter you have first tested on a known-live circuit.
+> - Treat incoming L1 / L2 as live until proven otherwise — control-transformer or shared-neutral feedback is real.
+> - If the enclosure is metal, bond it to safety ground with a #10 or larger conductor at the ground stud. If plastic, no bond is needed.
+> - PPE: safety glasses. Insulated tools where you cannot fully de-energize.
+
 - [Motor and starter](#motor-and-starter)
 - [Control topology](#control-topology)
 - [Coil circuit after retrofit](#coil-circuit-after-retrofit)
@@ -419,8 +426,33 @@ Confirm against the thermostat's actual rating once TASK-6 is closed. `TRIP_THRE
 - Served locally from the ESP32; no cloud dependency.
 - Live temperature, current state, time in state.
 - History chart, trip event log.
-- Alert display for `WARN_THRESHOLD` and rate-of-rise anomalies.
+- Alert display for `WARN_THRESHOLD`, rate-of-rise anomalies, and `PROBE_UNVERIFIED_AT_ARMED_TIME` (see [Probe self-verification](#probe-self-verification)).
 - **Read-only with respect to protection.** May acknowledge alerts. May not lower thresholds, force-arm, or close the relay. Enforce server-side, not just in the UI.
+
+### Status LED patterns
+
+The onboard LED (GPIO2) is the operator's primary state indicator at the machine, since the dashboard may not be visible. Six distinguishable patterns cover every state that matters:
+
+| Pattern | State | Meaning |
+|---|---|---|
+| Solid ON | ARMED | Ready. Press Start. |
+| Slow blink (1 Hz) | COOLDOWN | Wait for solid. |
+| Fast blink (5 Hz) | TRIPPED — thermal | Motor overtemperature. |
+| Double-blink then pause | TRIPPED — sensor fault | Check sensor / wiring. |
+| SOS pattern | Boot self-test failed | Do not use. Power-cycle. |
+| Off | ESP32 unpowered or crashed pre-boot | Do not use. |
+
+`Off` and `boot fail` are both fail-safe — the relay is open in both — but the LED distinguishes them so the shop operator knows whether to look at the power supply or at the probe.
+
+Implementations must be non-blocking (millisecond counters, not `delay()`) so the LED handler never stalls the safety loop.
+
+### Probe self-verification
+
+A K-type thermocouple that has physically detached but still hangs near the winding may report plausible ambient-plus-a-little numbers indefinitely. The protection loop's range checks cannot distinguish this from a functioning-but-cool probe.
+
+Mitigation is advisory-only: at cold boot, capture the baseline temperature. Once the sensor observes a rise of `DETACH_MIN_RISE_C` (default 5 °C) above baseline, mark the probe *verified* — this flag never reverts. If the state has spent more than `DETACH_ALERT_MIN` minutes in ARMED without ever seeing that rise, raise `PROBE_UNVERIFIED_AT_ARMED_TIME` (dashboard alert only, does not trip). The alert clears when verification finally occurs.
+
+The check is soft by design. False alarms (the operator armed the saw and walked away) are recoverable; a hard trip on "no rise seen" would nuisance-stop legitimate long idle periods.
 
 ---
 
@@ -438,12 +470,15 @@ PIN_ACK      = 27                       // input, pullup
 PIN_LED      = 2
 
 TRIP_C          = 110
-WARN_C          = 95
-RESET_C         = 70
-COOLDOWN_HOLD_S = 120
+WARN_C           = 95
+RESET_C          = 70
+COOLDOWN_HOLD_S  = 120
 SENSOR_TIMEOUT_MS = 3000
-SAMPLE_HZ       = 4
-WDT_TIMEOUT_MS  = 5000
+SAMPLE_HZ        = 4
+WDT_TIMEOUT_MS   = 5000
+
+DETACH_MIN_RISE_C = 5      // probe verifies when reading rises this much
+DETACH_ALERT_MIN  = 30     // ARMED-minutes without verification → advisory
 
 STATE = { BOOT, ARMED, TRIPPED, COOLDOWN }
 ```
@@ -490,6 +525,12 @@ setup():
     // implausible-jump and staleness checks have valid references.
     last_valid_c  = last_valid_r.celsius
     last_valid_ms = now()
+
+    // Probe self-verification baseline. Latches true after first genuine rise.
+    session_baseline_c        = last_valid_r.celsius
+    probe_verified            = false
+    armed_ms_at_session_start = 0
+    detach_alert_raised       = false
 
     watchdog_enable(WDT_TIMEOUT_MS)
     start_task(protection_loop, core=0, priority=HIGHEST)
@@ -544,7 +585,20 @@ protection_loop():
                     // SR-4: relay closing does NOT start the saw.
                     // The 3-wire seal-in requires a physical Start press.
 
+        // Probe self-verification (advisory only, never trips).
+        // Once true, stays true — a probe that has warmed once is on.
+        if state == ARMED:
+            armed_ms_at_session_start += 1000 / SAMPLE_HZ
+        if not probe_verified and (r.celsius - session_baseline_c) >= DETACH_MIN_RISE_C:
+            probe_verified = true
+            log_event("PROBE_VERIFIED", r.celsius - session_baseline_c)
+        else if not probe_verified and not detach_alert_raised
+                and armed_ms_at_session_start > DETACH_ALERT_MIN * 60_000:
+            raise_alert("PROBE_UNVERIFIED_AT_ARMED_TIME")
+            detach_alert_raised = true
+
         sample_buffer.push(now(), r.celsius, frame_c, delta, state)
+        update_led(state, last_trip_cause)
         feed_watchdog()                  // ONLY reached on a complete cycle
         delay(1000 / SAMPLE_HZ)
 ```

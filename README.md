@@ -91,6 +91,44 @@ Two things must happen before any firmware or wiring:
 1. **Clean the fan shroud completely** and identify why the saw was packing dust into it. A monitoring system installed under the same cooling conditions will faithfully report a motor cooking itself.
 2. **Pull the starter's overload heaters and verify sizing.** With SF 1.0 and 14.4 A FLA, NEC caps overload protection at 115% → **16.5 A maximum**. If a previous owner oversized them, the current-protection half is already compromised and no amount of temperature sensing fixes that.
 
+## Operator instructions
+
+For the person who uses the saw day-to-day. Print this page and stick it inside the cabinet door.
+
+### Reading the LED
+
+| Pattern | What it means | What to do |
+|---|---|---|
+| **Solid** | Armed. Ready. | Press Start. |
+| **Slow blink** | Cooling down. | Wait for solid, then press Start. |
+| **Fast blink** | Thermal trip. Motor is hot. | Wait for slow blink, then solid. Check the fan shroud is clear. |
+| **Double-blink** | Sensor fault. | Do not use. Check the probe wiring. |
+| **SOS pattern** | Boot failure. | Do not use. Power-cycle. If it repeats, get the builder. |
+| **Off** | No power to the monitor. | Do not use. Check the wall disconnect and the ESP32's power. |
+
+### After a trip
+
+1. Wait for the LED to stop flashing and go solid.
+2. Look at the fan shroud on the back of the motor. Is it packed with dust? Clean it with compressed air before running again — that's the root cause of most trips.
+3. Press Start.
+4. Watch the first cut. If the LED goes to fast-blink within a few minutes at normal load, the motor still isn't shedding heat. Stop and investigate before continuing.
+
+### The saw won't start
+
+If Start doesn't pull in the contactor:
+
+- Check the LED. Anything other than solid means the monitor is holding the coil open — the machine is behaving correctly, wait or clean the shroud.
+- If the LED is solid but the contactor still won't pull in: the thermostat may be tripped (it auto-resets when cool), or the overload relay's red reset button may have popped. Check those.
+- Anything more than that: lock out the disconnect, verify with a meter, and open the starter enclosure.
+
+### Never
+
+- Never bypass the monitor. If the LED says "do not use," the answer is not "unplug the ESP32."
+- Never open the starter enclosure without locking out the disconnect first.
+- Never let the fan shroud stay packed with dust. That is the failure mode this whole system was built to catch.
+
+---
+
 ## Liability note
 
 This retrofit modifies a UL-listed motor and voids its listing. For a private shop that is the owner's call. If this saw is ever used in a commercial, institutional, insured-workshop, or teaching setting, the correct answer is a listed replacement protector and this project is not appropriate.

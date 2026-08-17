@@ -57,6 +57,14 @@ Needed to let a 3.3 V GPIO switch the fob's button, which likely sits on a 12 V 
 
 ## 3. Wiring
 
+> **DANGER — 240 VAC.** Before touching any of the wiring in this section or § 4:
+> - Lock out and tag out the machine disconnect. If the disconnect is a breaker, physically lock it in the OFF position and keep the key on you.
+> - With the disconnect open, verify the L1, L2, and coil-circuit terminals read 0 V with a multimeter that you have first tested on a known-live circuit.
+> - Treat incoming L1 and L2 as live until proven otherwise — feedback through control transformers or shared neutrals is real.
+> - If the starter enclosure is metal, confirm it is bonded to safety ground with a #10 or larger conductor terminated at the ground stud.
+> - PPE: safety glasses. Insulated tools if you cannot fully de-energize.
+> - Sensor mounting (§ 6) is on the motor frame and does not require mains work, but the belt and shaft still turn under gravity — chock the belt or remove it before reaching in.
+
 ### NTC divider
 ```
 3V3 ──[10 kΩ]──┬── GPIO34
@@ -132,7 +140,7 @@ Same structure as the full handoff, with these changes:
 ```
 PIN_NTC   = 34          // ADC1
 PIN_TX    = 26          // drives fob via transistor, 10k pulldown
-PIN_LED   = 2
+PIN_LED   = 2           // onboard blue LED, active-HIGH
 
 // FRAME temperature, not winding. Provisional — tune in §7.
 TRIP_C     = 90
@@ -141,6 +149,13 @@ RESET_C    = 55
 COOLDOWN_HOLD_S = 120
 SAMPLE_HZ  = 4
 WDT_TIMEOUT_MS = 5000
+
+// Probe-attachment self-verification. The one gap the heartbeat design
+// leaves is a probe that has fallen off but still reads shop ambient.
+// If temperature never rises >= DETACH_MIN_RISE_C above cold-boot baseline
+// within DETACH_ALERT_MIN minutes of ARMED time, raise an advisory alert.
+DETACH_MIN_RISE_C = 5
+DETACH_ALERT_MIN  = 30
 ```
 
 ### The inversion that matters
@@ -184,8 +199,45 @@ setup():
     // implausible-jump check has a valid reference on the very first cycle.
     last_c = (last_c_boot != null) ? last_c_boot : 25    // 25 = plausible ambient fallback
 
+    // Probe-attachment tracking: baseline captured once at cold boot.
+    // probe_verified flips true the first time we observe a genuine rise.
+    session_baseline_c        = last_c
+    probe_verified            = false
+    armed_ms_at_session_start = 0
+    detach_alert_raised       = false
+
     watchdog_enable(WDT_TIMEOUT_MS)
 ```
+
+### LED status patterns
+
+At the machine, without a dashboard, the LED is how the operator knows what state the supervisor is in. Six distinguishable patterns cover every state that matters:
+
+| Pattern | State | Meaning to the operator |
+|---|---|---|
+| Solid ON | ARMED | Ready. Press Start. |
+| Slow blink (1 Hz) | COOLDOWN | Wait for solid. |
+| Fast blink (5 Hz) | TRIPPED — thermal | Motor is hot. Clean the fan shroud. |
+| Double-blink then pause | TRIPPED — sensor fault | Do not use. Check probe wiring. |
+| SOS (··· − − − ···) | Boot self-test failed | Do not use. Power-cycle. If it repeats, check wiring. |
+| Off | ESP32 unpowered or crashed pre-boot | Do not use. Check the power. |
+
+`Off` and `boot fail` are both fail-safe — the relay is open in both. The LED distinguishes them for troubleshooting.
+
+```
+update_led(state, cause):
+    switch state:
+        case BOOT:      led_pattern_sos()
+        case ARMED:     led_on()
+        case COOLDOWN:  led_blink(period_ms=1000)
+        case TRIPPED:
+            if cause == "SENSOR_FAULT":
+                led_pattern_doubleblink()      // 50-50-50-850 ms
+            else:
+                led_blink(period_ms=200)
+```
+
+Call `update_led()` once per protection-loop iteration, after the state transition. The LED helpers are non-blocking (they toggle based on a millisecond counter, not `delay()`), so they never stall the safety loop.
 
 ```
 protection_loop():
@@ -238,6 +290,20 @@ protection_loop():
                     // Relay re-closing does NOT start the saw.
                     // Seal-in requires a physical Start press.
 
+        // Probe-attachment self-verification (advisory only, never trips).
+        // Once verified, we never un-verify — a probe that has warmed once is on.
+        if state == ARMED:
+            armed_ms_at_session_start += 1000 / SAMPLE_HZ
+        if not probe_verified and (c - session_baseline_c) >= DETACH_MIN_RISE_C:
+            probe_verified = true
+            log("PROBE_VERIFIED", c - session_baseline_c)
+        else if not probe_verified and not detach_alert_raised
+                and armed_ms_at_session_start > DETACH_ALERT_MIN * 60_000:
+            log("PROBE_UNVERIFIED_AT_ARMED_TIME",
+                minutes=DETACH_ALERT_MIN, rise=c - session_baseline_c)
+            detach_alert_raised = true
+
+        update_led(state, last_trip_cause)
         feed_watchdog()      // only reached on a complete cycle
         delay(1000 / SAMPLE_HZ)
 ```
@@ -262,7 +328,7 @@ Wi-Fi, web dashboard, flash logging. They are not protection. Get the cutout wor
 Position matters more than anything else here.
 
 1. **Location:** seat the probe in a fin channel on the motor frame, as close to the drive end as you can reach. That end runs hottest.
-2. **Contact:** AlN between probe and frame. The probe is cylindrical, so bed it — the goal is maximum contact area, not a neat appearance.
+2. **Contact:** **thermal grease** between the stainless probe body and the aluminum frame. Do **not** use the AlN substrate here — AlN was specified for the winding-side sensor where mains-potential isolation matters. The motor frame is bonded to safety ground, so no dielectric layer is needed on this side, and AlN's ceramic hardness works against contact area with a cylindrical probe. Save the AlN for Path B. Any silicone-based thermal paste (CPU-grade or better) is fine; a thin film only.
 3. **Clamp:** hose clamp, zip tie through the fins, or a scrap-metal strap. It must not shift with vibration.
 4. **Insulate:** thermal insulation over the outboard face so the probe reads the frame, not shop air. Skipping this is the most common way this project fails — you get plausible numbers that track nothing.
 5. **Route:** cable clear of the belt, pulleys, and the fan shroud outlet. Do not obstruct airflow.
