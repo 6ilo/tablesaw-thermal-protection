@@ -1,44 +1,20 @@
 # Harness diagrams
 
-Wireviz source files for the cable and interconnect diagrams. As in
-[`../schematic/`](../schematic/), files are split by build path and
-the `pathA_` prefix means *drawn for the hardware on hand*.
+Wireviz source for the cable and interconnect diagrams. Both are drawn
+for the hardware on hand; parts and purchase status live in
+[`../BOM.csv`](../BOM.csv).
 
-## Path A — parts on hand ([BUILD-TONIGHT.md](../../BUILD-TONIGHT.md))
-
-- **[`pathA_frame_probe.yml`](pathA_frame_probe.yml)** — the DROK
-  `B0F8NQ9S4R` NTC probe clamped to the outside of the motor frame,
-  extended back to the ESP32 enclosure. Nothing on this run is at mains
-  potential and it does not enter the motor.
-- **[`pathA_fob_and_receiver.yml`](pathA_fob_and_receiver.yml)** — the
-  heartbeat path. ESP32 `GPIO26` through an optocoupler into the
-  VONVOFF fob's ON pad, and the VONVOFF receiver landed at the head of
-  the coil-circuit rung: `AC IN L` from control L1, `AC OUT L` into
-  STOP, and the bonded N pair on the control return. The 433 MHz hop is
-  deliberately *not* drawn as a cable.
-
-## Path B — end-state target ([ARCHITECTURE.md](../../ARCHITECTURE.md))
-
-- **[`mains_and_coil.yml`](mains_and_coil.yml)** — inside the starter
-  enclosure. Isolated-PSU tap in parallel with L1/L2 (through the
-  250 mA fuse), plus the seal-in → thermostat → ESP32 relay →
-  contactor coil → OL → L2 chain.
-- **[`motor_pigtail.yml`](motor_pigtail.yml)** — leaves the motor
-  through the existing conduit entry. K-type thermocouple leads at the
-  winding (yellow +, red −, PTFE) plus the two thermostat leads (black,
-  fiberglass), landing on a 4-way terminal block inside the ESP32
-  enclosure.
-
-Neither Path B harness can be built today: the isolated PSU (TASK-2),
-the dry relay module (TASK-3), the K-type/MAX31855 (TASK-1) and the
-thermostat (TASK-6) are all unpurchased.
-
-**The two mains-side files are not interchangeable.** `mains_and_coil.yml`
-models a dry three-terminal relay module between the seal-in and the
-coil. The purchased receiver in `pathA_fob_and_receiver.yml` is
-line-powered and has no dry contact at all: `AC IN L` is both its
-supply and the line side of its relay, so it has to stay permanently
-live and the unit sits at the head of the rung.
+- **[`frame_probe.yml`](frame_probe.yml)** — the DROK NTC probe
+  clamped to the outside of the motor frame, extended back to the
+  ESP32 enclosure. Nothing on this run is at mains potential and it
+  does not enter the motor.
+- **[`fob_and_receiver.yml`](fob_and_receiver.yml)** — the heartbeat
+  path. ESP32 `GPIO26` through an optocoupler into the VONVOFF fob's
+  ON pad, and the VONVOFF receiver landed at the head of the
+  coil-circuit rung: `AC IN L` from control L1, `AC OUT L` into STOP,
+  and the bonded N pair on the control return. The 433 MHz hop is
+  deliberately *not* drawn as a cable — it is an air gap, and drawing
+  it as a conductor is how someone talks themselves into trusting it.
 
 ## Rendering
 
@@ -52,10 +28,8 @@ uv tool install wireviz              # or: pipx install wireviz
 Then from the repo root:
 
 ```bash
-wireviz hardware/harness/pathA_frame_probe.yml
-wireviz hardware/harness/pathA_fob_and_receiver.yml
-wireviz hardware/harness/mains_and_coil.yml
-wireviz hardware/harness/motor_pigtail.yml
+wireviz hardware/harness/frame_probe.yml
+wireviz hardware/harness/fob_and_receiver.yml
 ```
 
 Each command produces `.svg`, `.png`, `.html`, `.gv`, `.tsv`, and
@@ -89,5 +63,4 @@ is for signal schematics; a sensor pigtail is a *cable*, not a
 circuit).
 
 Signal-level board schematics live in
-[`../schematic/`](../schematic/). Purchased-part inventory with ASINs
-is in [`../BOM.csv`](../BOM.csv).
+[`../schematic/`](../schematic/).

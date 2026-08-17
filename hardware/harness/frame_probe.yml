@@ -1,24 +1,21 @@
 # Wireviz source for the Path A sensor run: the DROK NTC probe on the
 # motor frame back to the ESP32 enclosure.
 #
-# PATH A — HARDWARE ON HAND. The Path B equivalent is motor_pigtail.yml,
-# which carries a K-type thermocouple and thermostat leads into the
-# motor interior. Neither of those parts has been purchased, and this
-# run does not enter the motor at all: the probe clamps to the outside
-# of the frame.
+# The probe clamps to the OUTSIDE of the frame — this run never enters
+# the motor. The end-state design in ARCHITECTURE.md puts a K-type at
+# the winding instead (TASK-1); that part has not been purchased.
 #
-# Render:  wireviz hardware/harness/pathA_frame_probe.yml
+# Render:  wireviz hardware/harness/frame_probe.yml
 
 metadata:
-  title: Path A frame-temperature probe run
+  title: Frame-temperature probe run
   description: |
     DROK B0F8NQ9S4R NTC probe (10 kΩ / B3950, −25 to +125 °C) seated in
     a fin channel on the motor frame with thermal grease, clamped, and
     insulated on its outboard face. The 1 m PVC lead is extended to the
     ESP32 enclosure.
 
-    This probe is the TRIP SOURCE in Path A — there is no K-type and no
-    thermostat. It reads frame temperature, which trails the winding, so
+    This probe is the TRIP SOURCE — there is no K-type and no thermostat. It reads frame temperature, which trails the winding, so
     thresholds come from an observed baseline (BUILD-TONIGHT.md § 7
     steps 8–9), not from the 110 °C winding figure in ARCHITECTURE.md.
 

@@ -293,7 +293,7 @@ Terminals, per the manufacturer's own wiring diagram in the listing gallery: **f
 - **`AC OUT L` is switched `AC IN L`, not a dry contact.** The relay makes and breaks L only; the two N terminals are a bonded common bus rather than a second pole.
 - **The manufacturer's diagram wires `AC OUT L`/`AC OUT N` straight to a contactor coil `A1`/`A2`.** That is right for a pump or a dust collector and wrong here: it bypasses the 3-wire seal-in, so the coil is energised whenever the relay closes and the saw restarts by itself when the link recovers. SR-4 forbids that. Keep the seal-in; `AC OUT L` feeds STOP.
 
-All three are drawn in [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg).
+All three are drawn in [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg).
 
 One listing claim to distrust: the spec table says *"Contact Type: Normally Closed."* Settle it by observation during the momentary-mode check (BUILD-TONIGHT.md § 4 step 4), not from the listing — a contact closed while nothing is transmitting would invert the fail-safe premise entirely.
 

@@ -10,8 +10,7 @@
 # to paths, so the SVGs carry no font dependency and render
 # identically in GitHub, browsers, and Inkscape.
 
-SHEETS := esp32_supervisor ladder_coil_circuit oneline_mains esp32_pictorial \
-          pathA_supervisor pathA_ladder_coil_circuit
+SHEETS := esp32_supervisor ladder_coil_circuit oneline_mains esp32_pictorial
 SVGS   := $(addsuffix .svg,$(SHEETS))
 
 LATEX    := latex

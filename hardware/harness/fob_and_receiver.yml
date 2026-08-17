@@ -2,10 +2,6 @@
 # level shifter into the VONVOFF fob, and the VONVOFF receiver landed
 # in the coil circuit.
 #
-# PATH A — HARDWARE ON HAND. The Path B equivalent is mains_and_coil.yml,
-# which models a dry COM/NO/NC relay module and an isolated PSU module.
-# Neither part has been purchased.
-#
 # Terminal names and internal topology come from the manufacturer's own
 # wiring diagram in the listing gallery. Two properties of the purchased
 # receiver drive this harness and are not properties of a relay module:
@@ -21,10 +17,10 @@
 # (A1/A2). Do NOT copy that here — it bypasses the 3-wire seal-in, so
 # the saw would restart by itself when the RF link recovers. SR-4.
 #
-# Render:  wireviz hardware/harness/pathA_fob_and_receiver.yml
+# Render:  wireviz hardware/harness/fob_and_receiver.yml
 
 metadata:
-  title: Path A heartbeat path — fob drive and receiver landings
+  title: Heartbeat path — fob drive and receiver landings
   description: |
     The ESP32 has no relay to open. It holds the fob's ON pad asserted
     through an optocoupler, the fob emits a continuous 433 MHz carrier,
@@ -34,8 +30,8 @@ metadata:
 
     The RF hop is deliberately NOT drawn as a cable — it is an air gap,
     and treating it as a conductor is how someone talks themselves into
-    trusting it. See pathA_ladder_coil_circuit.svg for the coil circuit
-    and pathA_supervisor.svg for the board.
+    trusting it. See ladder_coil_circuit.svg for the coil circuit
+    and esp32_supervisor.svg for the board.
 
 options:
   fontname: sans-serif

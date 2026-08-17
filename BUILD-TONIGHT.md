@@ -6,16 +6,18 @@
 
 **What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
 
-**Diagrams for this build** — drawn for these exact parts, not the Path B target:
+**Diagrams for this build** — everything under [`hardware/`](hardware/) is drawn for these exact parts:
 
 | Sheet | Shows |
 |---|---|
-| [`hardware/schematic/pathA_supervisor.svg`](hardware/schematic/pathA_supervisor.svg) | Board side — USB-C power, NTC divider, fob drive |
-| [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg) | Receiver in the coil circuit |
-| [`hardware/schematic/WIRING-PATH-A.md`](hardware/schematic/WIRING-PATH-A.md) | Pin-to-pin table |
-| [`hardware/harness/`](hardware/harness/) | `pathA_frame_probe.yml`, `pathA_fob_and_receiver.yml` |
+| [`hardware/schematic/WIRING.md`](hardware/schematic/WIRING.md) | Pin-to-pin table |
+| [`hardware/schematic/esp32_supervisor.svg`](hardware/schematic/esp32_supervisor.svg) | Board side — USB-C power, NTC divider, fob drive |
+| [`hardware/schematic/esp32_pictorial.svg`](hardware/schematic/esp32_pictorial.svg) | Where each module sits, colour-coded wires |
+| [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg) | Receiver in the coil circuit |
+| [`hardware/schematic/oneline_mains.svg`](hardware/schematic/oneline_mains.svg) | Mains distribution and the supervisor's separate supply |
+| [`hardware/harness/`](hardware/harness/) | `frame_probe.yml`, `fob_and_receiver.yml` |
 
-Everything under `hardware/` whose name does *not* start with `pathA` is Path B and contains parts that have not been bought.
+Parts and purchase status: [`hardware/BOM.csv`](hardware/BOM.csv).
 
 ---
 
@@ -114,7 +116,7 @@ Galvanic isolation between ESP32 and fob. No shared ground needed.
 
 ### Receiver into the coil circuit
 
-Drawn in [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg).
+Drawn in [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg).
 
 The receiver has four screw terminals in two pairs. Per the manufacturer's own wiring diagram:
 

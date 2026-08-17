@@ -1,17 +1,24 @@
 % ============================================================
-% oneline_mains.tex — mains distribution after retrofit.
+% oneline_mains.tex — mains distribution after the retrofit.
 %
-%   Motor branch:
+%   Motor branch (unchanged by the retrofit):
 %     DISC -> 30 A -> M1 (Size 1) -> OL heater -> motor
 %
-%   Control-supply branch (RETROFIT ADDITION):
-%     tap after DISC -> 250 mA fuse -> isolated AC-DC PSU
-%                    -> 5 V SELV rail to the ESP32 supervisor
+%   Control branch (RETROFIT ADDITION):
+%     control circuit -> VONVOFF receiver AC IN L/N
+%                     -> AC OUT L into the seal-in rung
 %
-% The control branch is tapped on the load side of the DISC and
-% the line side of M1, so the ESP32 stays powered even when the
-% coil drops. That is deliberate: it must stay alive to log the
-% trip and hold the coil open until the operator acks.
+%   Supervisor supply (RETROFIT ADDITION, off-machine):
+%     a separate 120 V wall outlet -> UL-listed USB charger
+%                                  -> 5 V SELV -> ESP32
+%
+% The supervisor supply is deliberately NOT tapped from the
+% machine. ARCHITECTURE.md's end-state design does tap it, behind
+% a 250 mA fuse and an isolated PSU module, so that opening the
+% machine disconnect de-energises the supervisor. That module
+% (TASK-2) has not been bought, so today the ESP32 runs off a
+% wall wart — which means the disconnect does NOT kill it. Called
+% out in the legend, because it changes what "locked out" means.
 %
 % Regenerate with:  make oneline_mains.svg
 % ============================================================
@@ -33,25 +40,22 @@
 \ctikzset{bipoles/length=1.1cm}
 
 % ============================================================
-% Provenance banner — which hardware this sheet is drawn for
+% Provenance banner
 % ============================================================
-\node[font=\scriptsize\bfseries, tsmains, anchor=south west] at (0,2.6)
-  {PATH B TARGET --- THE ISOLATED AC-DC MODULE IS
-   \textbf{NOT PURCHASED} (TASK-2, blocking).};
-\node[font=\scriptsize, tsmute, anchor=south west] at (0,2.2)
-  {Path A powers the ESP32 from a UL-listed USB charger on a 120\,V
-   outlet instead --- see \texttt{pathA\_supervisor.svg}.};
+\node[font=\scriptsize\bfseries, tssafe, anchor=south west] at (0,2.6)
+  {DRAWN FOR THE HARDWARE ON HAND. The motor branch is untouched by
+   the retrofit.};
 
 % ============================================================
-% Retrofit highlight — drawn behind everything
+% Retrofit highlight — control branch
 % ============================================================
 \begin{scope}[on background layer]
-  \fill[tssafe!7, rounded corners=4pt] (4.7,-7.4) rectangle (17.1,-2.6);
+  \fill[tssafe!7, rounded corners=4pt] (3.6,-8.0) rectangle (14.9,-2.9);
   \draw[tssafe!35, line width=0.8pt, rounded corners=4pt]
-        (4.7,-7.4) rectangle (17.1,-2.6);
+        (3.6,-8.0) rectangle (14.9,-2.9);
 \end{scope}
-\node[font=\scriptsize\bfseries, tssafe, anchor=north west] at (4.85,-7.52)
-  {ADDED BY THE RETROFIT — control supply};
+\node[font=\scriptsize\bfseries, tssafe, anchor=north west] at (3.75,-8.12)
+  {ADDED BY THE RETROFIT --- control branch};
 
 % ============================================================
 % Utility source
@@ -71,7 +75,7 @@
 \draw[mainswire] (3.8,0) -- (6.6,0);
 \draw (5.4,0) node[circ, color=tsmains]{};
 \node[note, anchor=south, align=center, tssafe] at (5.4,0.55)
-  {retrofit tap\\\scriptsize load side of DISC,\\line side of M1};
+  {control-circuit tap\\\scriptsize load side of DISC,\\line side of M1};
 
 \draw[mainswire] (6.6,0) to[fuse] (8.0,0);
 \node[font=\small\bfseries, anchor=south] at (7.3,1.15) {30\,A};
@@ -83,7 +87,7 @@
 \node[note, anchor=north, align=center] at (9.9,1.05)
   {contactor,\\NEMA Size 1};
 \node[note, anchor=north, align=center, tssafe] at (9.9,-0.75)
-  {held closed by the\\coil circuit — see\\\texttt{ladder\_coil\_circuit.svg}};
+  {held closed by the\\coil circuit --- see\\\texttt{ladder\_coil\_circuit.svg}};
 
 \draw[mainswire] (10.6,0) -- (11.8,0);
 \draw[mainswire] (11.8,0) to[R] (13.2,0);
@@ -106,102 +110,134 @@
 \node[font=\small\bfseries, anchor=north] at (9.2,-9.1) {L2};
 
 % ============================================================
-% Control-supply branch (retrofit)
+% Control branch — the RF receiver's supply and switched output
 % ============================================================
 \draw[mainswire] (5.4,0) -- (5.4,-4.2);
-\draw[mainswire] (5.4,-4.2) -- (6.2,-4.2);
-\draw[mainswire] (6.2,-4.2) to[fuse] (7.6,-4.2);
-\node[font=\small\bfseries, anchor=south] at (6.9,-3.35) {250\,mA};
-\node[note, anchor=north] at (6.9,-3.45) {control fuse};
-\draw[mainswire] (7.6,-4.2) -- (8.6,-4.2);
+\draw[mainswire] (5.4,-4.2) -- (6.6,-4.2);
 
-% ---- isolated AC-DC PSU, with its isolation barrier drawn ----
-% The dashed line down the middle IS the reinforced barrier; nothing
-% is allowed to be drawn across it.
-\draw[block, fill=white] (8.6,-5.9) rectangle (13.2,-3.2);
-\draw[isoline] (10.9,-5.9) -- (10.9,-3.2);
-\node[font=\scriptsize\bfseries, tsmains, anchor=north] at (9.75,-3.35)
-  {PRIMARY};
-\node[font=\scriptsize\bfseries, tsselv, anchor=north] at (12.05,-3.35)
-  {SECONDARY};
-% The tap is drawn L1-to-L2 on a 240 V split-phase service, so the
-% module sees 240 V line-to-line and there is no neutral involved.
-% ARCHITECTURE.md § Power supply is explicit about this; the label
-% used to read 120 V, which contradicted the drawing beside it.
-\node[note, anchor=north, tsmains] at (9.75,-4.55) {240\,V AC};
-\node[note, anchor=north, tsselv]  at (12.05,-4.55) {5\,V DC};
-\node[pinlbl, anchor=west] at (8.72,-4.2) {L1};
-\node[pinlbl, anchor=west] at (8.72,-5.2) {L2};
-\node[pinlbl, anchor=east] at (13.08,-4.2) {+V};
-\node[pinlbl, anchor=east] at (13.08,-5.2) {$-$V};
-\node[font=\small\bfseries, tsink, anchor=north, align=center] at (10.9,-6.05)
-  {Isolated AC-DC PSU};
-\node[note, anchor=north, align=center] at (10.9,-6.55)
-  {Mean Well IRM-05-5 or Recom RAC03-05SK};
+\draw[block, fill=white] (6.6,-6.4) rectangle (11.8,-3.4);
+\node[font=\small\bfseries, tsink, anchor=north] at (9.2,-3.55)
+  {VONVOFF RF receiver};
+\node[note, anchor=north, align=center] at (9.2,-4.05)
+  {\texttt{B07CTL3TG6}\\AC 100--240\,V, momentary mode};
+\node[pinlbl, anchor=west] at (6.72,-4.2) {AC IN L};
+\node[pinlbl, anchor=west] at (6.72,-5.6) {AC OUT N};
+\node[pinlbl, anchor=east] at (11.68,-4.2) {AC OUT L};
 
-% Second leg back to L2 — line-to-line, no neutral in this circuit
-\draw[mainswire] (8.6,-5.2) -- (4.2,-5.2) -- (4.2,-9.0);
+\draw[mainswire] (11.8,-4.2) -- (13.6,-4.2);
+\draw (13.6,-4.2) node[ocirc, color=tsmains]{};
+\node[note, anchor=west, align=left, tsmains] at (13.8,-4.2)
+  {$\rightarrow$ STOP, then the\\seal-in rung. Full ladder\\on
+   \texttt{ladder\_coil\_circuit.svg}.};
+
+% N bus back to L2 — on its own drop so it cannot be mistaken for
+% a continuation of the AC IN L conductor at x = 5.4
+\draw[mainswire] (6.6,-5.6) -- (4.2,-5.6);
+\draw[mainswire] (4.2,-5.6) -- (4.2,-9.0);
 \draw (4.2,-9.0) node[circ, color=tsmains]{};
 
-% ---- SELV output ----
-\draw[selvwire] (13.2,-4.2) -- (16.4,-4.2);
-\draw[selvwire] (13.2,-5.2) -- (16.4,-5.2);
-\draw (16.4,-4.2) node[ocirc, color=tsselv]{};
-\draw (16.4,-5.2) node[ocirc, color=tsselv]{};
-\node[note, anchor=west, tsselv] at (13.4,-3.7)
-  {\textbf{+5\,V DC (SELV)} $\rightarrow$ ESP32 supervisor};
-\node[note, anchor=west, tsselv] at (13.4,-5.7)
-  {0\,V return $\rightarrow$ common GND bus};
+\node[note, anchor=north west, align=left, tssafe] at (4.6,-6.6)
+  {Tapped ahead of the seal-in so the receiver is powered and listening
+   before START is\\
+   pressed. Read the A202C's coil voltage off the coil label before
+   landing this ---\\
+   the receiver takes either 120\,V or 240\,V, but the tap has to match
+   what is there.};
+
+% ============================================================
+% Supervisor supply — a SEPARATE circuit, not the machine's
+% ============================================================
+\begin{scope}[on background layer]
+  \fill[tssafe!7, rounded corners=4pt] (0,-15.6) rectangle (11.6,-11.4);
+  \draw[tssafe!35, line width=0.8pt, rounded corners=4pt]
+        (0,-15.6) rectangle (11.6,-11.4);
+\end{scope}
+\node[font=\scriptsize\bfseries, tssafe, anchor=north west] at (0.15,-15.72)
+  {ADDED BY THE RETROFIT --- supervisor supply, off-machine};
+
+\node[font=\small\bfseries, anchor=south west] at (0.3,-12.0)
+  {120\,V wall outlet};
+\node[note, anchor=north west, align=left] at (0.3,-12.1)
+  {a separate branch circuit,\\not this machine's};
+\draw[mainswire] (0.4,-13.1) -- (3.4,-13.1);
+\draw[mainswire] (0.4,-14.1) -- (3.4,-14.1);
+
+\draw[block, fill=white] (3.4,-14.9) rectangle (7.8,-12.3);
+\draw[isoline] (5.6,-14.9) -- (5.6,-12.3);
+\node[font=\scriptsize\bfseries, tsmains, anchor=north] at (4.5,-12.45)
+  {PRIMARY};
+\node[font=\scriptsize\bfseries, tsselv, anchor=north] at (6.7,-12.45)
+  {SECONDARY};
+\node[note, anchor=north, tsmains] at (4.5,-13.5) {120\,V AC};
+\node[note, anchor=north, tsselv]  at (6.7,-13.5) {5\,V DC};
+\node[font=\small\bfseries, tsink, anchor=north, align=center] at (5.6,-15.0)
+  {UL-listed USB charger};
+
+\draw[selvwire] (7.8,-13.1) -- (10.4,-13.1);
+\draw[selvwire] (7.8,-14.1) -- (10.4,-14.1);
+\draw (10.4,-14.1) node[ocirc, color=tsselv]{};
+\draw (10.4,-14.1) node[ocirc, color=tsselv]{};
+\node[note, anchor=west, tsselv, align=left] at (8.0,-12.6)
+  {\textbf{+5\,V (SELV)} $\rightarrow$ ESP32 USB-C};
+\node[note, anchor=west, tsselv, align=left] at (8.0,-14.6)
+  {0\,V $\rightarrow$ common GND bus};
 
 % ============================================================
 % Danger banner
 % ============================================================
 \node[danger, anchor=north west, text width=8.4cm] at (0,-9.8) {%
   Everything drawn in red is at mains potential. Only the SELV pair
-  right of the PSU isolation barrier is safe to touch. Lock out the
-  disconnect before working on any of it.};
+  right of the charger's isolation barrier is safe to touch. Lock out
+  the disconnect before working on any of it.};
 
 % ============================================================
-% Legend
+% Legends
 % ============================================================
-\node[legendbox, anchor=north west, text width=8.1cm] at (0,-12.0) {%
+\node[legendbox, anchor=north west, text width=8.1cm] at (0,-17.2) {%
   \textbf{What changed vs.\ the OEM Powermatic}\\[4pt]
   \begin{tabular}{@{}p{0.35cm}@{}p{7.1cm}@{}}
     --- & Klixon BEC2921 \emph{removed} from the motor internal
           circuit (was a manual-reset thermal in series with the
           winding lead)\\[3pt]
-    $+$ & Passive bimetallic thermostat wired into the coil circuit\\[3pt]
-    $+$ & ESP32 supervisor relay (KA), in series with that thermostat\\[3pt]
-    $+$ & Control-supply tap: 250\,mA fuse and an isolated AC-DC PSU
-          feeding the ESP32 at 5\,V DC\\
+    $+$ & VONVOFF RF receiver in the control circuit, at the head of
+          the seal-in rung\\[3pt]
+    $+$ & ESP32 supervisor and NTC probe, powered from a wall
+          outlet\\[3pt]
+    $=$ & Motor branch untouched --- same disconnect, same 30\,A
+          branch, same contactor, same overload heaters\\
   \end{tabular}
 };
 
-\node[legendbox, anchor=north west, text width=8.1cm] at (9.0,-12.0) {%
-  \textbf{Isolation}\\[4pt]
-  \begin{tabular}{@{}p{2.05cm}@{\hspace{4pt}}p{5.35cm}@{}}
-    PSU input   & reinforced, UL 61010 / IEC 60950 rated part\\[2pt]
-    PSU output  & SELV, referenced to enclosure ground\\[2pt]
-    ESP32 $\rightarrow$ coil & opto-input \emph{and} contact gap
-                              on the relay module\\[2pt]
-    TC at winding & AlN dielectric substrate\\
-  \end{tabular}\\[6pt]
-  \textbf{Not on this sheet}\\[3pt]
-  \begin{tabular}{@{}p{3.5cm}@{\hspace{4pt}}p{3.9cm}@{}}
-    Seal-in start/stop  & \texttt{ladder\_coil\_circuit.svg}\\[1pt]
-    ESP32 board wiring  & \texttt{esp32\_supervisor.svg}\\[1pt]
-    Motor sensor pigtail& \texttt{../harness/motor\_pigtail.yml}\\[1pt]
-    Enclosure interior  & \texttt{../harness/mains\_and\_coil.yml}\\
+\node[legendbox, anchor=north west, text width=8.9cm] at (9.0,-17.2) {%
+  \textcolor{tsmains}{\textbf{The disconnect does not kill the
+  supervisor}}\\[4pt]
+  The ESP32 is fed from a wall outlet on a different circuit, so
+  opening the machine disconnect leaves it powered and transmitting.
+  That is harmless --- the receiver is fed from the machine's own
+  control circuit and dies with it, so nothing can close --- but do
+  not read a lit LED as "the machine is live," or a dark one as "the
+  machine is dead."\\[5pt]
+  ARCHITECTURE.md's end-state design removes this by tapping the
+  supervisor from the machine behind a 250\,mA fuse and an isolated
+  AC-DC module, so one disconnect kills everything. That module is
+  TASK-2 and has not been bought.\\[5pt]
+  \textbf{Isolation on this sheet}\\[3pt]
+  \begin{tabular}{@{}p{2.7cm}@{\hspace{4pt}}p{5.4cm}@{}}
+    USB charger  & reinforced, by virtue of the listing\\[2pt]
+    Optocoupler  & ESP32 to fob --- see
+                   \texttt{esp32\_supervisor.svg}\\[2pt]
+    Receiver     & none. It is line-powered throughout.\\
   \end{tabular}
 };
 
 % ============================================================
 % Title block
 % ============================================================
-\node[titleblock, anchor=north west, text width=6.4cm] at (10.2,-9.8) {%
-  {\normalsize\bfseries Mains distribution — one-line}\\[2pt]
-  {\color{tsmute}Motor branch and retrofit control supply}\\[5pt]
+\node[titleblock, anchor=north west, text width=6.6cm] at (12.4,-9.8) {%
+  {\normalsize\bfseries Mains distribution --- one-line}\\[2pt]
+  {\color{tsmute}Motor branch, control branch, supervisor supply}\\[5pt]
   {\color{tsmute}Table-saw thermal protection retrofit}\\
+  {\color{tsmute}Coil circuit: \texttt{ladder\_coil\_circuit.svg}}\\
   {\color{tsmute}Source: \texttt{oneline\_mains.tex}}%
 };
 
