@@ -7,6 +7,12 @@ sdkconfig.old
 managed_components/
 dependencies.lock
 
+# Wireviz intermediates (keep only the .svg render alongside the .yml source)
+hardware/harness/*.png
+hardware/harness/*.html
+hardware/harness/*.gv
+hardware/harness/*.tsv
+
 # Editor / OS
 .vscode/
 .idea/

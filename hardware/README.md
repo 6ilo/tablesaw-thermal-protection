@@ -1,32 +1,30 @@
 # Hardware
 
-Physical build artifacts for the retrofit. Currently a stub — contents land here as the project moves from paper design to bench build.
+Physical build artifacts for the retrofit.
 
-## Intended structure
+## Contents
 
-```
-hardware/
-├── schematic/     KiCad or hand-drawn schematic of the low-voltage side
-│                  (ESP32, MAX31855, relay driver, NTC divider, isolated PSU)
-├── enclosure/     3D-printable brackets, panel cutouts, or mounting fixtures
-├── photos/        Annotated photos of the built system: A202C terminal
-│                  block with retrofit taps marked, sensor mounting on
-│                  the winding, enclosure interior
-├── BOM.csv        Machine-readable BOM — verified purchases + not-yet-
-│                  ordered items with recommended part numbers
-└── datasheets/    PDF copies of datasheets for parts that get hard to
-                   find later (Marathon motor plate, Gould A202C wiring
-                   diagram, MAX31855, chosen thermostat, isolated PSU)
-```
+| Path | Contents |
+|---|---|
+| [`schematic/`](schematic/) | Board-level signal schematic of the ESP32 supervisor. SchemDraw source + rendered SVG. |
+| [`harness/`](harness/) | Cable and mains-interconnect diagrams. Wireviz YAML source; render locally per the harness README. |
 
-## Where the design currently lives
+## Intended structure (not yet created)
 
-Until artifacts exist here, the design of record is:
+| Path | Purpose |
+|---|---|
+| `enclosure/` | 3D-printable brackets, panel cutouts, mounting fixtures — lands here when a physical build exists |
+| `photos/` | Annotated photos of the built system (A202C terminal block with retrofit taps marked, sensor mounting on the winding, enclosure interior) |
+| `BOM.csv` | Machine-readable BOM — will land here when `wireviz` is run on the harness YAML (Wireviz emits a `.bom.tsv` per harness; combine + convert to CSV) |
+| `datasheets/` | PDF copies of datasheets for parts that get hard to find later — Marathon motor plate, Gould A202C wiring diagram, MAX31855, chosen thermostat, isolated PSU |
+
+## Design of record
+
+Until the intended-structure artifacts land, the design lives in:
 
 - [`../ARCHITECTURE.md`](../ARCHITECTURE.md) — Coil circuit, Power supply, Wiring diagram, Pin assignments, Sensor mounting, Bill of materials
 - [`../BUILD-TONIGHT.md`](../BUILD-TONIGHT.md) — § 3 Wiring, § 6 Sensor mounting for the same-day expedient build
-
-When the schematic or photos land here, extract the BOM to `BOM.csv` and update the top-level `ARCHITECTURE.md` to link into this directory rather than duplicating the material.
+- [`schematic/`](schematic/) and [`harness/`](harness/) — as they populate, extract the corresponding BOM rows to `BOM.csv` and reduce duplication in the top-level docs
 
 ## Safety
 
