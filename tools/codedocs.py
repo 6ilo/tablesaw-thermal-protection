@@ -426,7 +426,16 @@ def render_body(doc: Doc) -> str:
     pattern = re.compile(
         rf"(<h2>{re.escape(LOTO_SECTION)}</h2>.*?)(?=<h2>)", re.DOTALL
     )
-    return pattern.sub(r'<div class="loto">\1</div>', html, count=1)
+    html = pattern.sub(r'<div class="loto">\1</div>', html, count=1)
+    # Same-page links are written as [If it keeps happening](#if-it-keeps-happening)
+    # because GitHub mints heading anchors for free. python-markdown does not, so the
+    # device copy — the one with no internet to fall back on — needs them injected, or
+    # the "stop and read this" link at the end of every procedure goes nowhere.
+    return re.sub(
+        r"<h2>(.*?)</h2>",
+        lambda m: f'<h2 id="{slugify(m.group(1))}">{m.group(1)}</h2>',
+        html,
+    )
 
 
 def verify_bundle(site: Path) -> list[str]:
@@ -442,12 +451,18 @@ def verify_bundle(site: Path) -> list[str]:
         gz = site / (html.name + ".gz")
         if not gz.exists() or gzip.decompress(gz.read_bytes()) != html.read_bytes():
             problems.append(f"{html.name}: gzip copy missing or does not round-trip")
+        ids = set(re.findall(r'\bid="([^"]+)"', text))
         for href in re.findall(r'href="([^"]+)"', text):
-            if href.startswith(("http://", "https://", "#", "mailto:")):
+            if href.startswith(("http://", "https://", "mailto:")):
                 continue
-            target = href.split("#")[0]
+            target, _, anchor = href.partition("#")
             if target and not (site / target).exists():
                 problems.append(f"{html.name}: dead local link {href!r}")
+                continue
+            # A same-page anchor that lands nowhere is silent on GitHub, which mints
+            # its own, and broken only here — on the copy read at the machine.
+            if anchor and not target and anchor not in ids:
+                problems.append(f"{html.name}: dead in-page anchor {href!r}")
         if re.search(r"^\s*#{2,}\s", text, re.MULTILINE):
             problems.append(f"{html.name}: unrendered markdown heading")
         if re.search(r"\]\([^)]*\.md\)", text):

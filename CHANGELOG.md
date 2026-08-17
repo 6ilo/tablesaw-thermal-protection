@@ -56,9 +56,12 @@ aspirational. Implements the documentation half of
   external requests, light and dark themes, gzip-precompressed with a manifest. QR codes
   are generated on-device-build with [segno](https://pypi.org/project/segno/), because a
   phone joined to the saw's access point has no route to github.com.
-- **Lockout callouts rendered inline.** Any code whose remediation means reaching into
-  the fan shroud or opening the starter enclosure restates the lockout requirement in
-  the page itself. The `README`'s warnings do not travel with the operator.
+- **Lockout callouts rendered inline.** Every code whose remediation requires locking out
+  the disconnect restates that requirement in the page itself rather than linking to it —
+  the `README`'s warnings do not travel with the operator. Codes where a lockout would be
+  actively *wrong* say so instead: clearing a lockout needs the disconnect **on**, because
+  the supervisor is powered from downstream of it and a locked-out supervisor cannot see
+  the ack press.
 - **[`.github/workflows/error-codes.yml`](.github/workflows/error-codes.yml)** — runs the
   gate, proves the bundle builds, verifies the committed index is current, and enforces a
   100 KiB gzipped flash budget so the docs cannot quietly grow into the log ring buffer's

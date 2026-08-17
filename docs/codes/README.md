@@ -18,6 +18,13 @@ for each. These pages are the **single source** for three artifacts:
 Nothing here is hand-copied into firmware. If a code's text changes, the device's copy
 changes with it on the next build. See [issue #1](https://github.com/6ilo/tablesaw-thermal-protection/issues/1).
 
+> **These pages describe the Path B end state.** Several parts of that design are
+> recorded as not yet ordered — the bimetallic thermostat, the K-type sensor and its
+> MAX31855, the GPIO relay, and the isolated supply. See
+> [ARCHITECTURE.md § Open questions](../../ARCHITECTURE.md#open-questions). Where a code
+> tells you another layer is still protecting the motor, confirm that layer is actually
+> fitted before you act on it.
+
 ## The registry
 
 Registry version **1.0.0**. Codes are **append-only** — once published,
@@ -63,7 +70,7 @@ operator card inside the cabinet door.
 |---|---|
 | `trip` | The relay opened. The saw stopped and cannot be started until the condition clears. |
 | `lockout` | The relay opened and will not re-close on its own. A physical ack press is required. |
-| `warning` | Advisory. The saw keeps running and the status LED stays **solid** — this page is the only place the warning appears. |
+| `warning` | Advisory. The saw keeps running and the status LED stays **solid** — the web dashboard is the only place the warning is announced. |
 | `info` | Feedback about something the operator did, not a fault. |
 
 ## Adding a code
