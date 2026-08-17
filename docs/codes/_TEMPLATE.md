@@ -19,6 +19,15 @@ refs:
 Two or three sentences. Plain language. What the supervisor observed, and what it
 did about it. Name the threshold and its value if one is involved.
 
+## Before you touch anything
+
+Required if and only if `loto: true` — `codedocs.py check` enforces both directions,
+and it must sit here, between "What happened" and "Do this now". Delete this heading
+when `loto: false`.
+
+What has to be de-energized and proven dead before the steps below, and why. On the
+device bundle this section renders as a hazard callout, not as ordinary prose.
+
 ## Do this now
 
 1. Numbered, imperative, in the order the operator should do them.

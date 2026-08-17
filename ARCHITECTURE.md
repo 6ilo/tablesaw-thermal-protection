@@ -451,9 +451,9 @@ Confirm against the thermostat's actual rating once TASK-6 is closed. `TRIP_THRE
 
 ### Error codes
 
-Every operator-visible fault and advisory has a stable identifier — `E01`–`E08` for trips
-and lockouts, `W01`–`W03` for advisories. The registry, and the remediation text for each
-code, lives in [`docs/codes/`](docs/codes/).
+Every operator-visible fault and advisory has a stable identifier — `E01`–`E07` for trips
+and lockouts, `E08` for operator notices, `W01`–`W03` for advisories. The registry, and the
+remediation text for each code, lives in [`docs/codes/`](docs/codes/).
 
 That directory is the **single source** for three artifacts: the pages rendered on GitHub,
 the offline HTML bundle served from the ESP32 over the `ALN Table Saw` access point, and
@@ -477,7 +477,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ### Status LED patterns
 
-The onboard LED (GPIO2) is the operator's primary state indicator at the machine, since the dashboard may not be visible. Six distinguishable patterns cover every state that matters:
+The onboard LED (GPIO2) is the operator's primary state indicator at the machine, since the dashboard may not be visible. Seven distinguishable patterns cover every state that matters:
 
 | Pattern | State | Meaning |
 |---|---|---|
