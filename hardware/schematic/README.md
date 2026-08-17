@@ -145,15 +145,18 @@ in `WIRING.md` or `../../ARCHITECTURE.md` instead.
 L1 → RX → STOP → [START ∥ M1 aux] → OL → M1 coil → L2
 ```
 
-- The receiver's `AC-IN` pair tapped across the rails **ahead of the
-  seal-in**, because it is line-powered and must be listening before
-  START is pressed.
-- Its contact at the head of the rung — the placement that is correct
-  whether the output turns out to be a dry contact or an
-  internally-derived switched line, with the meter check to tell them
-  apart in the legend.
+- The receiver's four real terminals (`AC IN L`/`N`, `AC OUT L`/`N`)
+  with its internal relay drawn across the L pair and the N pair shown
+  as the bonded bus it is. `AC OUT L` is switched `AC IN L`, so there
+  is no dry contact anywhere on the part.
+- `AC IN L` tapped from L1 **ahead of the seal-in**, because it is both
+  the receiver's supply and the line side of its relay.
+- A legend on why the manufacturer's own diagram — output straight to
+  a contactor coil `A1`/`A2` — must not be copied here: it bypasses the
+  seal-in and lets the saw restart by itself. SR-4.
 - The learn-button mode table (1 press = momentary; 2 = toggle; 3 =
-  interlock, the fail-dangerous factory default).
+  interlock, the fail-dangerous factory default), plus the listing's
+  "Normally Closed" spec-table claim flagged for verification.
 - A ghost slot marking where Path B's thermostat lands, so the gap is
   visible rather than implied.
 

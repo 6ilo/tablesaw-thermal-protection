@@ -287,12 +287,15 @@ Specs: 433 MHz RF receiver, **AC 100–240 V single phase**, **30 A rated on a 4
 
 Not usable in the coil circuit as the primary relay. It is **not GPIO-controllable** — it is a standalone RF receiver commanded by a key fob, not a relay module the ESP32 can drive. Putting a fob-commanded device in a safety path also violates SR-8, and its default latched behavior is fail-dangerous (see [Why RF was rejected as the primary path](#why-rf-was-rejected-as-the-primary-path)).
 
-Two further properties matter to anyone wiring it, and neither is true of the relay module TASK-3 specifies:
+Terminals, per the manufacturer's own wiring diagram in the listing gallery: **four screws in two pairs — `AC IN L` / `AC IN N` and `AC OUT L` / `AC OUT N`.** Three properties matter to anyone wiring it, and none is true of the relay module TASK-3 specifies:
 
-- **It is line-powered, not a dry relay module.** The receiver takes its own operating supply from an AC input pair. That supply must be tapped across the control rails *ahead of the seal-in network* — feed it from downstream and the unit is unpowered, its contact open, at the moment START is pressed, so the coil never latches.
-- **Its output pair may not be a dry contact.** These units ship both ways and the listing does not say which. Before wiring, with the receiver unpowered, meter continuity from the AC input line terminal to each output terminal. If one is bonded, the output is an internally-derived switched line rather than an isolated contact.
+- **It is line-powered, and `AC IN L` is both its supply and the line side of its relay.** The unit does not separate them, so that terminal must stay permanently live. Tap it across the control rails *ahead of the seal-in network* — feed it from downstream and the unit is unpowered, its relay open, at the moment START is pressed, so the coil never latches.
+- **`AC OUT L` is switched `AC IN L`, not a dry contact.** The relay makes and breaks L only; the two N terminals are a bonded common bus rather than a second pole.
+- **The manufacturer's diagram wires `AC OUT L`/`AC OUT N` straight to a contactor coil `A1`/`A2`.** That is right for a pump or a dust collector and wrong here: it bypasses the 3-wire seal-in, so the coil is energised whenever the relay closes and the saw restarts by itself when the link recovers. SR-4 forbids that. Keep the seal-in; `AC OUT L` feeds STOP.
 
-Both are drawn in [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg).
+All three are drawn in [`hardware/schematic/pathA_ladder_coil_circuit.svg`](hardware/schematic/pathA_ladder_coil_circuit.svg).
+
+One listing claim to distrust: the spec table says *"Contact Type: Normally Closed."* Settle it by observation during the momentary-mode check (BUILD-TONIGHT.md § 4 step 4), not from the listing — a contact closed while nothing is transmitting would invert the fail-safe premise entirely.
 
 **Repurposed** to dust collector remote — the highest-value repurpose in the box, since inadequate dust extraction is the root cause of the original motor failure.
 

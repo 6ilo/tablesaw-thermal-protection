@@ -109,27 +109,52 @@ Not on the low-voltage sheet. Full chain in
 L1 → RX → STOP → [START ∥ M1 aux] → OL → M1 coil → L2
 ```
 
-Two things about the receiver that a dry-contact relay module would
-not impose:
+### Terminals
 
-1. **It is line-powered.** Its `AC-IN` pair must be tapped across the
-   control rails *ahead of the seal-in network*, so it is powered and
-   listening before START is pressed. Feed it from downstream of the
-   seal-in and its contact is open at the moment START is pressed —
-   the coil never latches and the saw never runs.
-2. **Its output may not be a dry contact.** These units are sold both
-   ways. Before wiring, with the receiver **unpowered**, meter
-   continuity from `AC-IN L` to each output terminal:
+Four screw terminals in two pairs, per the manufacturer's wiring
+diagram in the listing gallery:
 
-   | Meter says | What you have |
-   |---|---|
-   | Output isolated from `AC-IN` on both pins | A genuine dry contact |
-   | An output pin bonded to `AC-IN L` (or `N`) | An internally-derived switched line |
+| Terminal | Goes to | Notes |
+|---|---|---|
+| `AC IN L` | Control-circuit **L1**, ahead of STOP and the seal-in | Both the receiver's own supply *and* the line side of its relay. The unit does not separate them. |
+| `AC IN N` | — | Bonded to `AC OUT N` internally. Same node; use either. |
+| `AC OUT L` | **STOP**, then the rest of the rung | *Switched* `AC IN L`. **Not a dry contact.** |
+| `AC OUT N` | Control-circuit **L2** / return | The manufacturer's diagram lands the incoming return here. |
 
-   Head-of-rung placement is correct either way, which is why the
-   diagram draws it there. Do not move it between the seal-in and
-   the coil — that is the Path B position, and it assumes the relay
-   module this project does not own.
+Two consequences a dry relay module would not impose:
+
+1. **`AC IN L` must stay permanently live**, so the receiver goes at
+   the head of the rung. Feed it from downstream of the seal-in and
+   the unit is unpowered — relay open — at the moment START is
+   pressed, so the coil never latches and the saw never runs.
+2. **There is no dry contact to relocate and no jumper to fit.** One L
+   pair carries the rung, the N pair carries the return. Do not move
+   the receiver between the seal-in and the coil — that is the Path B
+   position, and it assumes the relay module this project does not own.
+
+### Do not follow the manufacturer's diagram literally
+
+That diagram runs `AC OUT L` and `AC OUT N` straight to a contactor's
+coil terminals `A1`/`A2`. For a pump or a dust collector that is
+correct, and it is the right general idea — let the small relay switch
+a coil rather than the load.
+
+**On a saw it is unsafe.** Wiring the coil directly bypasses the
+3-wire seal-in, so the coil is energised whenever the relay is closed
+and **the saw restarts by itself** the moment the RF link recovers or
+the motor cools below `RESET_C`. That is exactly what SR-4 forbids.
+
+Keep the seal-in. `AC OUT L` feeds STOP, and after any trip the coil
+stays dropped until a human presses START.
+
+### One listing claim to distrust
+
+The listing's spec table says **"Contact Type: Normally Closed."** Do
+not act on that either way. Settle it by observation in the
+momentary-mode check below: hold a fob button and the contact must
+close; release it and the contact must open. **If the contact is
+closed while nothing is transmitting, stop** — the fail-safe
+inversion this whole design rests on is not there.
 
 ## Sanity checklist before first power-up
 
@@ -144,9 +169,11 @@ not impose:
    both within ±2 °C, before the probe is mounted.
 6. **Receiver programmed to momentary**, verified by holding a fob
    button and watching the contact drop within about a second of
-   release. Record the decay time; the heartbeat has to beat it.
-7. **Receiver `AC-IN` tapped upstream of the seal-in**, and its
-   output type confirmed by meter.
+   release. Record the decay time; the heartbeat has to beat it. The
+   contact must be **open** with nothing transmitting.
+7. **Receiver `AC IN L` tapped upstream of the seal-in**, `AC OUT L`
+   feeding STOP, and the N bus on the control return. Not wired
+   straight to the coil.
 8. **Charger is a listed USB wall wart**, not the unidentified
    "220 to 12 V buck converter" (see ARCHITECTURE.md TASK-2).
 

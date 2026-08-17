@@ -6,15 +6,20 @@
 # which models a dry COM/NO/NC relay module and an isolated PSU module.
 # Neither part has been purchased.
 #
-# Two properties of the purchased receiver drive this harness and are
-# not properties of a relay module:
+# Terminal names and internal topology come from the manufacturer's own
+# wiring diagram in the listing gallery. Two properties of the purchased
+# receiver drive this harness and are not properties of a relay module:
 #
-#   1. It is LINE-POWERED. Its AC-IN pair is tapped across the control
-#      rails AHEAD of the seal-in, so the unit is powered and listening
-#      before START is pressed.
-#   2. Its OUT pair may not be a dry contact. Meter AC-IN L against each
-#      OUT pin with the unit unpowered before wiring — see the notes on
-#      the RX connector.
+#   1. It is LINE-POWERED. AC IN L/N is the unit's own supply, tapped
+#      across the control rails AHEAD of the seal-in so it is powered
+#      and listening before START is pressed.
+#   2. Its output is NOT a dry contact. The relay switches L only, so
+#      AC OUT L is simply switched AC IN L, and the two N terminals are
+#      a bonded common bus rather than a second pole.
+#
+# The manufacturer diagram runs AC OUT L/N straight to a contactor coil
+# (A1/A2). Do NOT copy that here — it bypasses the 3-wire seal-in, so
+# the saw would restart by itself when the RF link recovers. SR-4.
 #
 # Render:  wireviz hardware/harness/pathA_fob_and_receiver.yml
 
@@ -86,18 +91,22 @@ connectors:
     type: VONVOFF RF receiver
     subtype: B07CTL3TG6, AC 100-240 V, 30 A on a 40 A relay
     pincount: 4
-    pinlabels: [AC-IN L, AC-IN N, OUT 1, OUT 2]
+    pinlabels: [AC IN L, AC IN N, AC OUT L, AC OUT N]
     notes: |
       MUST be programmed to momentary --- point movement, one press of the
       learn button --- before it goes anywhere near the coil circuit. The
       factory default is interlock, which latches and is fail-dangerous.
 
-      Before wiring, with the receiver UNPOWERED, meter continuity from
-      AC-IN L to OUT 1 and to OUT 2:
-        * isolated on both: a genuine dry contact
-        * one pin bonded: an internally-derived switched line
-      The head-of-rung placement drawn in pathA_ladder_coil_circuit.svg
-      is correct either way, which is why it is drawn there.
+      The relay switches L only. AC OUT L is switched AC IN L, not a dry
+      contact, so AC IN L has to stay permanently live and the receiver
+      belongs at the head of the rung. The two N terminals are a bonded
+      common bus; the manufacturer lands the incoming return on AC OUT N
+      and either one works.
+
+      The listing's spec table claims Contact Type: Normally Closed.
+      Settle it by observation during the momentary-mode check, not from
+      the listing. A contact that is closed while nothing is
+      transmitting means the fail-safe inversion is absent — stop.
   SEAL:
     type: Starter seal-in network
     subtype: STOP, START and A202C aux
@@ -125,22 +134,18 @@ cables:
     length: 0.3
     wirecount: 1
     colors: [BK]
-    notes: Supply tap for the receiver's own electronics.
+    notes: |
+      Carries the control hot into AC IN L. This is both the receiver's
+      own supply and the line side of its relay — the unit does not
+      separate them, which is the whole reason it sits here.
   W_L2_RX:
     gauge: 16 AWG
     length: 0.5
     wirecount: 1
     colors: [WH]
-  W_L1_OUT1:
-    gauge: 16 AWG
-    length: 0.2
-    wirecount: 1
-    colors: [BK]
     notes: |
-      Jumper feeding the contact's line side. FIT THIS ONLY IF the meter
-      check on the RX connector showed a genuine dry contact. If OUT 1 is
-      internally bonded to AC-IN L, the bond already does this and adding
-      the jumper just doubles a conductor.
+      Control-circuit return to the bonded N bus. Landed on AC OUT N to
+      match the manufacturer's diagram; AC IN N is the same node.
   W_RX_SEAL:
     gauge: 16 AWG
     length: 0.3
@@ -159,19 +164,16 @@ connections:
     - W_OPTO_FOB: [1, 2]
     - FOB: [1, 2]
 
-  # ----- receiver supply: across the rails, upstream of the seal-in -----
+  # ----- receiver supply and relay line side: one and the same terminal,
+  #       tapped across the rails upstream of the seal-in -----
   - - L1CTL: [1]
     - W_L1_RX: [1]
-    - RX: [1]             # AC-IN L
+    - RX: [1]             # AC IN L
   - - L2CTL: [1]
     - W_L2_RX: [1]
-    - RX: [2]             # AC-IN N
+    - RX: [4]             # AC OUT N (bonded to AC IN N)
 
-  # ----- receiver output: head of the rung, into the seal-in network -----
-  # Dry-contact case only; see the W_L1_OUT1 note.
-  - - L1CTL: [1]
-    - W_L1_OUT1: [1]
-    - RX: [3]             # OUT 1
-  - - RX: [4]             # OUT 2
+  # ----- switched hot: head of the rung, into the seal-in network -----
+  - - RX: [3]             # AC OUT L
     - W_RX_SEAL: [1]
     - SEAL: [1]

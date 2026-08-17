@@ -42,10 +42,12 @@ capture, and that Path A exists to document:
    K-type. Its 125 °C ceiling and PVC lead are why it lives on the
    motor frame rather than at the winding, and why thresholds come
    from an observed baseline instead of the 110 °C winding figure.
-3. **The RF switch is line-powered and may not offer a dry contact.**
-   It is not a drop-in for the relay module Path B assumes — its
-   supply has to be tapped ahead of the seal-in, and its contact sits
-   at the head of the rung.
+3. **The RF switch is line-powered and its output is not a dry
+   contact.** Four terminals as `AC IN L`/`N` + `AC OUT L`/`N`; the
+   relay switches L only, so `AC IN L` is both the supply and the line
+   side of the contact and has to stay permanently live. It is not a
+   drop-in for the relay module Path B assumes — it sits at the head of
+   the rung, not between the seal-in and the coil.
 
 ## Contents
 
@@ -75,15 +77,26 @@ until the diagram is corrected:
 - [`../BUILD-TONIGHT.md`](../BUILD-TONIGHT.md) — § 3 wiring, § 6 sensor
   mounting for the same-day expedient build
 
-## Open questions the drawings flag rather than answer
+## Open question the drawings flag rather than answer
 
-- **The A202C's coil voltage has not been read off the coil label.**
-  It changes what the control rails are, and on Path A it determines
-  where the RF receiver's supply is tapped from. The ladder sheets say
-  "control circuit hot / return" rather than asserting a number.
-- **Whether the VONVOFF's output is a dry contact.** Resolved with a
-  meter in thirty seconds; see the legend on
+**The A202C's coil voltage has not been read off the coil label.** It
+changes what the control rails are, and on Path A it determines what
+the RF receiver's supply is tapped from. The ladder sheets say
+"control circuit hot / return" rather than asserting a number. The
+receiver itself accepts AC 100–240 V single phase, so either answer
+works — the tap just has to match.
+
+## Two traps the drawings exist to stop
+
+- **Do not copy the VONVOFF's own wiring diagram onto the saw.** It
+  runs the receiver's output straight to a contactor's coil terminals,
+  which bypasses the 3-wire seal-in and lets the saw restart by itself
+  when the RF link recovers. SR-4 forbids it. See the legend on
   `pathA_ladder_coil_circuit.svg`.
+- **Do not trust the listing's "Contact Type: Normally Closed."**
+  Settle it by observation during the momentary-mode check. A contact
+  closed while nothing is transmitting inverts the entire fail-safe
+  premise.
 
 ## Safety
 

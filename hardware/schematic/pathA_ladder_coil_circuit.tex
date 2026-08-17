@@ -9,20 +9,24 @@
 % mode, held closed by the ESP32's 433 MHz heartbeat.
 %
 % Two things make this sheet different from ladder_coil_circuit.svg
-% (the Path B sheet), and both are consequences of the actual part:
+% (the Path B sheet), and both are consequences of the actual part.
+% Terminal names and internal topology come from the manufacturer's
+% own wiring diagram in the listing gallery:
 %
-%  1. The receiver is a LINE-POWERED device, not a dry relay module.
-%     It needs its own AC supply across the control rails, and that
-%     supply must be tapped UPSTREAM of the seal-in network. Tap it
-%     downstream and the receiver is dead until START is pressed,
-%     its contact is open while it boots, and the seal-in can never
-%     latch — the saw simply never starts.
+%  1. It is LINE-POWERED and its output is NOT a dry contact. Four
+%     screw terminals in two pairs — AC IN L/N and AC OUT L/N. The
+%     relay switches L only, so AC OUT L is simply switched AC IN L,
+%     and the two N terminals are a bonded common bus.
 %
-%  2. Its contact therefore sits at the HEAD of the rung rather
-%     than between the seal-in and the coil. Head-of-rung is the
-%     placement that works whether the OUT pair turns out to be a
-%     dry contact or an internally-derived switched line — see the
-%     "verify the output type" legend.
+%  2. AC IN L must therefore stay permanently live, which puts the
+%     receiver at the HEAD of the rung rather than between the
+%     seal-in and the coil. Feed AC IN L from downstream of the
+%     seal-in and the unit is unpowered — relay open — at the moment
+%     START is pressed, so the coil never latches.
+%
+% The manufacturer diagram wires AC OUT L/N straight to a contactor
+% coil (A1/A2). Do NOT copy that here: it bypasses the seal-in, so
+% the saw would restart by itself when the link recovers. SR-4.
 %
 % There is no TSTAT on this sheet. The bimetallic thermostat is
 % Path B (TASK-6) and has not been purchased.
@@ -74,11 +78,11 @@
 % Retrofit highlight — drawn first, behind everything
 % ============================================================
 \begin{scope}[on background layer]
-  \fill[tssafe!7, rounded corners=4pt] (1.0,-1.0) rectangle (7.4,5.6);
+  \fill[tssafe!7, rounded corners=4pt] (0.8,-1.0) rectangle (7.9,6.6);
   \draw[tssafe!35, line width=0.8pt, rounded corners=4pt]
-        (1.0,-1.0) rectangle (7.4,5.6);
+        (0.8,-1.0) rectangle (7.9,6.6);
 \end{scope}
-\node[font=\scriptsize\bfseries, tssafe, anchor=north] at (4.2,-1.15)
+\node[font=\scriptsize\bfseries, tssafe, anchor=north] at (4.4,-1.15)
   {ADDED BY THE RETROFIT};
 
 % ============================================================
@@ -97,8 +101,8 @@
 % ============================================================
 % Rung — wire segments between elements
 % ============================================================
-\draw[wire] (0,0)     -- (2.6,0);
-\draw[wire] (5.4,0)   -- (8.04,0);
+\draw[wire] (0,0)     -- (2.4,0);
+\draw[wire] (6.4,0)   -- (8.04,0);
 \draw[wire] (8.36,0)  -- (10.4,0);
 \draw[wire] (10.4,0)  -- (12.54,0);
 \draw[wire] (12.86,0) -- (15.0,0);
@@ -107,43 +111,60 @@
 \draw[wire] (23.76,0) -- (26,0);
 
 % ============================================================
-% VONVOFF receiver — line-powered, four terminals
+% VONVOFF receiver — four terminals in two L/N pairs.
+%
+% Terminal names and internal topology are taken from the
+% manufacturer's own wiring diagram in the listing gallery, so the
+% earlier "meter it and find out" hedge is gone: the relay switches
+% L, and the N pair is a common bus.
 % ============================================================
-\draw[block, fill=white] (1.4,2.4) rectangle (7.0,5.2);
-\node[font=\small\bfseries, tsink, anchor=north] at (4.2,5.08)
+\draw[block, fill=white] (1.2,2.2) rectangle (7.6,6.2);
+\node[font=\small\bfseries, tsink, anchor=north] at (4.4,5.65)
   {VONVOFF RF receiver};
-\node[note, anchor=north, align=center] at (4.2,4.58)
+\node[note, anchor=north, align=center] at (4.4,5.2)
   {\texttt{B07CTL3TG6} --- 433\,MHz, AC 100--240\,V,\\
    30\,A rated on a 40\,A relay, 328\,ft.\\
    \textbf{Programmed to MOMENTARY} (1 learn press).};
-\node[note, anchor=north, align=center, tssafe] at (4.2,3.28)
-  {Closed only while the ESP32's carrier is arriving.};
 
-\node[pinlbl, anchor=east] at (2.45,5.62) {AC-IN L};
-\node[pinlbl, anchor=west] at (5.55,5.62) {AC-IN N};
-\node[pinlbl, anchor=east] at (2.45,2.1) {OUT 1};
-\node[pinlbl, anchor=west] at (5.55,2.1) {OUT 2};
+% ---- internal relay: switches L only ----
+\draw[wire] (2.4,2.2) -- (2.4,3.2);
+\draw[wire] (2.4,3.2) -- (4.24,3.2);
+\noc{4.4}{3.2}
+\draw[wire] (4.56,3.2) -- (6.4,3.2);
+\draw[wire] (6.4,3.2) -- (6.4,2.2);
+\node[note, anchor=south, tssafe] at (4.4,3.62) {internal relay};
 
-% ---- its own supply, tapped ACROSS the rails, upstream of everything ----
-\draw[wire] (2.6,5.2) -- (2.6,6.4);
-\draw[wire] (2.6,6.4) -- (0,6.4);
-\draw (0,6.4) node[circ]{};
-\draw[wire] (5.4,5.2) -- (5.4,7.0);
-\draw[wire] (5.4,7.0) -- (26,7.0);
+% ---- internal bond across the two N terminals ----
+\draw[tsrule, line width=0.7pt, densely dashed]
+      (2.6,6.2) -- (2.6,5.92) -- (6.2,5.92) -- (6.2,6.2);
+\node[note, anchor=south, tsmute] at (4.4,6.24) {bonded internally};
+
+\node[pinlbl, anchor=east] at (2.25,1.95) {AC IN L};
+\node[pinlbl, anchor=west] at (6.55,1.95) {AC OUT L};
+\node[pinlbl, anchor=east] at (2.45,6.3) {AC IN N};
+\node[pinlbl, anchor=west] at (6.35,6.3) {AC OUT N};
+
+% ---- return leg: the N bus to L2 ----
+% The manufacturer's diagram lands the incoming return on AC OUT N.
+% Either N terminal works — they are bonded.
+\draw[wire] (6.2,6.2) -- (6.2,7.0);
+\draw[wire] (6.2,7.0) -- (26,7.0);
 \draw (26,7.0) node[circ]{};
-\node[note, anchor=north west, align=left, tssafe] at (8.2,5.6)
-  {\textbf{The receiver's own supply, tapped across the rails ahead of
-   everything else.}\\
-   It has to be: this is a line-powered unit, not a dry relay module.
-   Feed it from\\
-   downstream of the seal-in and it is unpowered --- and its contact
-   open --- at the\\
-   moment START is pressed, so the coil never latches and the saw
-   never runs.};
 
-% ---- the rung passes up through its output pair ----
-\draw[wire] (2.6,0) -- (2.6,2.4);
-\draw[wire] (5.4,2.4) -- (5.4,0);
+\node[note, anchor=north west, align=left, tssafe] at (8.8,6.2)
+  {\textbf{AC IN L must be permanently live, so the receiver goes at the
+   head of the rung.}\\
+   The internal relay is closed only while the ESP32's carrier is
+   arriving, and \texttt{AC OUT L}\\
+   is \emph{switched} \texttt{AC IN L} --- there is no dry contact here
+   to relocate. Feed \texttt{AC IN L}\\
+   from downstream of the seal-in and the unit is unpowered, its relay
+   open, at the moment\\
+   START is pressed: the coil never latches and the saw never runs.};
+
+% ---- the rung passes up through the L pair ----
+\draw[wire] (2.4,0) -- (2.4,2.2);
+\draw[wire] (6.4,2.2) -- (6.4,0);
 
 % ============================================================
 % Elements, left to right
@@ -190,42 +211,65 @@
 % Legends
 % ============================================================
 \node[legendbox, anchor=north west, text width=10.4cm] at (0,-5.8) {%
-  \textbf{Before you wire it --- verify what the OUT pair actually is}\\[4pt]
-  These receivers are sold two ways and the listing does not say
-  which you have. With the unit \emph{unpowered}, meter continuity
-  from \texttt{AC-IN L} to \texttt{OUT 1} and to \texttt{OUT 2}:\\[4pt]
-  \begin{tabular}{@{}p{3.3cm}@{\hspace{5pt}}p{6.0cm}@{}}
-    \textbf{Meter says} & \textbf{What you have}\\[2pt]
-    \texttt{OUT} isolated from \texttt{AC-IN} on both pins
-      & A genuine dry contact. It may sit anywhere in the rung,
-        but leave it where this sheet draws it.\\[3pt]
-    \texttt{OUT 1} bonded to \texttt{AC-IN L} (or to \texttt{N})
-      & An internally-derived switched line. Head-of-rung is then
-        the \emph{only} correct placement.\\
+  \textbf{How this receiver is actually built}\\[4pt]
+  From the manufacturer's wiring diagram in the listing gallery. Four
+  screw terminals in two pairs:\\[4pt]
+  \begin{tabular}{@{}p{2.6cm}@{\hspace{5pt}}p{6.7cm}@{}}
+    \texttt{AC IN L / N}  & the receiver's own supply. It runs off this
+                            pair, so it has to stay energised.\\[3pt]
+    \texttt{AC OUT L}     & \emph{switched} \texttt{AC IN L}. The relay
+                            makes and breaks L, and this is
+                            \textbf{not a dry contact}.\\[3pt]
+    \texttt{AC OUT N}     & bonded to \texttt{AC IN N} --- a common
+                            neutral bus, not a second pole. The
+                            manufacturer's diagram lands the incoming
+                            return here.\\
   \end{tabular}\\[5pt]
-  The placement drawn here is correct in both cases, which is why
-  it is drawn this way. Do not move it to sit between the seal-in
-  and the coil --- that is the Path B position and it assumes a dry
-  relay module the project does not own.
+  So there is nothing to relocate and no jumper to fit: one L pair
+  carries the rung, the N pair carries the return. Do not move the
+  receiver between the seal-in and the coil --- that is the Path B
+  position and it assumes a dry relay module the project does not own.
 };
 
-\node[legendbox, anchor=north west, text width=8.6cm] at (11.0,-5.8) {%
+\node[legendbox, anchor=north west, text width=10.4cm] at (11.0,-5.8) {%
+  \textcolor{tsmains}{\textbf{Do not follow the manufacturer's diagram
+  literally}}\\[4pt]
+  That diagram runs \texttt{AC OUT L} and \texttt{AC OUT N} straight to
+  a contactor's coil terminals \texttt{A1}/\texttt{A2}. For a pump or a
+  dust collector that is fine and it is exactly the right idea --- let
+  the little relay switch a coil, not the load.\\[5pt]
+  \textbf{On a saw it is unsafe.} Wiring the coil directly bypasses the
+  3-wire seal-in, so the coil is energised whenever the relay is closed
+  and \textbf{the saw restarts by itself} the moment the RF link
+  recovers or the motor cools. That is precisely what SR-4
+  forbids.\\[5pt]
+  This sheet keeps the seal-in. \texttt{AC OUT L} feeds \texttt{STOP},
+  and after any trip the coil stays dropped until a human presses
+  \texttt{START}.
+};
+
+\node[legendbox, anchor=north west, text width=10.4cm] at (0,-11.6) {%
   \textbf{Programming MOMENTARY --- the one step that matters}\\[4pt]
   Get this wrong and the system is fail-\emph{dangerous}: a latched
   relay holds its last state when the link dies.\\[4pt]
-  \begin{tabular}{@{}p{1.6cm}@{\hspace{5pt}}p{6.0cm}@{}}
+  \begin{tabular}{@{}p{1.6cm}@{\hspace{5pt}}p{7.7cm}@{}}
     8 presses & clears every paired code --- start here\\[2pt]
     \textbf{1 press} & \textbf{point movement (momentary)} --- required\\[2pt]
     2 presses & self-locking (toggle) --- fail-dangerous\\[2pt]
     3 presses & interlock --- fail-dangerous, and the factory default\\
   \end{tabular}\\[5pt]
-  Then pair a fob, \textbf{hold} its ON button, and confirm the
-  contact drops within about a second of release. Time that decay
-  with a stopwatch and record it --- it is the budget the heartbeat
-  has to beat, and § 7 step 1 tests against it.
+  Then pair a fob, \textbf{hold} its ON button, and confirm the contact
+  drops within about a second of release. Time that decay with a
+  stopwatch and record it --- it is the budget the heartbeat has to
+  beat, and § 7 step 1 tests against it.\\[5pt]
+  \textcolor{tsmains}{\textbf{The listing's spec table says
+  ``Contact Type: Normally Closed.''}} Do not trust that either way ---
+  settle it by observation in the same step. If the contact is closed
+  while nothing is transmitting, stop: the inversion this entire design
+  rests on is not there.
 };
 
-\node[legendbox, anchor=north west, text width=10.4cm] at (0,-9.9) {%
+\node[legendbox, anchor=north west, text width=10.4cm] at (11.0,-11.6) {%
   \textbf{What opens the rung}\\[4pt]
   Every element is either \emph{NC that opens on fault} or \emph{NO
   that must be actively held closed}. No failure leaves the coil
@@ -242,7 +286,7 @@
   \end{tabular}
 };
 
-\node[legendbox, anchor=north west, text width=8.6cm] at (11.0,-9.9) {%
+\node[legendbox, anchor=north west, text width=10.4cm] at (0,-17.8) {%
   \textbf{What Path A does not have}\\[4pt]
   \textcolor{tsmains}{\textbf{No passive layer.}} SR-3 is unmet. The
   bimetallic thermostat is Path B, and until it is fitted every
@@ -260,7 +304,7 @@
 % ============================================================
 % Title block + danger banner
 % ============================================================
-\node[titleblock, anchor=north west, text width=6.6cm] at (0,-15.4) {%
+\node[titleblock, anchor=north west, text width=6.6cm] at (11.0,-17.8) {%
   {\normalsize\bfseries Coil circuit --- Path A (parts on hand)}\\[2pt]
   {\color{tsmute}3-wire seal-in, RF receiver at the head}\\[5pt]
   {\color{tsmute}Table-saw thermal protection retrofit}\\
@@ -268,7 +312,7 @@
   {\color{tsmute}Source: \texttt{pathA\_ladder\_coil\_circuit.tex}}%
 };
 
-\node[danger, anchor=north west, text width=11.0cm] at (11.0,-15.4) {%
+\node[danger, anchor=north west, text width=11.0cm] at (11.0,-21.6) {%
   Every conductor on this sheet is at mains potential, including both
   receiver supply taps. Lock out the disconnect before touching the
   starter enclosure, and verify 0\,V with a meter you have just proved

@@ -13,8 +13,9 @@ the `pathA_` prefix means *drawn for the hardware on hand*.
 - **[`pathA_fob_and_receiver.yml`](pathA_fob_and_receiver.yml)** — the
   heartbeat path. ESP32 `GPIO26` through an optocoupler into the
   VONVOFF fob's ON pad, and the VONVOFF receiver landed at the head of
-  the coil-circuit rung with its own supply tapped across the control
-  rails. The 433 MHz hop is deliberately *not* drawn as a cable.
+  the coil-circuit rung: `AC IN L` from control L1, `AC OUT L` into
+  STOP, and the bonded N pair on the control return. The 433 MHz hop is
+  deliberately *not* drawn as a cable.
 
 ## Path B — end-state target ([ARCHITECTURE.md](../../ARCHITECTURE.md))
 
@@ -35,8 +36,9 @@ thermostat (TASK-6) are all unpurchased.
 **The two mains-side files are not interchangeable.** `mains_and_coil.yml`
 models a dry three-terminal relay module between the seal-in and the
 coil. The purchased receiver in `pathA_fob_and_receiver.yml` is
-line-powered, needs its own supply ahead of the seal-in, and may not
-offer a dry contact at all.
+line-powered and has no dry contact at all: `AC IN L` is both its
+supply and the line side of its relay, so it has to stay permanently
+live and the unit sits at the head of the rung.
 
 ## Rendering
 
