@@ -5,6 +5,7 @@ Hardware and software design for the table saw thermal protection retrofit. Comp
 - [Motor and starter](#motor-and-starter)
 - [Control topology](#control-topology)
 - [Coil circuit after retrofit](#coil-circuit-after-retrofit)
+- [Power supply](#power-supply)
 - [Wiring diagram](#wiring-diagram)
 - [Pin assignments](#pin-assignments)
 - [Why RF was rejected as the primary path](#why-rf-was-rejected-as-the-primary-path)
@@ -83,6 +84,49 @@ L1 ─▶ Stop ─▶ Start/seal-in ─▶ [Thermostat NC] ─▶ [ESP32 relay N
 
 ---
 
+## Power supply
+
+The ESP32 supervisor is powered from an **isolated AC-DC module tapped in parallel with the motor supply lines**, downstream of the machine disconnect and upstream of the contactor. This gives the supervisor power whenever the machine is enabled at the wall, independent of Start/Stop state and independent of anything the coil circuit does.
+
+```
+Machine disconnect ──┬── L1 ──▶ Contactor main ──▶ Motor ──▶ L2 ──┬── (back to disconnect)
+                     │                                             │
+                     │  ┌─[250 mA fuse]─┐                          │
+                     └──┤  L1 tap       ├─ Isolated AC-DC ─────────┘
+                        └───────────────┘   240 VAC → 5 V   L2 tap
+                                            reinforced isolation
+                                                   │
+                                                   ▼
+                                                +5 V ─▶ ESP32
+                                                GND
+```
+
+### Requirements
+
+- **Isolated, reinforced-isolation AC-DC.** Not a bare non-isolated module. A "220→12V buck converter" sold as a small green PCB is typically **not** isolated; if the input and output share a ground, the ESP32 ground floats at mains potential — lethal at the USB port, incompatible with SR-7. Recommended certified modules: **Mean Well IRM-05-5** (5 V, 5 W, 85–305 VAC input, PCB mount), **Recom RAC03-05SK**, or equivalents from TDK-Lambda / XP Power. Cost is under $15.
+- **Fast-blow fuse in series with the L1 tap.** 250 mA is generous for a 3–5 W supply and protects the tap wire from a supply-side short. This is not the machine's main protection — that's the disconnect breaker upstream.
+- **Tap point: after the disconnect, before the contactor.** Opening the disconnect must de-energize the supervisor. Do not tap upstream of the disconnect — a supervisor that always has power cannot be safely serviced.
+- **Not from the coil circuit.** The supply must stay energized when the coil is dropped by a thermal trip. If the ESP32 dies during a trip, the cooldown timer restarts on next power-up, log entries are truncated, and the state machine loses history mid-event.
+- **L1↔L2 across the module input, no neutral.** US 240 V split-phase presents 240 VAC line-to-line. Any wide-input isolated module (85–264 or 100–240 VAC) accepts this. Confirm the specific part is rated line-to-line, not line-to-neutral only — most industrial modules are.
+- **Everything in one enclosure.** The tap wires, fuse, PSU module, ESP32, and relay all live inside the same enclosure as the contactor. No exposed 240 V conductors outside the enclosure. If the enclosure is metal, bond it to safety ground.
+
+### Why this over the USB wall wart used in BUILD-TONIGHT
+
+The USB wart approach is safe and correct — a UL-listed charger *is* a certified isolated AC-DC supply. It exists in BUILD-TONIGHT as an expedient because it needs no purchasing and no wiring. Once the isolated PSU module is on hand and installed, the wart can be retired for these reasons:
+
+- Single power source, single enclosure. No dangling USB cable to snag or unplug.
+- The supervisor cannot be silently disabled by unplugging a wart.
+- Nameplate documentation of isolation grade and voltage rating, on the supply itself.
+- The tap is bonded, fused, and inside the same enclosure as the safety-critical wiring — the whole assembly is one serviceable unit.
+
+### Do not
+
+- Do not use the purchased "220 to 12 V buck converter" until it is positively identified as an isolated module (TASK-2). If the part cannot be identified with certainty, discard it and buy a certified module.
+- Do not attempt to isolate a non-isolated buck by adding an external transformer. If you find yourself designing this, you are re-implementing an AC-DC supply badly. Buy the module.
+- Do not power the ESP32 from a low-voltage tap off the coil circuit (e.g. a rectified 24 V control transformer output). The coil supply comes and goes with protection state — wrong behavior for the supervisor.
+
+---
+
 ## Wiring diagram
 
 Full signal flow, mains side and low-voltage side, with the isolation boundary marked.
@@ -98,7 +142,8 @@ flowchart LR
         Coil --> OL[OL contact NC]
         OL --> L2[L2]
 
-        L1 --> PSU_IN[Isolated AC-DC supply]
+        L1 --> FUSE["250 mA fuse<br/>on L1 tap"]
+        FUSE --> PSU_IN["Isolated AC-DC<br/>240 VAC → 5 V<br/>tap upstream of contactor,<br/>downstream of disconnect"]
         L2 --> PSU_IN
 
         L1_mot[L1 mains] --> Cont[Contactor main contacts]
@@ -265,7 +310,7 @@ Either mates well to the AlN substrate. Specify high-temperature lead insulation
 
 "220 to 12 V buck converter" is ambiguous. A *buck* converter is DC-DC. If the purchased module is a non-isolated AC-line supply, the ESP32 ground floats at mains potential — lethal at the USB port, and incompatible with SR-7.
 
-**Required:** an isolated AC-DC supply with reinforced isolation, 230 VAC input, 5 V or 12 V output, from a manufacturer with real safety certification (Mean Well, Recom, TDK-Lambda). Not a bare module.
+**Required:** an isolated AC-DC supply with reinforced isolation, 230 VAC input, 5 V or 12 V output, from a manufacturer with real safety certification (Mean Well, Recom, TDK-Lambda). Not a bare module. See [Power supply](#power-supply) for the installation topology (tap point, fuse, and enclosure requirements) and specific recommended parts.
 
 Do not energize anything until this is resolved. Identify what was purchased and report. (For same-day expedient power, BUILD-TONIGHT.md uses a UL-listed USB phone charger — an isolated AC-DC supply that happens to be a wall wart.)
 
