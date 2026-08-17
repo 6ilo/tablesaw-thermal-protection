@@ -1,0 +1,98 @@
+% ============================================================
+% tsstyle.tex — shared preamble for every sheet in this directory.
+%
+% Inputted by each sheet after \documentclass. Sheets stay pure
+% geometry; everything about how the geometry *looks* lives here,
+% so a style change is a one-file edit.
+% ============================================================
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage[american,siunitx,RPvoltages]{circuitikz}
+\usetikzlibrary{calc,positioning,fit,backgrounds,arrows.meta,decorations.pathreplacing}
+
+% ------------------------------------------------------------
+% Palette. Deliberately small: ink for conductors, mute for
+% annotation, and exactly two semantic colours — mains (danger)
+% and SELV (safe). Colour carries meaning on these sheets; it is
+% never decoration.
+% ------------------------------------------------------------
+\definecolor{tsink}{HTML}{16181D}    % conductors, symbol bodies
+\definecolor{tsmute}{HTML}{6E7178}   % secondary annotation
+\definecolor{tsrule}{HTML}{C7CAD1}   % boxes, leader lines
+\definecolor{tsmains}{HTML}{B3261E}  % mains potential — danger
+\definecolor{tsselv}{HTML}{15607A}   % SELV / low-voltage rail
+\definecolor{tssafe}{HTML}{1E6B45}   % fail-safe / passive layer
+\definecolor{tspanel}{HTML}{F5F6F7}  % block fills
+\definecolor{tspanelb}{HTML}{E4E7EB} % block fills, alternate
+
+% ------------------------------------------------------------
+% Global circuitikz sizing. Bipoles are scaled down from the
+% default because these sheets carry a lot of elements per unit
+% area; the default American resistor is comically large next to
+% an IC block.
+% ------------------------------------------------------------
+\ctikzset{
+  bipoles/length=0.85cm,
+  resistors/scale=0.85,
+  capacitors/scale=0.8,
+  label/align=straight,
+  font=\footnotesize,
+}
+
+\tikzset{
+  % Conductors -------------------------------------------------
+  wire/.style        = {tsink, line width=0.9pt, line cap=round},
+  buswire/.style     = {tsink, line width=1.5pt, line cap=round},
+  mainswire/.style   = {tsmains, line width=1.5pt, line cap=round},
+  selvwire/.style    = {tsselv, line width=1.2pt, line cap=round},
+  % Functional blocks -----------------------------------------
+  block/.style       = {draw=tsink, line width=1pt, fill=tspanel,
+                        rounded corners=1.5pt, align=center,
+                        inner sep=6pt, font=\small\bfseries},
+  subblock/.style    = {draw=tsrule, line width=0.7pt, fill=white,
+                        rounded corners=1.5pt, align=center,
+                        inner sep=4pt, font=\scriptsize},
+  % Text ------------------------------------------------------
+  pinlbl/.style      = {font=\scriptsize, tsink, inner sep=2pt},
+  siglbl/.style      = {font=\scriptsize\itshape, tsmute, inner sep=1.5pt},
+  netlbl/.style      = {font=\scriptsize\bfseries, tsink, inner sep=2pt},
+  note/.style        = {font=\scriptsize, tsmute, align=left},
+  danger/.style      = {font=\scriptsize\bfseries, tsmains, align=left},
+  % Isolation boundary ----------------------------------------
+  isoline/.style     = {tsmains, line width=1pt, dash pattern=on 5pt off 3pt},
+  % A wire that crosses another without connecting. The white
+  % under-stroke reads as an over-pass, so a crossing can never be
+  % mistaken for a junction (junctions are always a filled dot).
+  overpass/.style    = {preaction={draw, white, line width=3.4pt}},
+  % Sheet furniture -------------------------------------------
+  titleblock/.style  = {draw=tsink, line width=1pt, fill=white,
+                        align=left, inner sep=7pt, font=\scriptsize},
+  legendbox/.style   = {draw=tsrule, line width=0.7pt, fill=white,
+                        align=left, inner sep=7pt, font=\scriptsize},
+}
+
+% ------------------------------------------------------------
+% \pinrow{<x>}{<y>}{<dir>}{<label>}  — a pin stub on a block
+% edge. dir is -1 (left edge, stub runs left) or +1 (right edge).
+% ------------------------------------------------------------
+\newcommand{\pinstub}[5]{%
+  \draw[wire] (#1,#2) -- ++(#3*0.55,0);
+  \node[pinlbl, anchor=#4] at (#1+#3*0.10,#2+0.14) {#5};
+}
+
+% ------------------------------------------------------------
+% \titleblocknode{<x>}{<y>}{<sheet>}{<subtitle>}{<source>}
+% Standard title block, anchored at its south east corner.
+% ------------------------------------------------------------
+\newcommand{\sheettitle}[5]{%
+  \node[titleblock, anchor=south east] at (#1,#2) {%
+    {\normalsize\bfseries #3}\\[2pt]
+    {\color{tsmute}#4}\\[4pt]
+    {\color{tsmute}Table-saw thermal protection retrofit\hfill}\\
+    {\color{tsmute}Generated from \texttt{#5} — do not edit the SVG}%
+  };
+}

@@ -1,0 +1,283 @@
+% ============================================================
+% esp32_pictorial.tex — spatial / colour-coded build view.
+%
+% Complementary to esp32_supervisor.svg, not a substitute. This
+% sheet answers "which coloured wire goes where on the bench",
+% laid out the way a breadboard actually sits: two power rails
+% along the bottom, modules above them.
+%
+% Pin-level truth lives in WIRING.md. Signal topology lives in
+% esp32_supervisor.svg. This drawing is spatial only.
+%
+% Routing rule: vertical wires pass OVER horizontal ones (white
+% under-stroke). A filled dot is the only thing that ever means
+% "connected".
+%
+% Regenerate with:  make esp32_pictorial.svg
+% ============================================================
+\def\pgfsysdriver{pgfsys-dvisvgm.def}
+\documentclass[border=10pt,dvisvgm]{standalone}
+\input{tsstyle.tex}
+
+% ------------------------------------------------------------
+% Breadboard wire colour code — matches WIRING.md exactly.
+% Yellow and grey are darkened from the physical wire colour so
+% they stay legible as 1pt strokes on white.
+% ------------------------------------------------------------
+\definecolor{wred}{HTML}{CE3B2F}
+\definecolor{worange}{HTML}{D9741A}
+\definecolor{wblack}{HTML}{2B2B2B}
+\definecolor{wyellow}{HTML}{B08900}
+\definecolor{wgreen}{HTML}{2C8A44}
+\definecolor{wblue}{HTML}{1E6FB8}
+\definecolor{wpurple}{HTML}{7A4CA8}
+\definecolor{wbrown}{HTML}{8A5426}
+\definecolor{wgrey}{HTML}{75797F}
+
+\tikzset{
+  w/.style   = {line width=1.3pt, line cap=round, line join=round},
+  vw/.style  = {w, overpass},   % vertical run — passes over horizontals
+}
+
+\begin{document}
+\begin{circuitikz}[line width=0.9pt]
+
+% ============================================================
+% Power rails (breadboard convention: rails along the bottom)
+% ============================================================
+\draw[w, wred]   (-5.4,-1.6) -- (9.6,-1.6);
+\draw[w, wblack] (-5.4,-2.4) -- (9.6,-2.4);
+\node[font=\scriptsize\bfseries, wred,   anchor=west] at (9.75,-1.6) {+5\,V rail};
+\node[font=\scriptsize\bfseries, wblack, anchor=west] at (9.75,-2.4) {GND rail};
+
+% ============================================================
+% Isolated AC-DC PSU
+% ============================================================
+\draw[block] (-9.0,-3.4) rectangle (-5.4,-0.6);
+\node[font=\small\bfseries, anchor=north, align=center] at (-7.2,-1.05)
+  {Isolated\\AC-DC PSU};
+\node[note, anchor=north, align=center] at (-7.2,-2.35)
+  {Mean Well\\IRM-05-5};
+\node[pinlbl, anchor=east] at (-5.52,-1.6) {+5V};
+\node[pinlbl, anchor=east] at (-5.52,-2.4) {$-$V};
+\draw[w, wred]   (-5.4,-1.6) -- (-5.4,-1.6);
+\draw (-5.4,-1.6) node[circ, color=wred]{};
+\draw (-5.4,-2.4) node[circ, color=wblack]{};
+
+% mains input — the only mains-potential wiring on this sheet
+\draw[mainswire] (-9.0,-1.6) -- (-10.6,-1.6);
+\draw[mainswire] (-9.0,-2.4) -- (-10.6,-2.4);
+\node[pinlbl, anchor=west] at (-8.88,-1.6) {L};
+\node[pinlbl, anchor=west] at (-8.88,-2.4) {N};
+\node[danger, anchor=east, align=right] at (-10.75,-2.0)
+  {MAINS\\from the\\250\,mA fuse};
+
+% ============================================================
+% ACK button
+% ============================================================
+\draw[block, fill=white] (-9.0,2.0) rectangle (-5.4,3.8);
+\node[font=\small\bfseries, anchor=north] at (-7.2,3.75) {ACK button};
+\node[note, anchor=north, align=center] at (-7.2,3.15)
+  {momentary NO\\panel mount};
+\node[pinlbl, anchor=east] at (-5.52,3.0) {pole 1};
+\node[pinlbl, anchor=east] at (-5.52,2.4) {pole 2};
+
+\draw[w, wgrey]  (-5.4,3.0) -- (0,3.0);
+\draw[w, wblack] (-5.4,2.4) -- (-5.0,2.4);
+\draw[vw, wblack] (-5.0,2.4) -- (-5.0,-2.4);
+\draw (-5.0,-2.4) node[circ, color=wblack]{};
+
+% ============================================================
+% ESP32-DevKitC-32E
+% ============================================================
+\draw[block, fill=tspanelb] (0,1.6) rectangle (5,9.8);
+\node[font=\small\bfseries, anchor=north, align=center] at (2.5,7.1)
+  {ESP32-\\DevKitC-32E};
+\node[note, anchor=north, align=center] at (2.5,5.6)
+  {30-pin\\3.3\,V logic};
+\node[note, anchor=north, align=center, tssafe] at (2.5,3.5)
+  {GPIO2 drives the\\onboard blue LED —\\no external wire};
+
+% left edge
+\node[pinlbl, anchor=west] at (0.12,8.6) {GND};
+\node[pinlbl, anchor=west] at (0.12,7.8) {VIN};
+\node[pinlbl, anchor=west] at (0.12,3.0) {GPIO27};
+% right edge
+\node[pinlbl, anchor=east] at (4.88,9.0) {GPIO18};
+\node[pinlbl, anchor=east] at (4.88,8.4) {GPIO19};
+\node[pinlbl, anchor=east] at (4.88,7.8) {GPIO5};
+\node[pinlbl, anchor=east] at (4.88,6.4) {3V3};
+\node[pinlbl, anchor=east] at (4.88,4.6) {GPIO34};
+\node[pinlbl, anchor=east] at (4.88,3.6) {GPIO26};
+
+% ---- ESP32 power down to the rails ----
+\draw[w, wblack]  (0,8.6) -- (-2.0,8.6);
+\draw[vw, wblack] (-2.0,8.6) -- (-2.0,-2.4);
+\draw (-2.0,-2.4) node[circ, color=wblack]{};
+\draw[w, wred]    (0,7.8) -- (-1.2,7.8);
+\draw[vw, wred]   (-1.2,7.8) -- (-1.2,-1.6);
+\draw (-1.2,-1.6) node[circ, color=wred]{};
+
+% ============================================================
+% SPI bus — three straight runs to the MAX31855
+% ============================================================
+\draw[w, wyellow] (5,9.0) -- (9.5,9.0);
+\draw[w, wgreen]  (5,8.4) -- (9.5,8.4);
+\draw[w, wblue]   (5,7.8) -- (9.5,7.8);
+
+% ============================================================
+% MAX31855 breakout
+% ============================================================
+\draw[block, fill=white] (9.5,6.0) rectangle (13.5,9.8);
+\node[font=\small\bfseries, anchor=north] at (11.5,9.7) {MAX31855};
+\node[note, anchor=north, align=center] at (11.5,6.9)
+  {K-type breakout\\3.3\,V only};
+\node[pinlbl, anchor=west] at (9.62,9.0) {SCK};
+\node[pinlbl, anchor=west] at (9.62,8.4) {SO};
+\node[pinlbl, anchor=west] at (9.62,7.8) {CS};
+\node[pinlbl, anchor=west] at (9.62,7.2) {VCC};
+\node[pinlbl, anchor=west] at (9.62,6.6) {GND};
+\node[pinlbl, anchor=east] at (13.38,8.8) {T+};
+\node[pinlbl, anchor=east] at (13.38,8.0) {T$-$};
+
+% thermocouple out to the motor pigtail
+\draw[w, wyellow] (13.5,8.8) -- (15.4,8.8);
+\draw[w, wred]    (13.5,8.0) -- (15.4,8.0);
+\draw (15.4,8.8) node[ocirc, color=wyellow]{};
+\draw (15.4,8.0) node[ocirc, color=wred]{};
+\node[note, anchor=west] at (15.6,8.8) {K-type \textbf{yellow} $(+)$};
+\node[note, anchor=west] at (15.6,8.0) {K-type \textbf{red} $(-)$};
+\node[note, anchor=west, align=left, tssafe] at (15.6,7.15)
+  {to the winding, via\\\texttt{../harness/motor\_pigtail.yml}};
+
+% MAX31855 GND down to the rail
+\draw[w, wblack]  (9.5,6.6) -- (9.1,6.6);
+\draw[vw, wblack] (9.1,6.6) -- (9.1,-2.4);
+\draw (9.1,-2.4) node[circ, color=wblack]{};
+
+% ============================================================
+% 3V3 rail — ESP32 regulator out to the NTC divider + MAX31855
+% ============================================================
+\draw[w, worange]  (5,6.4) -- (8.9,6.4);
+\draw[vw, worange] (8.9,6.4) -- (8.9,7.2);
+\draw[w, worange]  (8.9,7.2) -- (9.5,7.2);
+\draw[vw, worange] (7.5,6.4) -- (7.5,6.0);
+\draw (7.5,6.4) node[circ, color=worange]{};
+
+% ============================================================
+% NTC frame divider
+% ============================================================
+\draw[subblock] (6.4,4.0) rectangle (8.6,6.0);
+\node[font=\scriptsize\bfseries, anchor=north] at (7.5,5.85) {NTC divider};
+\node[note, anchor=north, align=center] at (7.5,5.4)
+  {10\,k$\Omega$ 1\% pullup\\$+$ NTC 10\,k$\Omega$\\B3950 on frame};
+\draw[w, wpurple]  (5,4.6) -- (6.4,4.6);
+\draw[vw, wblack]  (7.5,4.0) -- (7.5,-2.4);
+\draw (7.5,-2.4) node[circ, color=wblack]{};
+
+% ============================================================
+% Relay module
+% ============================================================
+\draw[w, wbrown]  (5,3.6) -- (9.3,3.6);
+\draw[vw, wbrown] (9.3,3.6) -- (9.3,3.0);
+\draw[w, wbrown]  (9.3,3.0) -- (9.5,3.0);
+
+% Header order is IN / GND / VCC rather than the IN / VCC / GND some
+% modules print. With VCC in the middle the pulldown, which bridges
+% IN and GND, would have to cross the +5 V wire.
+\draw[block, fill=white] (9.5,0.4) rectangle (13.8,3.4);
+\node[font=\small\bfseries, anchor=north] at (11.65,3.3) {Relay module};
+\node[note, anchor=north, align=center] at (11.65,2.45)
+  {opto-isolated\\active-HIGH, N.O.\\5\,V coil};
+\node[pinlbl, anchor=west] at (9.62,3.0) {IN};
+\node[pinlbl, anchor=west] at (9.62,2.0) {GND};
+\node[pinlbl, anchor=west] at (9.62,1.0) {VCC};
+\node[pinlbl, anchor=east] at (13.68,3.0) {COM};
+\node[pinlbl, anchor=east] at (13.68,2.0) {NO};
+\node[pinlbl, anchor=east] at (13.68,1.0) {NC};
+
+\draw[w, wblack]  (9.5,2.0) -- (8.4,2.0);
+\draw[vw, wblack] (8.4,2.0) -- (8.4,-2.4);
+\draw (8.4,-2.4) node[circ, color=wblack]{};
+\draw[w, wred]    (9.5,1.0) -- (8.8,1.0);
+\draw[vw, wred]   (8.8,1.0) -- (8.8,-1.6);
+\draw (8.8,-1.6) node[circ, color=wred]{};
+
+% 10k pulldown — a discrete resistor soldered across the IN and GND
+% pins of the header, so it is drawn there rather than hung off a
+% box edge that has no pin on it.
+\draw[w, wblack] (8.9,3.0) -- (9.3,3.0);
+\draw[w, wblack] (8.9,3.0) to[R] (8.9,2.0);
+\draw (9.3,3.0) node[circ, color=wbrown]{};
+\draw (8.9,2.0) node[circ, color=wblack]{};
+\node[pinlbl, anchor=east] at (8.72,2.62) {10\,k$\Omega$};
+\node[note, anchor=west, align=left, tssafe] at (9.95,-0.45)
+  {The 10\,k$\Omega$ pulldown across \texttt{IN} and \texttt{GND}\\
+   is \textbf{mandatory}. A floating GPIO26 — on boot,\\
+   crash, or brown-out — must leave the relay OPEN.};
+
+% ---- contacts out to the mains side ----
+\draw[mainswire] (13.8,3.0) -- (16.0,3.0);
+\draw[mainswire] (13.8,2.0) -- (16.0,2.0);
+\draw[wire]      (13.8,1.0) -- (14.9,1.0);
+\draw (16.0,3.0) node[ocirc, color=tsmains]{};
+\draw (16.0,2.0) node[ocirc, color=tsmains]{};
+\draw (14.9,1.0) node[ocirc]{};
+\node[note, anchor=west, tsmains] at (16.2,3.0) {$\rightarrow$ thermostat NC lead};
+\node[note, anchor=west, tsmains] at (16.2,2.0) {$\rightarrow$ M1 coil terminal A1};
+\node[note, anchor=south] at (14.5,1.15) {leave open};
+
+\draw[isoline] (15.5,0.5) -- (15.5,3.8);
+\node[danger, anchor=south west] at (15.15,3.92) {MAINS POTENTIAL};
+
+% ============================================================
+% Colour legend
+% ============================================================
+\node[legendbox, anchor=north west, text width=7.9cm] at (-10.9,-4.2) {%
+  \textbf{Wire colour code} — same as \texttt{WIRING.md}\\[5pt]
+  \begin{tabular}{@{}p{1.7cm}@{\hspace{5pt}}p{5.4cm}@{}}
+    \textcolor{wred}{\rule[0.6ex]{1.5cm}{1.3pt}}    & +5\,V rail from the PSU\\[3pt]
+    \textcolor{worange}{\rule[0.6ex]{1.5cm}{1.3pt}} & 3V3, regulated on the DevKitC\\[3pt]
+    \textcolor{wblack}{\rule[0.6ex]{1.5cm}{1.3pt}}  & GND / common bus\\[3pt]
+    \textcolor{wyellow}{\rule[0.6ex]{1.5cm}{1.3pt}} & SPI SCK, and the K-type $(+)$ lead\\[3pt]
+    \textcolor{wgreen}{\rule[0.6ex]{1.5cm}{1.3pt}}  & SPI MISO (MAX31855 \texttt{SO})\\[3pt]
+    \textcolor{wblue}{\rule[0.6ex]{1.5cm}{1.3pt}}   & SPI CS\\[3pt]
+    \textcolor{wpurple}{\rule[0.6ex]{1.5cm}{1.3pt}} & ADC1 input (GPIO34)\\[3pt]
+    \textcolor{wbrown}{\rule[0.6ex]{1.5cm}{1.3pt}}  & relay drive (GPIO26)\\[3pt]
+    \textcolor{wgrey}{\rule[0.6ex]{1.5cm}{1.3pt}}   & ack button\\[3pt]
+    \textcolor{tsmains}{\rule[0.6ex]{1.5cm}{1.5pt}} & \textcolor{tsmains}{\textbf{mains potential}}\\
+  \end{tabular}
+};
+
+\node[legendbox, anchor=north west, text width=8.3cm] at (-2.4,-4.2) {%
+  \textbf{Reading this sheet}\\[4pt]
+  A filled dot is the \emph{only} thing that means connected. Where a
+  vertical wire crosses a horizontal one it breaks over the top and
+  nothing is joined.\\[6pt]
+  \textbf{Traps worth re-reading before power-up}\\[4pt]
+  \begin{tabular}{@{}p{0.35cm}@{}p{7.4cm}@{}}
+    1 & Both ESP32 GND pins land on the same rail. Jumper them.\\[3pt]
+    2 & MAX31855 \texttt{VCC} is 3V3. A 5\,V feed destroys the part.\\[3pt]
+    3 & The NTC must stay on GPIO34 (ADC1). ADC2 pins read zero
+        while Wi-Fi is up.\\[3pt]
+    4 & K-type is polarised, and \textbf{red is negative}. That is
+        not a typo.\\[3pt]
+    5 & The 10\,k$\Omega$ pulldown on relay \texttt{IN} is not
+        optional.\\
+  \end{tabular}
+};
+
+% ============================================================
+% Title block
+% ============================================================
+\node[titleblock, anchor=north west, text width=6.6cm] at (7.2,-4.2) {%
+  {\normalsize\bfseries Enclosure interior — pictorial}\\[2pt]
+  {\color{tsmute}Module placement and wire colours}\\[5pt]
+  {\color{tsmute}Table-saw thermal protection retrofit}\\
+  {\color{tsmute}Spatial only. Pin truth: \texttt{WIRING.md}}\\
+  {\color{tsmute}Topology: \texttt{esp32\_supervisor.svg}}\\
+  {\color{tsmute}Source: \texttt{esp32\_pictorial.tex}}%
+};
+
+\end{circuitikz}
+\end{document}

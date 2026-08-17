@@ -1,0 +1,195 @@
+% ============================================================
+% oneline_mains.tex — mains distribution after retrofit.
+%
+%   Motor branch:
+%     DISC -> 30 A -> M1 (Size 1) -> OL heater -> motor
+%
+%   Control-supply branch (RETROFIT ADDITION):
+%     tap after DISC -> 250 mA fuse -> isolated AC-DC PSU
+%                    -> 5 V SELV rail to the ESP32 supervisor
+%
+% The control branch is tapped on the load side of the DISC and
+% the line side of M1, so the ESP32 stays powered even when the
+% coil drops. That is deliberate: it must stay alive to log the
+% trip and hold the coil open until the operator acks.
+%
+% Regenerate with:  make oneline_mains.svg
+% ============================================================
+\def\pgfsysdriver{pgfsys-dvisvgm.def}
+\documentclass[border=10pt,dvisvgm]{standalone}
+\input{tsstyle.tex}
+
+% CircuiTikZ's `elmech` is a node shape, not a bipole — `to[elmech]`
+% compiles silently and draws a bare wire. Draw the machine directly.
+\newcommand{\motorsym}[2]{%
+  \draw[mainswire] (#1,#2) circle (0.62);
+  \node[font=\normalsize\bfseries, tsink] at (#1,#2) {M};
+}
+
+\begin{document}
+\begin{circuitikz}[line width=0.9pt]
+% Elements on this sheet are sparse, so they can afford to be larger
+% than the shared default.
+\ctikzset{bipoles/length=1.1cm}
+
+% ============================================================
+% Retrofit highlight — drawn behind everything
+% ============================================================
+\begin{scope}[on background layer]
+  \fill[tssafe!7, rounded corners=4pt] (4.7,-7.4) rectangle (17.1,-2.6);
+  \draw[tssafe!35, line width=0.8pt, rounded corners=4pt]
+        (4.7,-7.4) rectangle (17.1,-2.6);
+\end{scope}
+\node[font=\scriptsize\bfseries, tssafe, anchor=north west] at (4.85,-7.52)
+  {ADDED BY THE RETROFIT — control supply};
+
+% ============================================================
+% Utility source
+% ============================================================
+\node[font=\small\bfseries, anchor=south east] at (-0.1,0.55) {Utility};
+\node[note, anchor=north east] at (-0.1,0.45) {240\,V, 1\,$\Phi$};
+\draw[mainswire] (0,0) -- (2.4,0);
+
+% ============================================================
+% Motor branch — L1 across the top
+% ============================================================
+\draw[mainswire] (2.4,0) to[nos] (3.8,0);
+\node[font=\small\bfseries, anchor=south] at (3.1,1.15) {DISC};
+\node[note, anchor=north, align=center] at (3.1,1.05)
+  {fused disconnect,\\lockable};
+
+\draw[mainswire] (3.8,0) -- (6.6,0);
+\draw (5.4,0) node[circ, color=tsmains]{};
+\node[note, anchor=south, align=center, tssafe] at (5.4,0.55)
+  {retrofit tap\\\scriptsize load side of DISC,\\line side of M1};
+
+\draw[mainswire] (6.6,0) to[fuse] (8.0,0);
+\node[font=\small\bfseries, anchor=south] at (7.3,1.15) {30\,A};
+\node[note, anchor=north] at (7.3,1.05) {motor branch};
+
+\draw[mainswire] (8.0,0) -- (9.2,0);
+\draw[mainswire] (9.2,0) to[nos] (10.6,0);
+\node[font=\small\bfseries, anchor=south] at (9.9,1.15) {M1};
+\node[note, anchor=north, align=center] at (9.9,1.05)
+  {contactor,\\NEMA Size 1};
+\node[note, anchor=north, align=center, tssafe] at (9.9,-0.75)
+  {held closed by the\\coil circuit — see\\\texttt{ladder\_coil\_circuit.svg}};
+
+\draw[mainswire] (10.6,0) -- (11.8,0);
+\draw[mainswire] (11.8,0) to[R] (13.2,0);
+\node[font=\small\bfseries, anchor=south] at (12.5,1.15) {OL};
+\node[note, anchor=north] at (12.5,1.05) {overload heater};
+
+\draw[mainswire] (13.2,0) -- (15.08,0);
+\motorsym{15.7}{0}
+\node[note, anchor=west, align=left] at (16.55,1.15)
+  {3\,HP, 14.4\,A FLA\\145TC TEFC\\Class F insulation};
+
+% Return leg down to L2
+\draw[mainswire] (16.32,0) -- (18.4,0) -- (18.4,-9.0);
+
+% ============================================================
+% L2 return
+% ============================================================
+\draw[mainswire] (0,0) -- (0,-9.0);
+\draw[mainswire] (0,-9.0) -- (18.4,-9.0);
+\node[font=\small\bfseries, anchor=north] at (9.2,-9.1) {L2};
+
+% ============================================================
+% Control-supply branch (retrofit)
+% ============================================================
+\draw[mainswire] (5.4,0) -- (5.4,-4.2);
+\draw[mainswire] (5.4,-4.2) -- (6.2,-4.2);
+\draw[mainswire] (6.2,-4.2) to[fuse] (7.6,-4.2);
+\node[font=\small\bfseries, anchor=south] at (6.9,-3.35) {250\,mA};
+\node[note, anchor=north] at (6.9,-3.45) {control fuse};
+\draw[mainswire] (7.6,-4.2) -- (8.6,-4.2);
+
+% ---- isolated AC-DC PSU, with its isolation barrier drawn ----
+% The dashed line down the middle IS the reinforced barrier; nothing
+% is allowed to be drawn across it.
+\draw[block, fill=white] (8.6,-5.9) rectangle (13.2,-3.2);
+\draw[isoline] (10.9,-5.9) -- (10.9,-3.2);
+\node[font=\scriptsize\bfseries, tsmains, anchor=north] at (9.75,-3.35)
+  {PRIMARY};
+\node[font=\scriptsize\bfseries, tsselv, anchor=north] at (12.05,-3.35)
+  {SECONDARY};
+\node[note, anchor=north, tsmains] at (9.75,-4.55) {120\,V AC};
+\node[note, anchor=north, tsselv]  at (12.05,-4.55) {5\,V DC};
+\node[pinlbl, anchor=west] at (8.72,-4.2) {L};
+\node[pinlbl, anchor=west] at (8.72,-5.2) {N};
+\node[pinlbl, anchor=east] at (13.08,-4.2) {+V};
+\node[pinlbl, anchor=east] at (13.08,-5.2) {$-$V};
+\node[font=\small\bfseries, tsink, anchor=north, align=center] at (10.9,-6.05)
+  {Isolated AC-DC PSU};
+\node[note, anchor=north, align=center] at (10.9,-6.55)
+  {Mean Well IRM-05-5 or Recom RAC03-05SK};
+
+% Neutral back to L2
+\draw[mainswire] (8.6,-5.2) -- (4.2,-5.2) -- (4.2,-9.0);
+\draw (4.2,-9.0) node[circ, color=tsmains]{};
+
+% ---- SELV output ----
+\draw[selvwire] (13.2,-4.2) -- (16.4,-4.2);
+\draw[selvwire] (13.2,-5.2) -- (16.4,-5.2);
+\draw (16.4,-4.2) node[ocirc, color=tsselv]{};
+\draw (16.4,-5.2) node[ocirc, color=tsselv]{};
+\node[note, anchor=west, tsselv] at (13.4,-3.7)
+  {\textbf{+5\,V DC (SELV)} $\rightarrow$ ESP32 supervisor};
+\node[note, anchor=west, tsselv] at (13.4,-5.7)
+  {0\,V return $\rightarrow$ common GND bus};
+
+% ============================================================
+% Danger banner
+% ============================================================
+\node[danger, anchor=north west, text width=8.4cm] at (0,-9.8) {%
+  Everything drawn in red is at mains potential. Only the SELV pair
+  right of the PSU isolation barrier is safe to touch. Lock out the
+  disconnect before working on any of it.};
+
+% ============================================================
+% Legend
+% ============================================================
+\node[legendbox, anchor=north west, text width=8.1cm] at (0,-12.0) {%
+  \textbf{What changed vs.\ the OEM Powermatic}\\[4pt]
+  \begin{tabular}{@{}p{0.35cm}@{}p{7.1cm}@{}}
+    --- & Klixon BEC2921 \emph{removed} from the motor internal
+          circuit (was a manual-reset thermal in series with the
+          winding lead)\\[3pt]
+    $+$ & Passive bimetallic thermostat wired into the coil circuit\\[3pt]
+    $+$ & ESP32 supervisor relay (KA), in series with that thermostat\\[3pt]
+    $+$ & Control-supply tap: 250\,mA fuse and an isolated AC-DC PSU
+          feeding the ESP32 at 5\,V DC\\
+  \end{tabular}
+};
+
+\node[legendbox, anchor=north west, text width=8.1cm] at (9.0,-12.0) {%
+  \textbf{Isolation}\\[4pt]
+  \begin{tabular}{@{}p{2.05cm}@{\hspace{4pt}}p{5.35cm}@{}}
+    PSU input   & reinforced, UL 61010 / IEC 60950 rated part\\[2pt]
+    PSU output  & SELV, referenced to enclosure ground\\[2pt]
+    ESP32 $\rightarrow$ coil & opto-input \emph{and} contact gap
+                              on the relay module\\[2pt]
+    TC at winding & AlN dielectric substrate\\
+  \end{tabular}\\[6pt]
+  \textbf{Not on this sheet}\\[3pt]
+  \begin{tabular}{@{}p{3.5cm}@{\hspace{4pt}}p{3.9cm}@{}}
+    Seal-in start/stop  & \texttt{ladder\_coil\_circuit.svg}\\[1pt]
+    ESP32 board wiring  & \texttt{esp32\_supervisor.svg}\\[1pt]
+    Motor sensor pigtail& \texttt{../harness/motor\_pigtail.yml}\\[1pt]
+    Enclosure interior  & \texttt{../harness/mains\_and\_coil.yml}\\
+  \end{tabular}
+};
+
+% ============================================================
+% Title block
+% ============================================================
+\node[titleblock, anchor=north west, text width=6.4cm] at (10.2,-9.8) {%
+  {\normalsize\bfseries Mains distribution — one-line}\\[2pt]
+  {\color{tsmute}Motor branch and retrofit control supply}\\[5pt]
+  {\color{tsmute}Table-saw thermal protection retrofit}\\
+  {\color{tsmute}Source: \texttt{oneline\_mains.tex}}%
+};
+
+\end{circuitikz}
+\end{document}

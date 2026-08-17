@@ -1,0 +1,184 @@
+% ============================================================
+% ladder_coil_circuit.tex — coil circuit after retrofit.
+%
+% 3-wire seal-in with the retrofit interposed between the seal-in
+% network and the overload / coil:
+%
+%   L1 -> STOP -> [START || M1 aux] -> TSTAT -> KA -> OL -> M1 -> L2
+%
+% Fail-safe by construction: every element between the rails is
+% either NC-that-opens-on-fault (STOP, TSTAT, OL) or NO-that-must-
+% be-actively-held-closed (START/seal, KA). Any wire break, sensor
+% failure, or loss of ESP32 supply drops the coil.
+%
+% This is the primary audit artifact for an electrician.
+%
+% Regenerate with:  make ladder_coil_circuit.svg
+% ============================================================
+\def\pgfsysdriver{pgfsys-dvisvgm.def}
+\documentclass[border=10pt,dvisvgm]{standalone}
+\input{tsstyle.tex}
+
+% ------------------------------------------------------------
+% NEMA / IEC ladder primitives. CircuiTikZ ships electrical
+% bipoles, not ladder shapes, so these are drawn directly. All
+% three share a half-gap of 0.16 so the rung wire segments below
+% line up against them.
+% ------------------------------------------------------------
+\def\cgap{0.16}
+\def\cbar{0.34}
+
+% \noc{<cx>}{<cy>}  — normally-open contact   -| |-
+\newcommand{\noc}[2]{%
+  \draw[wire] (#1-\cgap,#2-\cbar) -- (#1-\cgap,#2+\cbar);
+  \draw[wire] (#1+\cgap,#2-\cbar) -- (#1+\cgap,#2+\cbar);
+}
+% \ncc{<cx>}{<cy>}  — normally-closed contact -|/|-
+\newcommand{\ncc}[2]{%
+  \noc{#1}{#2}%
+  \draw[wire] (#1-0.34,#2-0.46) -- (#1+0.34,#2+0.46);
+}
+% \coil{<cx>}{<cy>} — output coil  -( )-
+\newcommand{\coilsym}[2]{%
+  \draw[wire] (#1,#2) circle (0.36);
+}
+% \dlabel{<cx>}{<name>}{<detail>} — name above, detail below
+\newcommand{\dlabel}[3]{%
+  \node[font=\small\bfseries, tsink, anchor=south] at (#1,0.86) {#2};
+  \node[note, anchor=north, align=center] at (#1,-0.86) {#3};
+}
+
+\begin{document}
+\begin{circuitikz}[line width=0.9pt]
+
+% ============================================================
+% Retrofit highlight — drawn first, behind everything
+% ============================================================
+\begin{scope}[on background layer]
+  \fill[tssafe!7, rounded corners=4pt] (11.4,-2.2) rectangle (16.2,1.85);
+  \draw[tssafe!35, line width=0.8pt, rounded corners=4pt]
+        (11.4,-2.2) rectangle (16.2,1.85);
+\end{scope}
+\node[font=\scriptsize\bfseries, tssafe, anchor=south] at (13.8,1.92)
+  {ADDED BY THE RETROFIT};
+
+% ============================================================
+% Rails
+% ============================================================
+\draw[buswire] (0,2.6) -- (0,-4.8);
+\draw[buswire] (22,2.6) -- (22,-4.8);
+\node[font=\small\bfseries, anchor=south] at (0,2.7) {L1};
+\node[note, anchor=north west] at (0.15,2.62) {120\,V hot};
+\node[font=\small\bfseries, anchor=south] at (22,2.7) {L2};
+\node[note, anchor=north east] at (21.85,2.62) {neutral / return};
+\node[note, anchor=east] at (-0.25,0) {Rung 1};
+
+% ============================================================
+% Rung — wire segments between elements
+% ============================================================
+\draw[wire] (0,0)     -- (2.64,0);
+\draw[wire] (2.96,0)  -- (5.20,0);
+\draw[wire] (5.20,0)  -- (7.24,0);
+\draw[wire] (7.56,0)  -- (9.80,0);
+\draw[wire] (9.80,0)  -- (12.24,0);
+\draw[wire] (12.56,0) -- (15.04,0);
+\draw[wire] (15.36,0) -- (17.84,0);
+\draw[wire] (18.16,0) -- (20.24,0);
+\draw[wire] (20.96,0) -- (22,0);
+
+% ============================================================
+% Seal-in branch — M1 aux in parallel with START
+% ============================================================
+\draw[wire] (5.20,0) -- (5.20,-3.2);
+\draw[wire] (9.80,0) -- (9.80,-3.2);
+\draw[wire] (5.20,-3.2) -- (7.24,-3.2);
+\draw[wire] (7.56,-3.2) -- (9.80,-3.2);
+\draw (5.20,0) node[circ]{};
+\draw (9.80,0) node[circ]{};
+
+% ============================================================
+% Elements, left to right
+% ============================================================
+\ncc{2.8}{0}
+\dlabel{2.8}{STOP}{NC pushbutton}
+
+\noc{7.4}{0}
+\dlabel{7.4}{START}{NO pushbutton,\\momentary}
+
+\noc{7.4}{-3.2}
+\node[font=\small\bfseries, tsink, anchor=south] at (7.4,-2.34) {M1 aux};
+\node[note, anchor=north, align=center] at (7.4,-4.06)
+  {NO auxiliary contact on M1.\\Carries the seal after START releases.};
+
+\ncc{12.4}{0}
+\dlabel{12.4}{TSTAT}{NC bimetallic,\\opens $\sim$110\,\textdegree C,\\autoresets $\sim$70\,\textdegree C}
+
+\noc{15.2}{0}
+\dlabel{15.2}{KA}{ESP32 relay, NO,\\opto-isolated,\\active-HIGH}
+
+\ncc{18.0}{0}
+\dlabel{18.0}{OL}{NC overload aux}
+
+\coilsym{20.6}{0}
+\dlabel{20.6}{M1}{contactor coil,\\Gould/ITE A202C,\\NEMA Size 1, 120\,V}
+
+% ============================================================
+% Series callout under TSTAT + KA
+% ============================================================
+\draw[tssafe, line width=0.8pt]
+  (11.9,-2.6) -- (11.9,-2.8) -- (15.7,-2.8) -- (15.7,-2.6);
+\node[font=\scriptsize\bfseries, tssafe, anchor=north] at (13.8,-2.87)
+  {IN SERIES — either one open drops the coil};
+
+% ============================================================
+% Legend
+% ============================================================
+\node[legendbox, anchor=north west, text width=10.6cm] at (0,-6.0) {%
+  \textbf{Why this topology is fail-safe}\\[4pt]
+  Every element between the rails is either \emph{NC that opens on
+  fault} or \emph{NO that must be actively held closed}. There is no
+  state in which a failure leaves the coil energised.\\[5pt]
+  \begin{tabular}{@{}p{1.35cm}@{\hspace{5pt}}p{1.15cm}@{\hspace{5pt}}p{5.4cm}@{}}
+    \textbf{Element} & \textbf{Type} & \textbf{Opens on}\\[2pt]
+    STOP   & NC & operator command; broken wire also opens\\[1pt]
+    START  & NO & --- (must be held until M1 aux seals in)\\[1pt]
+    M1 aux & NO & loss of coil power breaks the seal\\[1pt]
+    TSTAT  & NC & winding $\sim$110\,\textdegree C, or a broken lead\\[1pt]
+    KA     & NO & anything that stops GPIO26 being driven HIGH\\[1pt]
+    OL     & NC & sustained overcurrent\\
+  \end{tabular}
+};
+
+\node[legendbox, anchor=north west, text width=10.2cm] at (11.6,-6.0) {%
+  \textbf{What opens KA}\\[4pt]
+  KA closes only while the ESP32 actively drives GPIO26 HIGH.
+  Each of these opens it:\\[3pt]
+  \begin{tabular}{@{}p{4.55cm}@{\hspace{5pt}}p{4.5cm}@{}}
+    ESP32 crash / brown-out / power loss & GPIO26 floats, the
+      10\,k$\Omega$ pulldown wins\\[2pt]
+    Winding overtemp on the K-type & firmware drives GPIO26 LOW\\[2pt]
+    Thermocouple open or shorted & firmware trips on sensor loss\\
+  \end{tabular}\\[6pt]
+  \textcolor{tssafe}{\textbf{SR-3}}\quad TSTAT and KA are in series.
+  The passive thermostat cuts the coil with no firmware involved.\\[3pt]
+  \textcolor{tssafe}{\textbf{SR-4}}\quad No autonomous restart. Once the
+  coil drops the seal-in is broken, so a human must press START.
+};
+
+% ============================================================
+% Title block
+% ============================================================
+\node[titleblock, anchor=north west, text width=6.4cm] at (0,-11.0) {%
+  {\normalsize\bfseries Coil circuit — ladder}\\[2pt]
+  {\color{tsmute}3-wire seal-in with the retrofit interposed}\\[5pt]
+  {\color{tsmute}Table-saw thermal protection retrofit}\\
+  {\color{tsmute}Harness: \texttt{../harness/mains\_and\_coil.yml}}\\
+  {\color{tsmute}Source: \texttt{ladder\_coil\_circuit.tex}}%
+};
+
+\node[danger, anchor=north west, text width=9.5cm] at (11.6,-11.0) {%
+  Every conductor on this sheet is at mains potential.
+  Lock out the disconnect before touching the starter enclosure.};
+
+\end{circuitikz}
+\end{document}

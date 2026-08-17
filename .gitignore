@@ -13,6 +13,12 @@ hardware/harness/*.html
 hardware/harness/*.gv
 hardware/harness/*.tsv
 
+# LaTeX intermediates (keep only the .svg render alongside the .tex source)
+hardware/schematic/*.dvi
+hardware/schematic/*.aux
+hardware/schematic/*.log
+hardware/schematic/*.build.log
+
 # Editor / OS
 .vscode/
 .idea/
