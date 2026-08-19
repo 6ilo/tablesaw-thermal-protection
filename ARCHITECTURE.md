@@ -72,6 +72,14 @@ Consequences the retrofit relies on:
 
 This is the single most important electrical fact in the design — it is what lets the ESP32's automatic cooldown be safe (SR-4).
 
+### Terminals 2–3 are a dead zone
+
+The seal-in aux bridges **terminal 2 and terminal 3**. Once the contactor pulls in, anything wired *between* those two terminals is shorted out by the aux and does nothing at all. An interrupting device has to sit outside that span.
+
+For the VONVOFF receiver this is moot — it is line-powered, so it has to sit at the head of the rung anyway, for an unrelated reason (see [`hardware/schematic/WIRING.md`](hardware/schematic/WIRING.md) § Receiver — mains side). It matters for **TASK-3**: a dry relay module has no supply constraint and could be landed anywhere in the rung, and terminals 2–3 is the one span where it would look correct and do nothing. It matters again for **TASK-6**, whose thermostat is a plain NC contact with the same freedom.
+
+[`hardware/schematic/starter_annotated.svg`](hardware/schematic/starter_annotated.svg) marks both terminals on a photograph of the actual enclosure.
+
 ---
 
 ## Coil circuit after retrofit

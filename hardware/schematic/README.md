@@ -22,6 +22,7 @@ end-state design these sheets are a waypoint towards is described in
 | [`esp32_pictorial.svg`](esp32_pictorial.svg) | Block-and-wire pictorial — where each module sits, colour-coded wires | [`esp32_pictorial.tex`](esp32_pictorial.tex) |
 | [`ladder_coil_circuit.svg`](ladder_coil_circuit.svg) | Ladder-logic view of the 3-wire seal-in with the retrofit interposed | [`ladder_coil_circuit.tex`](ladder_coil_circuit.tex) |
 | [`oneline_mains.svg`](oneline_mains.svg) | One-line of the mains distribution, control branch and supervisor supply | [`oneline_mains.tex`](oneline_mains.tex) |
+| [`starter_annotated.svg`](starter_annotated.svg) | Photo of the open starter, marked with where the receiver's four wires land | [`starter_annotated.py`](starter_annotated.py) + [`starter_photo.jpg`](starter_photo.jpg) |
 
 Shared style lives in [`tsstyle.tex`](tsstyle.tex) — palette, line
 weights, block and label styles, the isolation-boundary style, and the
@@ -38,6 +39,9 @@ Which one to look at when:
   `oneline_mains.svg` and [`../harness/`](../harness/).
 - **Understanding a specific GPIO** — `esp32_supervisor.svg` is
   authoritative for signal topology; the pictorial is spatial only.
+- **Standing in front of the open starter with a screwdriver** —
+  `starter_annotated.svg`. The ladder says what the topology is; this
+  says which screw.
 
 ## Rendering
 
@@ -158,3 +162,49 @@ KiCad. Everything here is a documentation artifact, not an EDA
 design — deliberately. The point is that these diagrams live in the
 same repo as the firmware and the safety spec, review on GitHub
 without any tooling, and regenerate with one `make`.
+
+### `starter_annotated.svg` — which screw
+
+Every other sheet is abstract. This one puts the receiver's four
+terminals on a photograph of the open enclosure.
+
+`AC IN L` takes control L1 ahead of STOP, `AC OUT L` feeds the lifted
+STOP conductor, and `AC OUT N` takes the control-circuit return —
+three conductors through the two conduit hubs. The cut point is marked
+on the photo.
+
+**What the sheet asserts, and what it refuses to.** The only markings
+legible in the photograph are the moulded numerals `2` and `3` on the
+barrier strip — the same terminals `ARCHITECTURE.md` names — plus a
+third numeral that reads inverted. Those get amber boxes. Five brass
+screws are ringed in white and lettered A–E: the rings mark screws
+that *exist*, not screws *identified*. Which numeral serves which
+screw, where the coil terminals sit, and whether the two side blocks
+are auxiliary contacts are all unresolved from a photograph, so the
+sheet says so on its face and hands the question to a meter. Step 2 of
+its procedure settles it in about a minute.
+
+The contactor body carries a grey "inside the starter" band: coil,
+seal-in aux and OL contact are factory-wired, and no receiver
+conductor lands in there.
+
+#### Regenerating it
+
+```bash
+make starter_annotated.svg     # or: python3 starter_annotated.py
+```
+
+Python rather than CircuiTikZ, because the sheet is registered to
+photograph pixel coordinates and TikZ is the wrong tool for that. It
+needs no TeX install — only Python 3 and `starter_photo.jpg`.
+
+The photo is **embedded as a data URI**, which is not optional: an SVG
+that references an external image renders blank on GitHub and inside
+any `<img>` tag. That puts the sheet at ~590 KB, which is the price of
+it working anywhere you open it.
+
+`starter_photo.jpg` is committed because it is a build input. To
+re-shoot it, crop to **1125 × 1500** (3:4 portrait), replace the file
+and re-run. Feature coordinates live in the `NUM`, `SCREWS`, `STRIP`,
+`BODY`, `BUNDLE` and hub constants at the top of `starter_annotated.py`;
+a differently framed photo means nudging those and nothing else.
