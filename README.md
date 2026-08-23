@@ -2,7 +2,7 @@
 
 Replacing a failed Klixon `BEC2921` manual-reset thermal protector on a Powermatic table saw with a two-layer protection system: a passive bimetallic thermostat as primary protection, plus an ESP32 supervisory monitor with logging and a web dashboard.
 
-**Status:** BOM verified. Two purchased parts unusable at the winding and repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)). Two build paths documented — see below. Firmware written for both and covered by host tests; **not yet run on hardware**, so none of the commissioning procedures has been performed.
+**Status:** Path A assembly under way. The starter is installed and wired in its enclosure, an accessory 240 V outlet has been added outside the protected path, and the frame probe and the RF fob have both been connectorised so they plug into the ESP32. The firmware is written and covered by host tests but **has never run on hardware**, nothing has been flashed, and no commissioning procedure has been performed. Two purchased parts turned out to be unusable at the winding and were repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)); the thermostat that SR-3 requires is still unpurchased. **What is actually fitted, and what still has to be measured, is in [BUILD-LOG.md](BUILD-LOG.md)** — this page and the two design documents describe intended states, not built ones.
 
 ---
 
@@ -132,6 +132,10 @@ If Start doesn't pull in the contactor:
 - If the LED is solid but the contactor still won't pull in: the overload relay's red reset button may have popped, or — once it is fitted — the bimetallic thermostat may be open and will re-close on its own as the motor cools. Check those. Neither of them logs anything, so the dashboard will show a healthy saw that refuses to start.
 - Anything more than that: lock out the disconnect, verify with a meter, and open the starter enclosure.
 
+### The outlet on the machine
+
+There is a 240 V receptacle fed straight off the incoming supply. **It is deliberately outside the protection.** Nothing plugged into it is stopped by the overload relay, by the monitor, or by the thermostat — it is a convenience outlet that happens to be bolted to a saw, and it stays live whenever the machine is live. Do not read it as "the saw's outlet." Its as-built details are in [BUILD-LOG.md](BUILD-LOG.md).
+
 ### Never
 
 - Never bypass the monitor. If the LED says "do not use," the answer is not "unplug the ESP32."
@@ -147,9 +151,10 @@ If Start doesn't pull in the contactor:
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
 | [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
+| [`BUILD-LOG.md`](BUILD-LOG.md) | **The as-built record.** What is physically fitted, what the next steps are, and what still has to be measured. The only file that describes the build rather than the design. |
 | [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
 | [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |
-| [`hardware/`](hardware/) | Physical build artifacts — schematics, harnesses, [`BOM.csv`](hardware/BOM.csv). Every diagram is drawn for the parts on hand; the end-state design lives in `ARCHITECTURE.md` as prose and open TASKs. |
+| [`hardware/`](hardware/) | Physical build artifacts — schematics, harnesses, [`photos/`](hardware/photos/), [`BOM.csv`](hardware/BOM.csv). Every diagram is drawn for the parts on hand; the end-state design lives in `ARCHITECTURE.md` as prose and open TASKs. |
 | [`firmware/`](firmware/) | ESP32 supervisor source — protection core, drivers, dashboard, host tests, and a one-command flash script. Builds for both paths. |
 | [`CLAUDE.md`](CLAUDE.md) | Working notes for AI assistants — the safety requirements that constrain code, and what is generated rather than written. |
 | [`CHANGELOG.md`](CHANGELOG.md) | Change history, and what the version number in `VERSION` covers. |

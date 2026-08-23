@@ -15,6 +15,7 @@ how a builder ends up wiring the wrong thing.
 |---|---|
 | [`schematic/`](schematic/) | Signal schematic, pictorial, coil-circuit ladder, mains one-line, and [`WIRING.md`](schematic/WIRING.md) — the pin-to-pin table. CircuiTikZ source + rendered SVGs. |
 | [`harness/`](harness/) | Cable and mains-interconnect diagrams. Wireviz YAML source; render locally per the harness README. |
+| [`photos/`](photos/) | As-built photographs, captioned. What is physically there, as opposed to what is drawn. |
 | [`BOM.csv`](BOM.csv) | **The parts list.** ASINs, specs, purchase status, and which sheet each part appears on. Single source — the diagrams and prose reference it rather than restating it. |
 
 ## Where to start
@@ -26,6 +27,7 @@ how a builder ends up wiring the wrong thing.
 | Working inside the starter enclosure | [`schematic/oneline_mains.svg`](schematic/oneline_mains.svg) + [`harness/fob_and_receiver.yml`](harness/fob_and_receiver.yml) |
 | Mounting the probe | [`../BUILD-TONIGHT.md § 6`](../BUILD-TONIGHT.md) + [`harness/frame_probe.yml`](harness/frame_probe.yml) |
 | Asking "what do we actually have?" | [`BOM.csv`](BOM.csv) |
+| Asking "what is actually built?" | [`../BUILD-LOG.md`](../BUILD-LOG.md) + [`photos/`](photos/) |
 
 ## Three things the drawings exist to get right
 
@@ -56,6 +58,28 @@ how a builder ends up wiring the wrong thing.
   closed while nothing is transmitting inverts the entire fail-safe
   premise.
 
+## Where the sheets are behind the build
+
+The drawings are the design; [`../BUILD-LOG.md`](../BUILD-LOG.md) is the build. Three
+things exist on the bench that no sheet shows yet, listed here so nobody reads a sheet as
+current:
+
+1. **The accessory 240 V receptacle.** Added off the incoming supply, deliberately outside
+   the protected path. `oneline_mains.tex` does not have it. It also reopens the
+   supervisor-supply question the same sheet currently answers — the legend says the ESP32
+   is fed from a *separate wall outlet*, and if the charger moves to the new receptacle
+   that legend becomes wrong in the one direction that matters, because it is the sentence
+   telling a servicer whether the disconnect kills the supervisor.
+2. **The connectorised probe.** The frame probe's factory JST now has its mate, so
+   `frame_probe.yml`'s "cut it off and solder to the extension" note is stale as an
+   instruction and survives only as history.
+3. **The pigtailed fob.** Six conductors out of the fob board to a connector, both pads of
+   each button among them. `fob_and_receiver.yml` still draws a single ON-pad and a fob
+   ground, which is the harder version of the same thing.
+
+Items 2 and 3 are corrected in the harness sources' prose already; item 1 needs a redraw,
+and it should wait until the supply decision is made rather than being drawn twice.
+
 ## Open question the drawings flag rather than answer
 
 **The A202C's coil voltage has not been read off the coil label.** It
@@ -70,8 +94,11 @@ match.
 | Path | Purpose |
 |---|---|
 | `enclosure/` | 3D-printable brackets, panel cutouts, mounting fixtures — lands here when a physical build exists |
-| `photos/` | Annotated photos of the built system (A202C terminal block with retrofit taps marked, probe clamped in a fin channel, enclosure interior) |
 | `datasheets/` | PDF copies of datasheets for parts that get hard to find later — Marathon motor plate, Gould A202C wiring diagram, chosen thermostat |
+
+[`photos/`](photos/) now exists and holds the first set. Still wanted there: the A202C
+terminal block with the retrofit taps marked, the probe clamped in a fin channel, and the
+enclosure interior once it is insulated, torqued and in its final location.
 
 ## Safety
 

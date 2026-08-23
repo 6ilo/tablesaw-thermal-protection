@@ -4,6 +4,12 @@ A retrofit that replaces a failed Klixon thermal protector on a Powermatic table
 a bimetallic thermostat plus an ESP32 supervisory monitor. Read [README.md](README.md) for
 the why and [ARCHITECTURE.md](ARCHITECTURE.md) for the design of record.
 
+**Read [BUILD-LOG.md](BUILD-LOG.md) before saying anything about what is built.** Every
+other document in this repository describes an intended state. The log is the only one that
+says what is fitted, what has been measured, and what has not — and most of the interesting
+answers are still "not measured". Record build progress there, not by editing a design
+document to sound finished.
+
 **This is safety-critical code for a machine that can take a hand off.** The bias
 throughout is toward stopping the saw when anything is uncertain. A nuisance stop is an
 acceptable outcome; a saw running with protection silently disabled is not.
@@ -70,6 +76,8 @@ documented in [docs/codes/README.md](docs/codes/README.md) § *Adding a code*.
 |---|---|
 | `ARCHITECTURE.md` | Design of record — Path B, the end state |
 | `BUILD-TONIGHT.md` | Path A, the same-day build from parts on hand |
+| `BUILD-LOG.md` | **As-built state.** What is fitted, what is next, what is still unmeasured |
+| `hardware/photos/` | Captioned photographs of what is physically there |
 | `firmware/lib/saw_core/` | Protection logic, pure C++, no Arduino. Host-testable |
 | `firmware/src/` | Arduino glue — drivers, tasks, dashboard |
 | `firmware/include/saw_config.h` | Pin map and thresholds, all `#ifndef`-guarded |

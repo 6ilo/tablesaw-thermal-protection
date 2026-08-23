@@ -7,7 +7,8 @@ for the hardware on hand; parts and purchase status live in
 - **[`frame_probe.yml`](frame_probe.yml)** — the DROK NTC probe
   clamped to the outside of the motor frame, extended back to the
   ESP32 enclosure. Nothing on this run is at mains potential and it
-  does not enter the motor.
+  does not enter the motor. The factory JST now has its mate, so the
+  probe plugs in rather than being cut and soldered.
 - **[`fob_and_receiver.yml`](fob_and_receiver.yml)** — the heartbeat
   path. ESP32 `GPIO26` through an optocoupler into the VONVOFF fob's
   ON pad, and the VONVOFF receiver landed at the head of the
@@ -15,6 +16,11 @@ for the hardware on hand; parts and purchase status live in
   and the bonded N pair on the control return. The 433 MHz hop is
   deliberately *not* drawn as a cable — it is an air gap, and drawing
   it as a conductor is how someone talks themselves into trusting it.
+
+  The fob is already opened and pigtailed to a connector on six
+  conductors, both pads of each button among them, which is why this
+  file's drive side needs no ESP32-to-fob ground tie. None of that
+  pigtail has been metered — the file says so where it matters.
 
 ## Rendering
 

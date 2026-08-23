@@ -127,8 +127,20 @@ The USB wart approach is safe and correct — a UL-listed charger *is* a certifi
 - Nameplate documentation of isolation grade and voltage rating, on the supply itself.
 - The tap is bonded, fused, and inside the same enclosure as the safety-critical wiring — the whole assembly is one serviceable unit.
 
+### The accessory outlet — as built, and what it is not
+
+A 240 V receptacle has been added off the incoming supply and is deliberately **outside the protected path**: no overload relay, no supervisor contact, no thermostat between it and the mains. Details and open items are in [BUILD-LOG.md](BUILD-LOG.md).
+
+It is not the supply described above, and it does not close TASK-2. A receptacle is a receptacle; the requirements in this section are about the *supervisor's* supply, and they do not become satisfied because there is now somewhere convenient to plug something in. If the supervisor ends up fed from it, all of the above still applies unchanged — fused L1 tap, tap point after the disconnect and before the contactor, isolation grade documented on the supply itself, everything inside the enclosure.
+
+Two things follow either way:
+
+- **Label the receptacle as unprotected.** A person reading a saw's enclosure assumes the machine's protection covers what is bolted to it. Here it does not.
+- **The supervisor's supply is a recorded decision, not an implicit one.** The sheets under [`hardware/schematic/`](hardware/schematic/) presently draw a *separate wall outlet*, with the stated consequence that opening the machine disconnect does not de-energise the supervisor. Feeding the ESP32 from the new receptacle inverts that. Both are workable; a drawing that disagrees with the enclosure is not.
+
 ### Do not
 
+- Do not treat the accessory receptacle as protected, and do not feed anything from it that a person would reasonably expect the saw's protection to cover.
 - Do not use the purchased "220 to 12 V buck converter" until it is positively identified as an isolated module (TASK-2). If the part cannot be identified with certainty, discard it and buy a certified module.
 - Do not attempt to isolate a non-isolated buck by adding an external transformer. If you find yourself designing this, you are re-implementing an AC-DC supply badly. Buy the module.
 - Do not power the ESP32 from a low-voltage tap off the coil circuit (e.g. a rectified 24 V control transformer output). The coil supply comes and goes with protection state — wrong behavior for the supervisor.
@@ -851,6 +863,8 @@ Do not cut wood until all of these pass.
 
 Resolved: sensor identified (DROK NTC, repurposed to frame monitoring), RF switch identified (repurposed to dust collection), ESP32 confirmed suitable.
 
+Build state — what is fitted, and the measurements each open item is waiting on — is tracked in [BUILD-LOG.md](BUILD-LOG.md) rather than here. This list is design questions.
+
 Outstanding:
 
 1. **Is the power supply isolated?** (TASK-2 — blocking, nothing gets energized until this is answered)
@@ -861,3 +875,5 @@ Outstanding:
 6. Were the ring terminals and solder actually ordered? The provided links were category pages.
 7. Is a `BEC2921` or a Sensata supersession worth pursuing in parallel as a fallback?
 8. Dust collector interlock: is the collector currently manual-start? If the saw and collector can be interlocked, that addresses root cause more directly than any monitoring.
+9. Does the supervisor's supply come off the new accessory receptacle or off a separate wall outlet? The answer decides whether the machine disconnect de-energises the supervisor, and the mains one-line has to be redrawn to whichever it is — see [The accessory outlet](#the-accessory-outlet--as-built-and-what-it-is-not).
+10. What is on the fob's button pad? The level-shifter guidance assumed a ~12 V rail and the fob on the bench is coin-cell powered. It changes no design decision — the optocoupler is right at any rail voltage — but it is an unverified number sitting in the harness source, and it is the kind of unverified number that reaches a GPIO.

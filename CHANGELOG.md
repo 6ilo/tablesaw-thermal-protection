@@ -24,11 +24,31 @@ version bump.
 ## [Unreleased]
 
 No registry version bump: no code changes meaning, and no code is added or retired. The
-firmware landing is a hardware/firmware change, and the two operator-page edits below are
-corrections to text that described a firmware limitation that no longer exists.
+firmware landing and the hardware progress below are hardware/firmware changes, and the two
+operator-page edits are corrections to text that described a firmware limitation that no
+longer exists.
 
 ### Added
 
+- **[`BUILD-LOG.md`](BUILD-LOG.md) — the as-built record.** The repository had five
+  documents describing intended states and none describing the built one, which is how a
+  reader ends up assuming a part is fitted because it is drawn. The log carries what is
+  actually installed, the next steps, the measurements each one is waiting on, and the
+  safety gates still open. Every other document now defers to it on build state, and
+  [`CLAUDE.md`](CLAUDE.md) says so first.
+- **[`hardware/photos/`](hardware/photos/)** — captioned photographs, the directory
+  `hardware/README.md` had listed as intended. Starter enclosure, and the fob board before
+  and after it was pigtailed.
+- **Hardware progress recorded:** the `A202C` starter is installed and wired in its
+  enclosure; an accessory 240 V receptacle has been added off the incoming supply,
+  deliberately outside the protected path; and the frame probe and the RF fob are both
+  connectorised so the ESP32 can be wired, unwired and re-flashed without unsoldering
+  anything. Nothing is flashed, nothing is commissioned.
+- **The accessory receptacle is documented as unprotected** in
+  [`ARCHITECTURE.md § Power supply`](ARCHITECTURE.md#power-supply), in the README's operator
+  section, and as `X1` in [`BOM.csv`](hardware/BOM.csv). It does not close TASK-2 and it is
+  not the supervisor supply — but it *could* be, and that decision now sits in the open
+  questions rather than being made silently by whichever outlet is nearest.
 - **[`firmware/`](firmware/) — the ESP32 supervisor, written.** Arduino-ESP32 under
   PlatformIO, with two build environments matching the project's two hardware paths:
   `path_a` (frame NTC + 433 MHz heartbeat, per [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md)) and
@@ -57,6 +77,29 @@ corrections to text that described a firmware limitation that no longer exists.
 
 ### Changed
 
+- **The fob's "12 V A23 cell" is withdrawn, not corrected.**
+  [`fob_and_receiver.yml`](hardware/harness/fob_and_receiver.yml) asserted a rail voltage
+  that came from the general class of part rather than from this one; the fob on the bench
+  carries a coin-cell holder. Nothing about the design changes — an optocoupler is right at
+  any rail voltage — but an unverified number that a GPIO could be wired to should not be
+  sitting in a harness source, so it is marked unmeasured in the harness file,
+  [`WIRING.md`](hardware/schematic/WIRING.md), `BUILD-TONIGHT.md § 2` and the BOM, with the
+  "no GPIO touches a fob pad" rule restated on the honest grounds: not that 12 V is certain,
+  but that the number is unknown.
+- **"Cut the probe's JST off" is no longer the instruction.** The mate is fitted.
+  `BUILD-TONIGHT.md § 3`, `WIRING.md` and
+  [`frame_probe.yml`](hardware/harness/frame_probe.yml) updated; the old note survives as
+  history rather than as a step.
+- **The fob pigtail brings out both pads of each button**, so the level shifter needs no
+  ESP32-to-fob ground tie at all. The optocoupler and NPN tables in `WIRING.md` and
+  `BUILD-TONIGHT.md § 3` are rewritten around the pair, with the single-pad wiring kept as
+  the fallback it now is.
+- **The sheets are marked as behind the build** rather than silently stale.
+  [`hardware/README.md`](hardware/README.md) lists the three things on the bench that no
+  sheet shows, and `oneline_mains.svg`'s "separate wall outlet" legend is flagged in
+  [`schematic/README.md`](hardware/schematic/README.md) as the sentence that goes wrong if
+  the charger moves to the new receptacle. The redraw waits on the supply decision, so the
+  sheet is drawn once rather than twice.
 - **`error_codes.h` is now committed at
   [`firmware/generated/`](firmware/generated/error_codes.h)** rather than written into the
   gitignored `build/`. The firmware has to compile on a machine that has PlatformIO and no

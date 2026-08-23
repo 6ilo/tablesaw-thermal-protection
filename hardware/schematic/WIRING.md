@@ -14,6 +14,11 @@ Parts, ASINs and full specs: [`../BOM.csv`](../BOM.csv). Everything
 here that isn't one of the three purchased parts is scrounged — one
 level-shifting part, three resistors, a USB phone charger, hookup wire.
 
+What is already fitted is in [`../../BUILD-LOG.md`](../../BUILD-LOG.md).
+Several numbers on this page are still "measure this and write it
+down" — the divider resistor, the two-point calibration, and the whole
+fob pigtail table. None of them has been measured yet.
+
 ## ESP32 power — through the USB-C connector
 
 | ESP32 | Goes to | Notes |
@@ -33,8 +38,11 @@ Divider topology: `3V3 → 10 kΩ 1% → GPIO34 → NTC 10 kΩ B3950 → GND`
 | Bottom of NTC | Common GND bus | black | |
 | Probe body | Motor **frame**, fin channel near the drive end | — | Thermal grease, hose-clamped, insulated on the outboard face. Not the winding: the PVC lead and the 125 °C ceiling both rule that out. |
 
-The probe ships with a JST XH 2.54 2-pin connector. Cut it off and
-solder to hookup wire if you do not have the mate.
+The probe ships with a JST XH 2.54 2-pin connector and **the mate is
+now fitted**, so the probe plugs into the ESP32 side instead of being
+soldered to it. Keep that joint inside the enclosure, not out on the
+motor where dust and vibration reach it. The probe is non-polarised —
+it is a thermistor, so either conductor may go to the divider junction.
 
 **This NTC holds trip authority on its own.** There is no K-type and
 no thermostat yet, so thresholds are set from an observed baseline
@@ -43,8 +51,33 @@ in ARCHITECTURE.md.
 
 ## Fob drive — GPIO26 through a level shifter
 
-The fob's ON-button pad sits on the fob's own ~12 V rail.
-**Never connect GPIO26 to it directly.**
+### The fob as it is now
+
+The fob is open and its board — silkscreened `CYS02-E2` — is pigtailed
+out to a connector on six conductors. Photos: [`../photos/`](../photos/).
+
+| Conductor | Lands on | Confidence |
+|---|---|---|
+| red | cell holder, positive | from photographs |
+| black | cell holder, negative | from photographs |
+| green + orange | one button position, both pads | from photographs |
+| blue + yellow | the other button position, both pads | from photographs |
+
+**Nothing in that table has been metered.** Which pair is the ON button,
+which conductor of it the encoder sees, and what the cell voltage is are
+all unrecorded. Fill in this table from a meter before the level shifter
+is wired, and change "from photographs" to the measurement.
+
+Having both pads of a button on the pigtail is the useful part: a switch
+across a pair closes that button with no reference to fob ground, so the
+optocoupler needs nothing tied together and the NPN version's shared-ground
+requirement goes away.
+
+The rail voltage is the part that matters for safety. This project's
+documents assumed the ON pad sat on a ~12 V rail; the board on the bench
+carries a coin-cell holder instead. **Never connect GPIO26 to a fob pad
+directly** — not because 12 V is certain, but because the number is
+unknown and anything above 3.3 V destroys the ESP32.
 
 ### Optocoupler version (recommended — galvanic isolation)
 
@@ -52,18 +85,19 @@ The fob's ON-button pad sits on the fob's own ~12 V rail.
 |---|---|---|---|
 | `A` (anode) | ESP32 `GPIO26` via 330 Ω | brown | |
 | `K` (cathode) | Common GND bus | black | |
-| `C` (collector) | Fob ON-button pad, encoder side | brown | Meter the two pads to find which one is *not* fob ground. |
-| `E` (emitter) | Fob battery negative | black | |
+| `C` (collector) | ON-button pad, encoder side | brown | Meter the pair to find which side the encoder sees. |
+| `E` (emitter) | the other ON-button pad | black | Battery negative works too if you are down to a single pad. |
 
-No shared ground between the ESP32 and the fob is required.
+No shared ground between the ESP32 and the fob is required, and with
+both pads on the pigtail there is nothing to share.
 
 ### NPN version
 
 | Pin | Goes to | Notes |
 |---|---|---|
 | Base | ESP32 `GPIO26` via 1 kΩ | 470 Ω–10 kΩ all work |
-| Collector | Fob ON-button pad, encoder side | |
-| Emitter | Fob battery negative | **Ties ESP32 GND to fob GND** — that common reference is required for this version to switch at all |
+| Collector | ON-button pad, encoder side | |
+| Emitter | the other ON-button pad | Both pads are on the pigtail, so no ground tie is needed. Working from a single pad instead, this goes to fob battery negative and **ties ESP32 GND to fob GND** — that common reference is then required for it to switch at all |
 
 2N3904 / 2N2222 / BC547 / S8050 are all fine.
 
@@ -171,20 +205,30 @@ design rests on is not there.
    Without it a floating GPIO26 on boot can transmit.
 2. **With the ESP32 unpowered, the fob must not transmit** and the
    receiver contact must be open. Verify by observation.
-3. **Divider resistor measured**, and the measured value is in the
+3. **Fob pigtail metered** — cell voltage, which pair is the ON button,
+   which conductor of it the encoder sees — and the table above filled
+   in from the meter rather than from the photographs.
+4. **Divider resistor measured**, and the measured value is in the
    firmware's β equation.
-4. **NTC on GPIO34 (ADC1)**, not on an ADC2 pin.
-5. **Two-point calibration done** — ice water and boiling water,
+5. **NTC on GPIO34 (ADC1)**, not on an ADC2 pin.
+6. **Two-point calibration done** — ice water and boiling water,
    both within ±2 °C, before the probe is mounted.
-6. **Receiver programmed to momentary**, verified by holding a fob
+7. **Receiver programmed to momentary**, verified by holding a fob
    button and watching the contact drop within about a second of
    release. Record the decay time; the heartbeat has to beat it. The
    contact must be **open** with nothing transmitting.
-7. **Receiver `AC IN L` tapped upstream of the seal-in**, `AC OUT L`
+8. **Receiver `AC IN L` tapped upstream of the seal-in**, `AC OUT L`
    feeding STOP, and the N bus on the control return. Not wired
    straight to the coil.
-8. **Charger is a listed USB wall wart**, not the unidentified
-   "220 to 12 V buck converter" (see ARCHITECTURE.md TASK-2).
+9. **Charger is a listed USB wall wart**, not the unidentified
+   "220 to 12 V buck converter" (see ARCHITECTURE.md TASK-2). Which
+   outlet it is fed from — the accessory 240 V receptacle or a
+   separate wall outlet — is recorded in
+   [`../../BUILD-LOG.md`](../../BUILD-LOG.md), because it decides
+   whether the machine disconnect de-energises the supervisor.
+10. **The accessory receptacle is not part of this wiring.** It is fed
+    off the incoming supply, ahead of everything protective, and
+    nothing on this page lands on it.
 
 ## What this build does not have
 

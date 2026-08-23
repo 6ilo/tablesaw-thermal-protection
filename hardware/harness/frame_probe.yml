@@ -5,6 +5,10 @@
 # the motor. The end-state design in ARCHITECTURE.md puts a K-type at
 # the winding instead (TASK-1); that part has not been purchased.
 #
+# As built: the probe is connectorised and on the bench. It is not
+# mounted on the motor and not calibrated. Build state lives in
+# BUILD-LOG.md, not here.
+#
 # Render:  wireviz hardware/harness/frame_probe.yml
 
 metadata:
@@ -45,9 +49,10 @@ connectors:
     # Quoted: bare YAML scalars here would parse as ints and crash wireviz.
     pinlabels: ["1", "2"]
     notes: |
-      Cut it off and solder to the extension if you do not have the
-      mating half. Keep the joint inside the enclosure, not out on the
-      motor where dust and vibration reach it.
+      The mating half is now fitted, so the probe plugs in and this
+      connector stays intact — earlier revisions said to cut it off,
+      which no longer applies. Keep the joint inside the enclosure, not
+      out on the motor where dust and vibration reach it.
   ENC:
     type: Enclosure terminal block
     subtype: 2-way, screw

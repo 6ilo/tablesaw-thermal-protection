@@ -17,6 +17,10 @@
 # (A1/A2). Do NOT copy that here — it bypasses the 3-wire seal-in, so
 # the saw would restart by itself when the RF link recovers. SR-4.
 #
+# As built: the fob half is done. It is opened, pigtailed to a connector,
+# six conductors out. The level shifter is not fitted and the pigtail is
+# not metered. Build state lives in BUILD-LOG.md, not here.
+#
 # Render:  wireviz hardware/harness/fob_and_receiver.yml
 
 metadata:
@@ -60,14 +64,24 @@ connectors:
       works but does tie ESP32 GND to fob GND.
   FOB:
     type: VONVOFF key fob
-    subtype: B07CTL3TG6, 433 MHz, 12 V A23 cell
-    pincount: 2
-    pinlabels: [ON-pad, BAT-]
+    subtype: B07CTL3TG6, 433 MHz, board silkscreened CYS02-E2
+    pincount: 6
+    pinlabels: [ON-A, ON-B, ALT-A, ALT-B, BAT+, BAT-]
     notes: |
-      Open the fob and meter the ON button's two pads. One is fob ground;
-      the other goes to the encoder IC. Solder to the encoder side. The
-      pad sits on the fob's 12 V rail — a direct GPIO connection destroys
-      the ESP32. Two fobs are supplied; keep the second sealed as a spare.
+      Already opened and pigtailed to a connector on six conductors: red
+      and black at the cell holder, and a pair at each of the two button
+      positions. Both pads of a button being brought out is why this
+      harness needs no ESP32-to-fob ground tie at all.
+
+      NOT YET METERED. The colour map in WIRING.md is read off
+      photographs. Which pair is ON, which conductor of it the encoder
+      sees, and what the cell voltage is are all unrecorded. Earlier
+      revisions of this file asserted a 12 V A23 cell; the board on the
+      bench carries a coin-cell holder instead, so that figure is
+      withdrawn rather than corrected. Until it is measured no GPIO
+      touches a fob pad — anything above 3.3 V destroys the ESP32.
+
+      Two fobs are supplied; keep the second sealed as a spare.
 
   # ----- mains side, inside the starter enclosure -----
   L1CTL:
@@ -123,8 +137,10 @@ cables:
     wirecount: 2
     colors: [BN, BK]
     notes: |
-      Keep this short and strain-relieve it at the fob. The fob is a
-      moulded plastic case being asked to live in a shop enclosure.
+      Lands on the fob's existing pigtail rather than on the board, so
+      the board gets soldered once. Keep it short and strain-relieve it
+      at the connector. The fob is a moulded plastic case being asked to
+      live in a shop enclosure.
   W_L1_RX:
     gauge: 16 AWG
     length: 0.3
@@ -158,7 +174,7 @@ connections:
     - OPTO: [1, 2]        # A, K
   - - OPTO: [3, 4]        # C, E
     - W_OPTO_FOB: [1, 2]
-    - FOB: [1, 2]
+    - FOB: [1, 2]         # across the ON pair, encoder side to the collector
 
   # ----- receiver supply and relay line side: one and the same terminal,
   #       tapped across the rails upstream of the seal-in -----

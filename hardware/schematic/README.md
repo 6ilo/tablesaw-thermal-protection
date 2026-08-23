@@ -143,6 +143,14 @@ L1 → RX → STOP → [START ∥ M1 aux] → OL → M1 coil → L2
 - Supervisor supply drawn as what it is: a **separate wall outlet**,
   not a tap off the machine. The legend spells out the consequence —
   opening the machine disconnect does not de-energise the ESP32.
+- **This sheet is now behind the build.** An accessory 240 V receptacle
+  has been added off the incoming supply, outside the protected path,
+  and it is not drawn. It also reopens the supply question above: if
+  the ESP32's charger moves to that receptacle, the legend is wrong in
+  the one direction that matters. See
+  [`../README.md`](../README.md) and
+  [`../../BUILD-LOG.md`](../../BUILD-LOG.md); redraw once the supply
+  decision is recorded, not twice.
 
 ## What's *not* here
 

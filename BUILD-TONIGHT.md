@@ -6,6 +6,11 @@
 
 **What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
 
+> **How far along this is:** [`BUILD-LOG.md`](BUILD-LOG.md). The starter is installed and
+> wired, the frame probe and the fob are connectorised, and nothing has been flashed or
+> commissioned. This document is the procedure; the log is the state. Where the two ever
+> disagree, the log is right and this file needs an edit.
+
 **Diagrams for this build** — everything under [`hardware/`](hardware/) is drawn for these exact parts:
 
 | Sheet | Shows |
@@ -58,13 +63,20 @@ Do not use the unverified "220 to 12 V buck converter." If it is non-isolated, t
 
 A UL-listed USB wall charger is an isolated AC-DC supply with reinforced isolation. Plug it into a 120 V outlet, run USB to the ESP32. USB is SELV — the cable can be routed freely with no hazard. Zero cost, zero risk, available now.
 
+**Which outlet, though, is now a decision.** An accessory 240 V receptacle has been added off the incoming supply ([`BUILD-LOG.md`](BUILD-LOG.md)). Feeding the charger from it ties the supervisor to the machine disconnect, which is what [ARCHITECTURE.md § Power supply](ARCHITECTURE.md#power-supply) wants and what every sheet in [`hardware/schematic/`](hardware/schematic/) currently says is *not* the case — and it needs a charger rated for the voltage and a plug that fits the receptacle, which a 120 V-only wart is not. Feeding it from a separate wall outlet keeps the drawings true and leaves the supervisor powered when the machine is locked out. Pick one, record it in the log, and redraw the one-line to match. Do not leave the two documents disagreeing.
+
 ### Transistor — the one scrounge item
-Needed to let a 3.3 V GPIO switch the fob's button, which likely sits on a 12 V rail. Any of:
+Needed to let a 3.3 V GPIO close the fob's button contact without connecting to it. Any of:
 - Small-signal NPN: 2N3904, 2N2222, BC547, S8050
 - Any optocoupler: 4N25, 4N35, PC817
 - Salvage: old PC power supply, dead router, printer board, appliance control board
 
-**Do not connect a GPIO directly to the fob button.** 12 V on a GPIO destroys the ESP32.
+**Do not connect a GPIO directly to the fob button.** This document was written assuming
+the pad sits on a ~12 V rail; the fob actually on the bench carries a coin-cell holder, and
+nobody has put a meter on it yet ([`BUILD-LOG.md`](BUILD-LOG.md)). Until that number is
+measured and written down you do not know what is on that pad, and anything above 3.3 V
+destroys the ESP32. Measuring it does not change the choice of part — the optocoupler is
+the right answer at any rail voltage, because it needs no shared reference at all.
 
 ---
 
@@ -89,26 +101,50 @@ Needed to let a 3.3 V GPIO switch the fob's button, which likely sits on a 12 V 
 - **GPIO34 only** (or any of 32–39). ADC2 is unusable once Wi-Fi is on.
 - The 10 kΩ can be any resistor near 10 k — record the actual value for the math.
 - No 10 k on hand? Use two of whatever you have in series/parallel and measure.
-- NTC connector is JST XH 2.54 — cut it off and solder to scrap wire if you lack the mate.
+- NTC connector is JST XH 2.54. **The mate is now fitted**, so the probe plugs in rather than
+  being soldered — cutting the connector off is no longer the instruction. Keep the joint at
+  the enclosure end, not out on the motor where dust and vibration reach it.
+
+### The fob is already opened and pigtailed
+
+The soldering half of this step is done. The fob board — silkscreened `CYS02-E2` — has six
+conductors brought out to a connector: red and black at the cell holder, and a pair at each
+of the two button positions (green/orange, blue/yellow). Photos in
+[`hardware/photos/`](hardware/photos/).
+
+Having **both** pads of a button on the pigtail is better than what the wiring below
+assumes. A switch across that pair closes the button with no reference to fob ground at
+all, so the optocoupler version needs nothing tied together and the NPN version's
+shared-ground requirement disappears with it.
+
+What is not done is the metering. Before wiring anything:
+
+1. Measure the cell voltage across red and black.
+2. Identify which pair is the **ON** button, and which conductor of that pair the encoder
+   sees, by pressing the physical button and metering — not by colour convention.
+3. Write both into [`WIRING.md`](hardware/schematic/WIRING.md). The colour map above is
+   read off photographs, not off a meter.
 
 ### Fob drive (NPN version)
 ```
 GPIO26 ──[1 kΩ]── B
-                  C ── fob button pad (the side that goes to the encoder)
-                  E ── fob GND (battery negative)
+                  C ── ON-button pad, encoder side
+                  E ── the other ON-button pad
 ```
-- Tie ESP32 GND to fob GND. This is the common reference — without it, nothing switches.
 - GPIO26 HIGH = transistor conducts = button "pressed" = transmitting.
-- Open the fob, find the ON button's two pads. One is GND, the other goes to the encoder IC. Meter to identify. Solder to the encoder side.
+- With both pads on the pigtail, no ESP32-to-fob ground tie is needed. If you are working
+  from a single pad instead, the emitter goes to fob battery negative and the two grounds
+  must be tied — that common reference is what makes it switch at all.
 - No 1 kΩ? Anything 470 Ω–10 kΩ works.
 
 ### Optocoupler version (preferred if you have one)
 ```
 GPIO26 ──[330 Ω]── anode | cathode ── GND
-                   collector ── fob button pad
-                   emitter   ── fob GND
+                   collector ── ON-button pad, encoder side
+                   emitter   ── the other ON-button pad
 ```
-Galvanic isolation between ESP32 and fob. No shared ground needed.
+Galvanic isolation between ESP32 and fob. No shared ground needed, and with both pads
+brought out there is nothing to share.
 
 ### Fail-safe pin discipline
 - Fit a **10 kΩ pulldown from GPIO26 to GND.** ESP32 pins float during boot and after a crash; the pulldown guarantees floating = not transmitting = relay open.
@@ -504,6 +540,10 @@ Continuous 433 MHz transmission during ARMED sits outside the periodic-control-s
 
 ## 10. Time budget
 
+The original nine-hour plan, kept as written. It is a sequence, not a schedule any more —
+the build has run across several sessions, and where it actually stands is in
+[`BUILD-LOG.md`](BUILD-LOG.md).
+
 | | Task |
 |---|---|
 | 0:00–0:30 | Find charger and transistor. Clean the fan shroud. |
@@ -524,6 +564,8 @@ If you fall behind, cut in this order: web/Wi-Fi (already cut), flash logging, w
 ## 11. If the transistor doesn't turn up
 
 Same underlying idea in every fallback: leave the fob's ON button mechanically held closed with tape or a solder bridge, and use the ESP32 to switch the fob's **power** instead of the button. Heartbeat behavior is identical — power the fob to transmit, cut power to stop.
+
+The pigtail already brings the cell's two terminals out, so the switching element lands on the black conductor and nothing needs unsoldering to get at it. Bridging the ON button is then the only irreversible step in the fallback — confirm which pair is the ON button with a meter before you commit to it.
 
 ### Fallback A — logic-level N-channel MOSFET (preferred)
 

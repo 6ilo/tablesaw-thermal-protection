@@ -267,4 +267,6 @@ answer* rather than as 0 °C.
 - **It has not been run on hardware.** Everything here is verified by the host test suite
   and by compilation in CI. The commissioning procedures in `ARCHITECTURE.md § Commissioning`
   and `BUILD-TONIGHT.md § 7` are the acceptance tests, and none of them has been performed.
-  **Do not cut wood until they have been.**
+  **Do not cut wood until they have been.** [`../BUILD-LOG.md`](../BUILD-LOG.md) tracks that,
+  along with the per-unit numbers this firmware is waiting on: the measured divider
+  resistor, the two-point calibration, and the baseline that sets the thresholds.
