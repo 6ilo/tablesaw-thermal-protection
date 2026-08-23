@@ -1,19 +1,42 @@
 # Photos
 
 As-built photographs. These exist because a drawing says what was intended and a photograph
-says what is there. Build state and what each of these changed is in
-[`../../BUILD-LOG.md`](../../BUILD-LOG.md); this page is captions only.
+says what is there. Build state is in [`../../BUILD-LOG.md`](../../BUILD-LOG.md); this page
+is captions only.
 
-Images are downscaled to 1400 px on the long edge — enough to read a silkscreen, small
-enough that the repository stays clonable over a phone hotspot in a shop.
+Two versions of each image are kept:
+
+- **The plain photograph** — the record.
+- **`-annotated`** — the same image with numbered callouts, embedded in
+  [`../../NEXT-STEPS.md`](../../NEXT-STEPS.md). The numbers are so a guide on a video call
+  can say "the thing marked 3" to somebody who has never seen a contactor before. Callout
+  text lives in that document's tables, not on the image: a number stays legible on a phone
+  at arm's length, a paragraph does not.
+
+Regenerate the annotated set after replacing or re-cropping a source image:
+
+```bash
+python3 tools/annotate_photos.py
+```
+
+Callout coordinates live in that script, next to the reasoning for each one.
+
+Images are 1400 px on the long edge — enough to read a silkscreen, small enough that the
+repository stays clonable over a phone hotspot in a shop.
+
+> **Orientation.** These were shot looking straight down, where a phone's accelerometer
+> cannot tell which way is up, and all four carry an EXIF orientation tag that rotates them
+> 90° from how the bench actually looked. The tag is dropped rather than honoured, and the
+> raster is the orientation the scene says is right — bench edges and case lettering run
+> horizontally. If a re-import ever comes back sideways, that is the reason.
 
 ## 2026-08-23
 
 | Image | Shows |
 |---|---|
-| [`2026-08-23-starter-enclosure.jpg`](2026-08-23-starter-enclosure.jpg) | The Gould ITE `A202C` mounted in its enclosure with the line, load and bonding conductors landed and the flexible entries made up. Still to do: insulate the exposed terminations, torque to the label figure, and move the assembly to its final location. One module in the lower part of the frame carries a lit green indicator and is **not identified** in this record — see BUILD-LOG's *To confirm and record*. Still frame from the build video |
+| [`2026-08-23-starter-enclosure.jpg`](2026-08-23-starter-enclosure.jpg) | The Gould ITE `A202C` mounted in its enclosure with the line, load and bonding conductors landed and the flexible entries made up. Still to do: insulate the exposed terminations, torque to the label figure, and move the assembly to its final location. One module low in the frame carries a lit green indicator and is **not identified** in this record — see BUILD-LOG's *To confirm and record*. Still frame from the build video |
 | [`2026-08-23-fob-cell-side.jpg`](2026-08-23-fob-cell-side.jpg) | `KA1`'s fob board, cell side. The coin-cell holder is the reason the harness file's "12 V A23 cell" is now marked unverified. Red and black land at the holder; a numbered pad matrix and an `R433` marking are both on the silkscreen |
-| [`2026-08-23-fob-encoder-side.jpg`](2026-08-23-fob-encoder-side.jpg) | The same board, encoder side — silkscreened `CYS02-E2`. Two button positions, each with a pair of conductors taken off it (green/orange and blue/yellow), plus the encoder IC and the indicator LED |
+| [`2026-08-23-fob-encoder-side.jpg`](2026-08-23-fob-encoder-side.jpg) | The same board, encoder side — silkscreened `CYS02-E2`. Two button positions, each with a pair of conductors taken off it: yellow and orange at one, blue and green at the other. Which pair is the ON button is still unmetered |
 | [`2026-08-23-fob-pigtail-esp32-topside.jpg`](2026-08-23-fob-pigtail-esp32-topside.jpg) | The pigtailed fob beside the ESP32 (`U1`), board top — USB-C connector, the ESP32 module, and both header rows |
 | [`2026-08-23-fob-pigtail-esp32-underside.jpg`](2026-08-23-fob-pigtail-esp32-underside.jpg) | The same pair, board underside |
 

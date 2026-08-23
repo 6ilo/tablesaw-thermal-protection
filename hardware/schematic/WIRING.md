@@ -60,8 +60,8 @@ out to a connector on six conductors. Photos: [`../photos/`](../photos/).
 |---|---|---|
 | red | cell holder, positive | from photographs |
 | black | cell holder, negative | from photographs |
-| green + orange | one button position, both pads | from photographs |
-| blue + yellow | the other button position, both pads | from photographs |
+| yellow + orange | one button position — yellow at its top, orange at its bottom | from photographs |
+| blue + green | the other button position, same arrangement | from photographs |
 
 **Nothing in that table has been metered.** Which pair is the ON button,
 which conductor of it the encoder sees, and what the cell voltage is are

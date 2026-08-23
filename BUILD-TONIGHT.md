@@ -6,10 +6,17 @@
 
 **What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
 
-> **How far along this is:** [`BUILD-LOG.md`](BUILD-LOG.md). The starter is installed and
-> wired, the frame probe and the fob are connectorised, and nothing has been flashed or
-> commissioned. This document is the procedure; the log is the state. Where the two ever
-> disagree, the log is right and this file needs an edit.
+> **Superseded as the procedure to follow — see [NEXT-STEPS.md](NEXT-STEPS.md).** That
+> document covers the remaining work for the people actually doing it, who are not
+> electrically trained and are being guided through it on a call. It carries annotated
+> photographs, plain-language steps and stop conditions.
+>
+> **This file is still correct and is kept for the reasoning**, which is the half that
+> does not fit in a set of instructions: why the heartbeat inverts the usual failure
+> logic, why the receiver must be in momentary mode, why the thresholds are where they
+> are, what each fault test is actually proving. Read it before changing any of that.
+>
+> How far along the build is: [`BUILD-LOG.md`](BUILD-LOG.md).
 
 **Diagrams for this build** — everything under [`hardware/`](hardware/) is drawn for these exact parts:
 
@@ -109,7 +116,7 @@ the right answer at any rail voltage, because it needs no shared reference at al
 
 The soldering half of this step is done. The fob board — silkscreened `CYS02-E2` — has six
 conductors brought out to a connector: red and black at the cell holder, and a pair at each
-of the two button positions (green/orange, blue/yellow). Photos in
+of the two button positions — yellow and orange at one, blue and green at the other. Photos in
 [`hardware/photos/`](hardware/photos/).
 
 Having **both** pads of a button on the pigtail is better than what the wiring below

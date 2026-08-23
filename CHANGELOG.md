@@ -30,6 +30,19 @@ longer exists.
 
 ### Added
 
+- **[`NEXT-STEPS.md`](NEXT-STEPS.md) — the procedure, rewritten for the people who will
+  actually do the work.** They are not electrically trained and are being guided through it
+  on a video call, which is a different document from the one an engineer writes for
+  themselves. Plain language, annotated photographs, an explicit stop-and-ask rule, a
+  glossary of every term that will come up on the call, and a closing section spelling out
+  that finishing the six steps leaves the saw *instrumented* rather than *protected* —
+  because "it's installed" reads as "it's protected" to everyone who was not in this
+  repository.
+- **Annotated photographs, and [`tools/annotate_photos.py`](tools/annotate_photos.py) that
+  draws them.** Numbered callouts with leader lines, so a guide can say "the thing marked
+  3" to somebody looking at a control box for the first time. Callout text lives in the
+  markdown tables rather than on the image, so it stays legible on a phone; coordinates and
+  their reasoning live in the script, so the set regenerates after any re-crop.
 - **[`BUILD-LOG.md`](BUILD-LOG.md) — the as-built record.** The repository had five
   documents describing intended states and none describing the built one, which is how a
   reader ends up assuming a part is fitted because it is drawn. The log carries what is
@@ -77,6 +90,21 @@ longer exists.
 
 ### Changed
 
+- **[`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) is superseded as the instructions**, and says so
+  at the top. It stays as the reasoning — why the heartbeat inverts the usual failure logic,
+  why the receiver must be in momentary mode, what each fault test actually proves — which
+  is the half that does not fit in a set of steps. Nothing was deleted from it.
+- **The fob's button-wire pairing is corrected to yellow/orange and blue/green.** The
+  earlier reading of green/orange and blue/yellow came from the cell-side photograph, where
+  the wires cross; the encoder-side photograph shows each pair landing at its own button.
+  Still read off a photograph and still marked unmetered — the correction is to the guess,
+  not to its status.
+- **The committed photographs were sideways and are re-rendered.** All four carry an EXIF
+  orientation tag that rotates them 90°, which is what a phone records when it is held flat
+  and pointed down and cannot tell which way is up. The scene disagrees with the tag —
+  bench edges and case lettering run horizontally in the raw raster — so the tag is dropped
+  rather than honoured, and `hardware/photos/README.md` records why in case a re-import ever
+  comes back rotated.
 - **The fob's "12 V A23 cell" is withdrawn, not corrected.**
   [`fob_and_receiver.yml`](hardware/harness/fob_and_receiver.yml) asserted a rail voltage
   that came from the general class of part rather than from this one; the fob on the bench

@@ -75,7 +75,8 @@ documented in [docs/codes/README.md](docs/codes/README.md) § *Adding a code*.
 | Path | What |
 |---|---|
 | `ARCHITECTURE.md` | Design of record — Path B, the end state |
-| `BUILD-TONIGHT.md` | Path A, the same-day build from parts on hand |
+| `BUILD-TONIGHT.md` | Path A's reasoning — the same-day build from parts on hand |
+| `NEXT-STEPS.md` | The procedure being followed, written for non-specialists on a guided call |
 | `BUILD-LOG.md` | **As-built state.** What is fitted, what is next, what is still unmeasured |
 | `hardware/photos/` | Captioned photographs of what is physically there |
 | `firmware/lib/saw_core/` | Protection logic, pure C++, no Arduino. Host-testable |

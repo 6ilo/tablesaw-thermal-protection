@@ -2,7 +2,7 @@
 
 Replacing a failed Klixon `BEC2921` manual-reset thermal protector on a Powermatic table saw with a two-layer protection system: a passive bimetallic thermostat as primary protection, plus an ESP32 supervisory monitor with logging and a web dashboard.
 
-**Status:** Path A assembly under way. The starter is installed and wired in its enclosure, an accessory 240 V outlet has been added outside the protected path, and the frame probe and the RF fob have both been connectorised so they plug into the ESP32. The firmware is written and covered by host tests but **has never run on hardware**, nothing has been flashed, and no commissioning procedure has been performed. Two purchased parts turned out to be unusable at the winding and were repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)); the thermostat that SR-3 requires is still unpurchased. **What is actually fitted, and what still has to be measured, is in [BUILD-LOG.md](BUILD-LOG.md)** — this page and the two design documents describe intended states, not built ones.
+**Status:** Path A assembly under way. The starter is installed and wired in its enclosure, an accessory 240 V outlet has been added outside the protected path, and the frame probe and the RF fob have both been connectorised so they plug into the ESP32. The firmware is written and covered by host tests but **has never run on hardware**, nothing has been flashed, and no commissioning procedure has been performed. Two purchased parts turned out to be unusable at the winding and were repurposed (see [ARCHITECTURE.md § Bill of materials](ARCHITECTURE.md#bill-of-materials)); the thermostat that SR-3 requires is still unpurchased. **The work remaining is in [NEXT-STEPS.md](NEXT-STEPS.md); what is actually fitted, and what still has to be measured, is in [BUILD-LOG.md](BUILD-LOG.md)** — this page and the two design documents describe intended states, not built ones.
 
 ---
 
@@ -52,7 +52,7 @@ Same-day protection using only parts on hand. Fail-safe via a **heartbeat** desi
 - No passive thermostat yet.
 - Nuisance-stop-prone by design. That's the correct direction — the alternative is unprotected running.
 
-This is what [`hardware/`](hardware/) is drawn for — every sheet, plus [`WIRING.md`](hardware/schematic/WIRING.md) and [`BOM.csv`](hardware/BOM.csv).
+This is what [`hardware/`](hardware/) is drawn for — every sheet, plus [`WIRING.md`](hardware/schematic/WIRING.md) and [`BOM.csv`](hardware/BOM.csv). It is the path being built now; the remaining work is written up step by step in [NEXT-STEPS.md](NEXT-STEPS.md).
 
 ### Path B — Full retrofit → [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -150,7 +150,8 @@ There is a 240 V receptacle fed straight off the incoming supply. **It is delibe
 | Path | Contents |
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
-| [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Self-contained same-day expedient build using only parts on hand. |
+| [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Path A's design reasoning — the same-day expedient build using only parts on hand. Superseded as step-by-step instructions by `NEXT-STEPS.md`. |
+| [`NEXT-STEPS.md`](NEXT-STEPS.md) | **The procedure being followed to finish the build**, written for non-specialists working through it on a guided call. Annotated photos, plain-language steps, stop conditions. Supersedes `BUILD-TONIGHT.md` as the instructions; that file keeps the reasoning. |
 | [`BUILD-LOG.md`](BUILD-LOG.md) | **The as-built record.** What is physically fitted, what the next steps are, and what still has to be measured. The only file that describes the build rather than the design. |
 | [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
 | [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |

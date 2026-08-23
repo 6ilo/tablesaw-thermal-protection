@@ -1,10 +1,11 @@
 # Build log
 
 The as-built record. [`README.md`](README.md) is the *why*, [`ARCHITECTURE.md`](ARCHITECTURE.md)
-is the end-state design, [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) is the procedure being
-followed. Every one of those describes an *intended* state. **This file is the only place
-that says how far along the physical build actually is**, and nothing in the other
-documents should be read as a claim that a part is fitted.
+is the end-state design, [`NEXT-STEPS.md`](NEXT-STEPS.md) is the procedure being followed
+and [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) is the reasoning behind it. Every one of those
+describes an *intended* state. **This file is the only place that says how far along the
+physical build actually is**, and nothing in the other documents should be read as a claim
+that a part is fitted.
 
 > **Nothing here has been commissioned.** No firmware has been flashed, no fault test has
 > been run, and no threshold has been set from a measurement. Neither
@@ -90,10 +91,11 @@ re-flashed without unsoldering anything:
   applies. [`WIRING.md`](hardware/schematic/WIRING.md) and
   [`frame_probe.yml`](hardware/harness/frame_probe.yml) are updated.
 - **Fob.** The fob is open and its board — silkscreened `CYS02-E2` — is pigtailed out to a
-  connector on six conductors: red and black at the cell holder, and two pairs
-  (green/orange, blue/yellow) at the two button positions. Bringing out *both* pads of a
-  button is better than the single-pad-plus-shared-ground arrangement the documents assumed:
-  a level shifter can sit straight across one button's pair with no common reference at all.
+  connector on six conductors: red and black at the cell holder, and a pair at each of the
+  two button positions — yellow and orange at one, blue and green at the other. Bringing out
+  *both* pads of a button is better than the single-pad-plus-shared-ground arrangement the
+  documents assumed: a level shifter can sit straight across one button's pair with no
+  common reference at all.
 
   **Nothing is proven about that pigtail until it is metered.** The colour-to-pad map above
   is read off photographs, and the fob's rail voltage is unknown — the harness file asserted
@@ -106,14 +108,19 @@ re-flashed without unsoldering anything:
 
 ## Next steps
 
-The builder's order, with the section that covers each.
+**The procedure is [`NEXT-STEPS.md`](NEXT-STEPS.md)** — written for the people doing the
+work, who are not electrically trained and are being guided through it on a call. It
+carries annotated photographs, plain-language steps and stop conditions.
+
+This table is the same six steps mapped to the reference document behind each, for anyone
+who wants the underlying detail.
 
 | # | Step | Follow |
 |---|---|---|
 | 1 | Insulate the exposed terminations and torque every screw | A202C label figure (#14–#10 at 35 in-lb). Lock out the disconnect first, and note that the accessory outlet is fed ahead of everything protective — dropping the contactor does not make that part of the enclosure dead |
 | 2 | Flash the firmware | [`firmware/README.md`](firmware/README.md) — `./scripts/flash.sh all`, default environment `path_a` |
 | 3 | Wire everything to the ESP32 | [`WIRING.md`](hardware/schematic/WIRING.md), then its sanity checklist. The 10 kΩ pulldown on GPIO26 is the one item with no substitute |
-| 4 | Prove the firmware does what it claims | [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md) bench tests, all of them, before anything goes on the motor |
+| 4 | Prove the firmware does what it claims | [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md) bench tests, all of them, before anything goes on the motor. Plain-language version in [NEXT-STEPS.md](NEXT-STEPS.md) |
 | 5 | Install everything in its final place | [ARCHITECTURE.md TASK-5](ARCHITECTURE.md#task-5--enclosure-placement) — out of the dust stream, not obstructing cooling airflow |
 | 6 | Final insulation and tightening pass | Then re-run the § 7 fault tests, because the wiring moved |
 
