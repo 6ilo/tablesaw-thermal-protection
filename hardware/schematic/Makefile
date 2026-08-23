@@ -13,13 +13,21 @@
 SHEETS := esp32_supervisor ladder_coil_circuit oneline_mains esp32_pictorial
 SVGS   := $(addsuffix .svg,$(SHEETS))
 
+# starter_annotated.svg is the photo overlay. Python, not LaTeX: it is
+# registered to photograph pixel coordinates and embeds the JPEG as a data
+# URI, so it needs neither a TeX install nor the loose photo at view time.
+PHOTOSVG := starter_annotated.svg
+
 LATEX    := latex
 DVISVGM  := dvisvgm
 LATEXOPT := -interaction=nonstopmode -halt-on-error
 SVGOPT   := --no-fonts --exact-bbox --optimize
 
 .PHONY: all clean distclean
-all: $(SVGS)
+all: $(SVGS) $(PHOTOSVG)
+
+$(PHOTOSVG): starter_annotated.py starter_photo.jpg
+	python3 starter_annotated.py
 
 %.svg: %.tex tsstyle.tex
 	$(LATEX) $(LATEXOPT) $< > $*.build.log 2>&1 \
@@ -36,4 +44,4 @@ clean:
 	rm -f *.dvi *.aux *.log *.build.log
 
 distclean: clean
-	rm -f $(SVGS)
+	rm -f $(SVGS) $(PHOTOSVG)

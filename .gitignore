@@ -21,6 +21,9 @@ hardware/harness/*.html
 hardware/harness/*.gv
 hardware/harness/*.tsv
 
+# NOT ignored, deliberately: hardware/schematic/starter_photo.jpg. It is the
+# build input for starter_annotated.py, which embeds it in the sheet.
+
 # LaTeX intermediates (keep only the .svg render alongside the .tex source)
 hardware/schematic/*.dvi
 hardware/schematic/*.aux
