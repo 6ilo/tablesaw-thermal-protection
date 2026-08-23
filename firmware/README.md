@@ -58,7 +58,7 @@ same thing in both: HIGH is *the contactor coil circuit may be closed*.
 
 | | `path_a` (default) | `path_b` |
 |---|---|---|
-| Reference | [`BUILD-TONIGHT.md`](../BUILD-TONIGHT.md) | [`ARCHITECTURE.md`](../ARCHITECTURE.md) |
+| Reference | [`archive/BUILD-TONIGHT.md`](../archive/BUILD-TONIGHT.md) | [`ARCHITECTURE.md`](../ARCHITECTURE.md) |
 | Trip source | DROK 10K NTC on the motor **frame**, ADC1 | K-type at the **winding** via MAX31855, SPI |
 | Advisory sensor | — | the frame NTC, demoted |
 | Output | 433 MHz fob held transmitting into a receiver in momentary mode | wired opto-isolated active-HIGH relay |
@@ -76,7 +76,7 @@ partition table on a 4 MB chip does not boot at all. `doctor` reads the real siz
 > **Path A thresholds versus the operator pages.** [`docs/codes/`](../docs/codes/) quotes
 > the Path B winding figures, because that is the end-state design. On a Path A build the
 > numbers that are actually in force are the frame-temperature ones, and they are
-> provisional until the baseline run in BUILD-TONIGHT.md § 7 steps 8–9. The dashboard and
+> provisional until the baseline run in archive/BUILD-TONIGHT.md § 7 steps 8–9. The dashboard and
 > the boot banner both print the thresholds this unit is really running — trust those over
 > any number in prose.
 
@@ -237,7 +237,7 @@ The pseudocode leaves `first_trip_ms` at 0 until the window lapses, which measur
 first burst from power-up rather than from the first trip.
 
 **4. The ack button is fitted on both paths.**
-`BUILD-TONIGHT.md § 5` says a Path A lockout "clears only by power-cycling the ESP32", but
+`archive/BUILD-TONIGHT.md § 5` says a Path A lockout "clears only by power-cycling the ESP32", but
 its own `setup()` pseudocode honours a persisted `MANUAL_LOCKOUT` across reboots — the two
 statements contradict each other, and `E07` publishes the stricter one ("Power-cycling does
 not clear a lockout"). Honouring the persisted lockout is the safe reading, so a build with
@@ -261,12 +261,12 @@ answer* rather than as 0 °C.
   on this firmware continuing to run.
 - **It cannot detect a probe that has fallen off but still reads shop ambient.** The
   `probe_verified` latch and `W03` are a partial mitigation, not a solution — see
-  `BUILD-TONIGHT.md § 9`.
+  `archive/BUILD-TONIGHT.md § 9`.
 - **It does not measure current.** The starter's overload heaters do that, and their sizing
   (16.5 A maximum for this motor) is a prerequisite this firmware cannot check.
 - **It has not been run on hardware.** Everything here is verified by the host test suite
   and by compilation in CI. The commissioning procedures in `ARCHITECTURE.md § Commissioning`
-  and `BUILD-TONIGHT.md § 7` are the acceptance tests, and none of them has been performed.
+  and `archive/BUILD-TONIGHT.md § 7` are the acceptance tests, and none of them has been performed.
   **Do not cut wood until they have been.** [`../BUILD-LOG.md`](../BUILD-LOG.md) tracks that,
   along with the per-unit numbers this firmware is waiting on: the measured divider
   resistor, the two-point calibration, and the baseline that sets the thresholds.

@@ -46,7 +46,7 @@ it is a thermistor, so either conductor may go to the divider junction.
 
 **This NTC holds trip authority on its own.** There is no K-type and
 no thermostat yet, so thresholds are set from an observed baseline
-(BUILD-TONIGHT.md § 7 steps 8–9), not from the 110 °C winding figure
+(archive/BUILD-TONIGHT.md § 7 steps 8–9), not from the 110 °C winding figure
 in ARCHITECTURE.md.
 
 ## Fob drive — GPIO26 through a level shifter
@@ -118,7 +118,7 @@ BSS138, AO3400, IRLML2502, IRLZ44N). Gate through 220 Ω, plus a
 
 | ESP32 pin | Behaviour |
 |---|---|
-| `GPIO2` | Onboard LED on the DevKitC. No external wire. Six patterns — see BUILD-TONIGHT.md § 5. |
+| `GPIO2` | Onboard LED on the DevKitC. No external wire. Six patterns — see archive/BUILD-TONIGHT.md § 5. |
 
 If the board in front of you has no user LED on `GPIO2` — some DevKitC
 revisions only fit a power LED — wire one from `GPIO2` through a 330 Ω
@@ -238,7 +238,7 @@ design rests on is not there.
 - **Frame temperature, not winding temperature.** The NTC trails the
   winding, so it is slower and less direct than the K-type of TASK-1.
 - **Continuous 433 MHz transmission** during ARMED — see
-  BUILD-TONIGHT.md § 9 on FCC Part 15.
+  archive/BUILD-TONIGHT.md § 9 on FCC Part 15.
 - **A probe that has fallen off but still reads shop ambient** is the
   one fault the heartbeat does not catch. The `probe_verified` latch
   in the firmware is a partial mitigation.

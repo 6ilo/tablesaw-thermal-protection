@@ -28,7 +28,7 @@ changes with it on the next build. See [issue #1](https://github.com/6ilo/tables
 > **The temperatures quoted on these pages are the Path B winding thresholds.** A
 > supervisor built to the parts-on-hand Path A measures the motor *frame* instead, at lower
 > and provisional thresholds — see
-> [BUILD-TONIGHT.md](../../BUILD-TONIGHT.md). Every unit prints the thresholds it is
+> [BUILD-TONIGHT.md](../../archive/BUILD-TONIGHT.md). Every unit prints the thresholds it is
 > actually running in its boot log and at the top of its dashboard; those are the numbers to
 > trust for the machine in front of you.
 

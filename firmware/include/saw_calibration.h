@@ -3,7 +3,7 @@
  *
  * These are the only values in the firmware that are properties of one physical
  * assembly rather than of the design. ARCHITECTURE.md § Sensor calibration and
- * BUILD-TONIGHT.md § 5 both describe the two-point procedure that produces them; do it
+ * archive/BUILD-TONIGHT.md § 5 both describe the two-point procedure that produces them; do it
  * at the bench, before the probe is mounted on the motor.
  *
  *   1. Measure the divider resistor with a meter. Put the measured ohms in

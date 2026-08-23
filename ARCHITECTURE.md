@@ -1,6 +1,6 @@
 # Architecture
 
-Hardware and software design for the table saw thermal protection retrofit. Companion to the [README](README.md), which covers the *why*. For the same-day expedient build using only parts on hand, see [BUILD-TONIGHT.md](BUILD-TONIGHT.md).
+Hardware and software design for the table saw thermal protection retrofit. Companion to the [README](README.md), which covers the *why*. For the same-day expedient build using only parts on hand, see [BUILD-TONIGHT.md](archive/BUILD-TONIGHT.md).
 
 > **DANGER — 240 VAC throughout.** Every wiring section in this document sits on live mains. Before touching any of it:
 > - Lock out and tag out the machine disconnect. Physically lock a breaker in the OFF position.
@@ -118,9 +118,9 @@ Machine disconnect ──┬── L1 ──▶ Contactor main ──▶ Motor �
 - **L1↔L2 across the module input, no neutral.** US 240 V split-phase presents 240 VAC line-to-line. Any wide-input isolated module (85–264 or 100–240 VAC) accepts this. Confirm the specific part is rated line-to-line, not line-to-neutral only — most industrial modules are.
 - **Everything in one enclosure.** The tap wires, fuse, PSU module, ESP32, and relay all live inside the same enclosure as the contactor. No exposed 240 V conductors outside the enclosure. If the enclosure is metal, bond it to safety ground.
 
-### Why this over the USB wall wart used in BUILD-TONIGHT
+### Why this over the USB wall wart used in Path A
 
-The USB wart approach is safe and correct — a UL-listed charger *is* a certified isolated AC-DC supply. It exists in BUILD-TONIGHT as an expedient because it needs no purchasing and no wiring. Once the isolated PSU module is on hand and installed, the wart can be retired for these reasons:
+The USB wart approach is safe and correct — a UL-listed charger *is* a certified isolated AC-DC supply. It exists in Path A as an expedient because it needs no purchasing and no wiring. Once the isolated PSU module is on hand and installed, the wart can be retired for these reasons:
 
 - Single power source, single enclosure. No dangling USB cable to snag or unplug.
 - The supervisor cannot be silently disabled by unplugging a wart.
@@ -246,7 +246,7 @@ The purchased VONVOFF 433 MHz receiver *latches* its relay state by default. In 
 
 There is no fault in the wired design that leaves the saw running without protection. There is no fault in the latched-RF design that *doesn't*. That asymmetry is the whole reason the ESP32 relay is specified as a wired, opto-isolated, active-HIGH module driven directly by GPIO.
 
-**The one fail-safe RF configuration** is the receiver in **momentary mode** with the ESP32 transmitting a continuous heartbeat — loss of transmission opens the relay. This is exactly the design in [BUILD-TONIGHT.md](BUILD-TONIGHT.md), used deliberately as an expedient because the RF receiver is on hand and a proper wired relay is not. It has real drawbacks (continuous 433 MHz transmission has FCC Part 15 duty-cycle implications, a shop is an electrically noisy RF environment, and the link has no acknowledgment), so it is a fallback path, not the end state.
+**The one fail-safe RF configuration** is the receiver in **momentary mode** with the ESP32 transmitting a continuous heartbeat — loss of transmission opens the relay. This is exactly the design in [BUILD-TONIGHT.md](archive/BUILD-TONIGHT.md), used deliberately as an expedient because the RF receiver is on hand and a proper wired relay is not. It has real drawbacks (continuous 433 MHz transmission has FCC Part 15 duty-cycle implications, a shop is an electrically noisy RF environment, and the link has no acknowledgment), so it is a fallback path, not the end state.
 
 ---
 
@@ -266,7 +266,7 @@ Sensor and thermostat leads inside the motor must be rated for the winding tempe
 
 **Secondary sensor (NTC on the frame, advisory only):**
 
-The DROK NTC probe sits in a fin channel on the motor frame exterior, near the drive end. The delta between frame temperature and winding temperature is itself the airflow-restriction signal this project exists to detect. See BUILD-TONIGHT.md § 6 for mounting details — the procedure is identical.
+The DROK NTC probe sits in a fin channel on the motor frame exterior, near the drive end. The delta between frame temperature and winding temperature is itself the airflow-restriction signal this project exists to detect. See [archive/BUILD-TONIGHT.md](archive/BUILD-TONIGHT.md) § 6 for mounting details — the procedure is identical.
 
 ---
 
@@ -307,11 +307,11 @@ Terminals, per the manufacturer's own wiring diagram in the listing gallery: **f
 
 All three are drawn in [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg).
 
-One listing claim to distrust: the spec table says *"Contact Type: Normally Closed."* Settle it by observation during the momentary-mode check (BUILD-TONIGHT.md § 4 step 4), not from the listing — a contact closed while nothing is transmitting would invert the fail-safe premise entirely.
+One listing claim to distrust: the spec table says *"Contact Type: Normally Closed."* Settle it by observation during the momentary-mode check ([archive/BUILD-TONIGHT.md](archive/BUILD-TONIGHT.md) § 4 step 4), not from the listing — a contact closed while nothing is transmitting would invert the fail-safe premise entirely.
 
 **Repurposed** to dust collector remote — the highest-value repurpose in the box, since inadequate dust extraction is the root cause of the original motor failure.
 
-**Note:** BUILD-TONIGHT.md uses this same receiver in the coil circuit in **momentary mode with an ESP32-driven heartbeat**. That configuration *is* fail-safe (loss of TX opens the relay) but is an expedient for same-day protection, not the end-state design.
+**Note:** [archive/BUILD-TONIGHT.md](archive/BUILD-TONIGHT.md) uses this same receiver in the coil circuit in **momentary mode with an ESP32-driven heartbeat**. That configuration *is* fail-safe (loss of TX opens the relay) but is an expedient for same-day protection, not the end-state design.
 
 ### Unverified — no listing provided
 
@@ -344,7 +344,7 @@ Either mates well to the AlN substrate. Specify high-temperature lead insulation
 
 **Resolution path is now documented.** See [Power supply](#power-supply) for the installation topology (tap point, fuse, enclosure requirements) and the specific recommended parts — Mean Well IRM-05-5 or Recom RAC03-05SK, both under $15. Either replaces the purchased module unconditionally; the purchased part is only reusable if positively identified as an isolated AC-DC module with a certification mark.
 
-Status: **blocking for Path B**. Not blocking for BUILD-TONIGHT — that path uses a UL-listed USB phone charger, which *is* a certified isolated AC-DC supply and sidesteps the question until the isolated module is on hand.
+Status: **blocking for Path B**. Not blocking for Path A — that path uses a UL-listed USB phone charger, which *is* a certified isolated AC-DC supply and sidesteps the question until the isolated module is on hand.
 
 ### TASK-3 — Source a GPIO-driven relay
 

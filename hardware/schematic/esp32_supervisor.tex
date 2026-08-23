@@ -16,7 +16,7 @@
 %   * GPIO26 does not drive a relay module (TASK-3). It gates the
 %     fob's ON-button pad through a level shifter, and the
 %     resulting 433 MHz carrier is the heartbeat.
-%   * No ack button (see BUILD-TONIGHT.md § 5 — MANUAL_LOCKOUT
+%   * No ack button (see archive/BUILD-TONIGHT.md § 5 — MANUAL_LOCKOUT
 %     clears by power-cycle).
 %
 % Layout bands:
@@ -99,7 +99,7 @@
 \draw (-1.5,2.2) node[ocirc]{};
 \node[note, anchor=east, align=right] at (-1.75,2.2)
   {onboard blue LED, internal to\\the module --- no external wire.\\
-   Six patterns; see BUILD-TONIGHT.md § 5.};
+   Six patterns; see archive/BUILD-TONIGHT.md § 5.};
 
 % ---- right edge ----
 \node[pinlbl, anchor=east] at (4.28,8.6) {3V3};
@@ -155,7 +155,7 @@
    \textbf{frame} with thermal grease, insulated\\
    on the outboard face. Not at the winding:\\
    the PVC lead and the 125\,\textdegree C ceiling both\\
-   rule that out. See BUILD-TONIGHT.md § 6.};
+   rule that out. See archive/BUILD-TONIGHT.md § 6.};
 
 % ============================================================
 % GPIO26 -> fail-safe pulldown -> level shifter -> fob
@@ -300,7 +300,7 @@
                            & \texttt{circuit.svg}\\[2pt]
     Module placement       & \texttt{esp32\_pictorial.svg}\\[2pt]
     Pin-to-pin table       & \texttt{WIRING.md}\\[2pt]
-    Firmware, thresholds   & \texttt{BUILD-TONIGHT.md} § 5\\
+    Firmware, thresholds   & \texttt{archive/BUILD-TONIGHT.md} § 5\\
   \end{tabular}
 };
 

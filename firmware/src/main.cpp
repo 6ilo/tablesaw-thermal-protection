@@ -1,7 +1,7 @@
 /*
  * Table saw thermal protection supervisor — ESP32.
  *
- * Design of record: ARCHITECTURE.md (Path B) and BUILD-TONIGHT.md (Path A).
+ * Design of record: ARCHITECTURE.md (Path B) and archive/BUILD-TONIGHT.md (Path A).
  * Operator-facing fault codes: docs/codes/, compiled in via generated/error_codes.h.
  *
  * The first executable statement in setup() drives the hold line low. Everything else —

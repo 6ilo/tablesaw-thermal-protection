@@ -4,7 +4,7 @@
  * Exactly one of SAW_PATH_A / SAW_PATH_B must be defined; platformio.ini does that per
  * environment. The two variants are the two build paths in the project README:
  *
- *   Path A  BUILD-TONIGHT.md — parts on hand. DROK NTC on the motor FRAME is the trip
+ *   Path A  archive/BUILD-TONIGHT.md — parts on hand. DROK NTC on the motor FRAME is the trip
  *           source, and the "relay" is a 433 MHz fob held transmitting through a level
  *           shifter into a receiver programmed to momentary mode. Loss of transmission
  *           opens the receiver contact.
@@ -18,7 +18,7 @@
  * upstream of it does. That is why there is one state machine and not two.
  *
  * Every value below is overridable from build_flags, so commissioning step 9 in
- * BUILD-TONIGHT.md ("set TRIP_C = baseline + 20 ... reflash") does not require editing
+ * archive/BUILD-TONIGHT.md ("set TRIP_C = baseline + 20 ... reflash") does not require editing
  * tracked source:
  *
  *     pio run -e path_a -t upload --build-flag="-DSAW_TRIP_C=95.0f"
@@ -54,7 +54,7 @@
 
 /*
  * The ack button is fitted on BOTH paths, which is a deliberate deviation from
- * BUILD-TONIGHT.md § 5 — see firmware/README.md § Deviations. Short version: E07 tells
+ * archive/BUILD-TONIGHT.md § 5 — see firmware/README.md § Deviations. Short version: E07 tells
  * the operator that power-cycling does not clear a lockout, and honouring a persisted
  * MANUAL_LOCKOUT is the safe behaviour, so a build with no ack input would have no way
  * out of lockout at all. On a Path A build the "button" can be a scrounged momentary
@@ -127,9 +127,9 @@
 #endif
 
 #else
-/* BUILD-TONIGHT.md § 5. FRAME temperature, not winding — the numbers are lower because
+/* archive/BUILD-TONIGHT.md § 5. FRAME temperature, not winding — the numbers are lower because
  * the frame runs cooler than the winding, and they are PROVISIONAL until the baseline run
- * in BUILD-TONIGHT.md § 7 steps 8–9 replaces them with baseline+20 / +10 / −10.
+ * in archive/BUILD-TONIGHT.md § 7 steps 8–9 replaces them with baseline+20 / +10 / −10.
  *
  * Note for anyone reading the error-code pages against a Path A build: docs/codes/
  * quotes the Path B winding figures (110 / 95 / 70 °C). The dashboard and the boot log

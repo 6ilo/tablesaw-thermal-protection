@@ -73,7 +73,7 @@ static void test_double_and_triple_blink_have_the_right_pulse_counts(void)
                               "double-blink must show exactly two pulses per cycle");
     TEST_ASSERT_EQUAL_MESSAGE(3, pulses_per_cycle(SAW_LED_TRIPLE_BLINK),
                               "triple-blink must show exactly three pulses per cycle");
-    /* 50-50-50-850 ms, per BUILD-TONIGHT.md § 5. */
+    /* 50-50-50-850 ms, per archive/BUILD-TONIGHT.md § 5. */
     TEST_ASSERT_EQUAL(1000, saw_led_period_ms(SAW_LED_DOUBLE_BLINK));
     /* The triple's pause has to be long enough to read as a pause and not as a fourth
      * blink, so the cycle is deliberately twice the double's. */

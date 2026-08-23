@@ -2,7 +2,7 @@
 
 The as-built record. [`README.md`](README.md) is the *why*, [`ARCHITECTURE.md`](ARCHITECTURE.md)
 is the end-state design, [`NEXT-STEPS.md`](NEXT-STEPS.md) is the procedure being followed
-and [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) is the reasoning behind it. Every one of those
+and [`archive/BUILD-TONIGHT.md`](archive/BUILD-TONIGHT.md) is the reasoning behind it. Every one of those
 describes an *intended* state. **This file is the only place that says how far along the
 physical build actually is**, and nothing in the other documents should be read as a claim
 that a part is fitted.
@@ -10,7 +10,7 @@ that a part is fitted.
 > **Nothing here has been commissioned.** No firmware has been flashed, no fault test has
 > been run, and no threshold has been set from a measurement. Neither
 > [ARCHITECTURE.md § Commissioning](ARCHITECTURE.md#commissioning) nor
-> [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md) has been performed. **Do not cut wood.**
+> [BUILD-TONIGHT.md § 7](archive/BUILD-TONIGHT.md) has been performed. **Do not cut wood.**
 
 ---
 
@@ -24,7 +24,7 @@ Last updated **2026-08-23**.
 | Accessory 240 V outlet | **Installed**, fed from the incoming 220 V | Deliberately **outside** the protected path — see [below](#the-accessory-outlet-is-outside-the-protection) |
 | Frame probe (DROK NTC, `RT1`) | **Connectorised** — mating JST fitted | Not mounted on the motor. Not calibrated |
 | RF fob (`KA1`, remote half) | **Opened and pigtailed** to a connector | Level shifter not fitted. Battery rail not metered |
-| RF receiver (`KA1`, mains half) | Not recorded here yet | Momentary-mode programming ([BUILD-TONIGHT.md § 4](BUILD-TONIGHT.md)) is the gate before it goes near the coil rung |
+| RF receiver (`KA1`, mains half) | Not recorded here yet | Momentary-mode programming ([BUILD-TONIGHT.md § 4](archive/BUILD-TONIGHT.md)) is the gate before it goes near the coil rung |
 | ESP32 (`U1`) | On the bench, unflashed, unwired | |
 | Firmware | Written; host tests pass in CI | **Never run on hardware.** [`firmware/README.md`](firmware/README.md) |
 | Passive thermostat (`TS1`) | Not purchased — TASK-6 | **SR-3 is unmet.** Everything protective on the coil rung depends on the ESP32 |
@@ -101,7 +101,7 @@ re-flashed without unsoldering anything:
   is read off photographs, and the fob's rail voltage is unknown — the harness file asserted
   a 12 V A23 cell and the board on the bench carries a coin-cell holder instead. Both facts
   go in [`WIRING.md`](hardware/schematic/WIRING.md) once measured, and until then the rule
-  from [BUILD-TONIGHT.md § 3](BUILD-TONIGHT.md) stands unchanged: **no GPIO touches a fob
+  from [BUILD-TONIGHT.md § 3](archive/BUILD-TONIGHT.md) stands unchanged: **no GPIO touches a fob
   pad directly.**
 
 ---
@@ -120,7 +120,7 @@ who wants the underlying detail.
 | 1 | Insulate the exposed terminations and torque every screw | A202C label figure (#14–#10 at 35 in-lb). Lock out the disconnect first, and note that the accessory outlet is fed ahead of everything protective — dropping the contactor does not make that part of the enclosure dead |
 | 2 | Flash the firmware | [`firmware/README.md`](firmware/README.md) — `./scripts/flash.sh all`, default environment `path_a` |
 | 3 | Wire everything to the ESP32 | [`WIRING.md`](hardware/schematic/WIRING.md), then its sanity checklist. The 10 kΩ pulldown on GPIO26 is the one item with no substitute |
-| 4 | Prove the firmware does what it claims | [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md) bench tests, all of them, before anything goes on the motor. Plain-language version in [NEXT-STEPS.md](NEXT-STEPS.md) |
+| 4 | Prove the firmware does what it claims | [BUILD-TONIGHT.md § 7](archive/BUILD-TONIGHT.md) bench tests, all of them, before anything goes on the motor. Plain-language version in [NEXT-STEPS.md](NEXT-STEPS.md) |
 | 5 | Install everything in its final place | [ARCHITECTURE.md TASK-5](ARCHITECTURE.md#task-5--enclosure-placement) — out of the dust stream, not obstructing cooling airflow |
 | 6 | Final insulation and tightening pass | Then re-run the § 7 fault tests, because the wiring moved |
 
@@ -142,7 +142,7 @@ the document named beside it, not in this list.
 | Measured value of the divider resistor `R1` | Every temperature the board reports | `firmware/include/saw_calibration.h` |
 | Two-point calibration of the frame probe | Thresholds meaning anything | Same file; `scripts/solve_beta.py` does the arithmetic |
 | Fob rail voltage, and the pad map for the six pigtail conductors | Choosing and wiring the level shifter | [`WIRING.md`](hardware/schematic/WIRING.md) |
-| Receiver momentary-mode hold time | The heartbeat's timing budget | [BUILD-TONIGHT.md § 4](BUILD-TONIGHT.md) step 5 |
+| Receiver momentary-mode hold time | The heartbeat's timing budget | [BUILD-TONIGHT.md § 4](archive/BUILD-TONIGHT.md) step 5 |
 | Whether the receiver's contact is open with nothing transmitting | The entire fail-safe premise | Same step. If it is closed, **stop** |
 | Accessory outlet: receptacle type and rating, conductor size, overcurrent protection, and whether it sits upstream or downstream of the machine disconnect | Its own safety, and the supervisor-supply decision | This file, then `oneline_mains.tex` |
 | Which supply feeds the ESP32 — the new outlet or a separate wall outlet | [ARCHITECTURE.md § Power supply](ARCHITECTURE.md#power-supply) compliance | This file, then the sheets |
@@ -160,4 +160,4 @@ the document named beside it, not in this list.
 - **The firmware has never run on hardware.** CI proves it compiles and that the state
   machine behaves; it proves nothing about this motor, this probe, or this receiver.
 - **Thresholds are provisional.** The Path A numbers are placeholders until the baseline
-  run sets them — [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md) steps 8–9.
+  run sets them — [BUILD-TONIGHT.md § 7](archive/BUILD-TONIGHT.md) steps 8–9.

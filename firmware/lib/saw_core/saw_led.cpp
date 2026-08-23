@@ -6,7 +6,7 @@ struct LedSegment {
     uint16_t ms;
 };
 
-/* 50-50-50-850 ms, per BUILD-TONIGHT.md § 5. */
+/* 50-50-50-850 ms, per archive/BUILD-TONIGHT.md § 5. */
 static const LedSegment DOUBLE_BLINK[] = {
     {true, 50}, {false, 50}, {true, 50}, {false, 850},
 };

@@ -43,7 +43,7 @@ An exact `BEC2921` replacement (or Sensata supersession) would restore original 
 
 BOM verification revealed the purchased NTC probe tops out at 125 °C (below the trip point) and the "wireless switch" is a fob-driven RF receiver, not a GPIO-controllable relay. Rather than wait on new parts, this project documents two routes:
 
-### Path A — Tonight's build → [BUILD-TONIGHT.md](BUILD-TONIGHT.md)
+### Path A — the build in progress → [NEXT-STEPS.md](NEXT-STEPS.md)
 
 Same-day protection using only parts on hand. Fail-safe via a **heartbeat** design: the ESP32 continuously transmits through the 433 MHz fob to a receiver programmed in *momentary* mode. Anything that stops the transmission — power loss, firmware hang, sensor fault, watchdog reset, jamming — opens the receiver's relay and stops the saw.
 
@@ -150,8 +150,8 @@ There is a 240 V receptacle fed straight off the incoming supply. **It is delibe
 | Path | Contents |
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full retrofit design — hardware, firmware, safety requirements, commissioning. Current design of record. |
-| [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) | Path A's design reasoning — the same-day expedient build using only parts on hand. Superseded as step-by-step instructions by `NEXT-STEPS.md`. |
-| [`NEXT-STEPS.md`](NEXT-STEPS.md) | **The procedure being followed to finish the build**, written for non-specialists working through it on a guided call. Annotated photos, plain-language steps, stop conditions. Supersedes `BUILD-TONIGHT.md` as the instructions; that file keeps the reasoning. |
+| [`NEXT-STEPS.md`](NEXT-STEPS.md) | **The procedure being followed to finish the build.** Written for non-specialists working through it on a guided call — annotated photos, plain-language steps, stop conditions. |
+| [`archive/`](archive/) | Documents superseded as instructions but still load-bearing as reasoning. [`BUILD-TONIGHT.md`](archive/BUILD-TONIGHT.md) lives here — Path A's design rationale, still cited from the firmware and the design docs. |
 | [`BUILD-LOG.md`](BUILD-LOG.md) | **The as-built record.** What is physically fitted, what the next steps are, and what still has to be measured. The only file that describes the build rather than the design. |
 | [`docs/codes/`](docs/codes/) | Error code registry. One page per fault, with operator remediation. Single source for the GitHub pages, the offline bundle served from the saw, and the firmware's code table. |
 | [`tools/`](tools/) | `codedocs.py` — builds those three artifacts and validates them against `ARCHITECTURE.md` in CI. |

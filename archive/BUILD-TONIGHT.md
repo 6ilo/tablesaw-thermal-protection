@@ -1,12 +1,6 @@
 # Build Tonight — Fail-Safe Thermal Cutout, Parts On Hand
 
-**Constraint:** 9 hours. Parts are fixed. No shopping except one transistor.
-
-**What this delivers:** a fail-safe overtemperature cutout on the table saw motor, using frame-temperature sensing and a heartbeat RF link. Every fault path stops the saw.
-
-**What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
-
-> **Superseded as the procedure to follow — see [NEXT-STEPS.md](NEXT-STEPS.md).** That
+> **Superseded as the procedure to follow — see [NEXT-STEPS.md](../NEXT-STEPS.md).** That
 > document covers the remaining work for the people actually doing it, who are not
 > electrically trained and are being guided through it on a call. It carries annotated
 > photographs, plain-language steps and stop conditions.
@@ -16,20 +10,26 @@
 > logic, why the receiver must be in momentary mode, why the thresholds are where they
 > are, what each fault test is actually proving. Read it before changing any of that.
 >
-> How far along the build is: [`BUILD-LOG.md`](BUILD-LOG.md).
+> How far along the build is: [`BUILD-LOG.md`](../BUILD-LOG.md).
 
-**Diagrams for this build** — everything under [`hardware/`](hardware/) is drawn for these exact parts:
+**Constraint:** 9 hours. Parts are fixed. No shopping except one transistor.
+
+**What this delivers:** a fail-safe overtemperature cutout on the table saw motor, using frame-temperature sensing and a heartbeat RF link. Every fault path stops the saw.
+
+**What this defers:** winding-temperature sensing, passive thermostat backstop. See §9.
+
+**Diagrams for this build** — everything under [`hardware/`](../hardware/) is drawn for these exact parts:
 
 | Sheet | Shows |
 |---|---|
-| [`hardware/schematic/WIRING.md`](hardware/schematic/WIRING.md) | Pin-to-pin table |
-| [`hardware/schematic/esp32_supervisor.svg`](hardware/schematic/esp32_supervisor.svg) | Board side — USB-C power, NTC divider, fob drive |
-| [`hardware/schematic/esp32_pictorial.svg`](hardware/schematic/esp32_pictorial.svg) | Where each module sits, colour-coded wires |
-| [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg) | Receiver in the coil circuit |
-| [`hardware/schematic/oneline_mains.svg`](hardware/schematic/oneline_mains.svg) | Mains distribution and the supervisor's separate supply |
-| [`hardware/harness/`](hardware/harness/) | `frame_probe.yml`, `fob_and_receiver.yml` |
+| [`hardware/schematic/WIRING.md`](../hardware/schematic/WIRING.md) | Pin-to-pin table |
+| [`hardware/schematic/esp32_supervisor.svg`](../hardware/schematic/esp32_supervisor.svg) | Board side — USB-C power, NTC divider, fob drive |
+| [`hardware/schematic/esp32_pictorial.svg`](../hardware/schematic/esp32_pictorial.svg) | Where each module sits, colour-coded wires |
+| [`hardware/schematic/ladder_coil_circuit.svg`](../hardware/schematic/ladder_coil_circuit.svg) | Receiver in the coil circuit |
+| [`hardware/schematic/oneline_mains.svg`](../hardware/schematic/oneline_mains.svg) | Mains distribution and the supervisor's separate supply |
+| [`hardware/harness/`](../hardware/harness/) | `frame_probe.yml`, `fob_and_receiver.yml` |
 
-Parts and purchase status: [`hardware/BOM.csv`](hardware/BOM.csv).
+Parts and purchase status: [`hardware/BOM.csv`](../hardware/BOM.csv).
 
 ---
 
@@ -70,7 +70,7 @@ Do not use the unverified "220 to 12 V buck converter." If it is non-isolated, t
 
 A UL-listed USB wall charger is an isolated AC-DC supply with reinforced isolation. Plug it into a 120 V outlet, run USB to the ESP32. USB is SELV — the cable can be routed freely with no hazard. Zero cost, zero risk, available now.
 
-**Which outlet, though, is now a decision.** An accessory 240 V receptacle has been added off the incoming supply ([`BUILD-LOG.md`](BUILD-LOG.md)). Feeding the charger from it ties the supervisor to the machine disconnect, which is what [ARCHITECTURE.md § Power supply](ARCHITECTURE.md#power-supply) wants and what every sheet in [`hardware/schematic/`](hardware/schematic/) currently says is *not* the case — and it needs a charger rated for the voltage and a plug that fits the receptacle, which a 120 V-only wart is not. Feeding it from a separate wall outlet keeps the drawings true and leaves the supervisor powered when the machine is locked out. Pick one, record it in the log, and redraw the one-line to match. Do not leave the two documents disagreeing.
+**Which outlet, though, is now a decision.** An accessory 240 V receptacle has been added off the incoming supply ([`BUILD-LOG.md`](../BUILD-LOG.md)). Feeding the charger from it ties the supervisor to the machine disconnect, which is what [ARCHITECTURE.md § Power supply](../ARCHITECTURE.md#power-supply) wants and what every sheet in [`hardware/schematic/`](../hardware/schematic/) currently says is *not* the case — and it needs a charger rated for the voltage and a plug that fits the receptacle, which a 120 V-only wart is not. Feeding it from a separate wall outlet keeps the drawings true and leaves the supervisor powered when the machine is locked out. Pick one, record it in the log, and redraw the one-line to match. Do not leave the two documents disagreeing.
 
 ### Transistor — the one scrounge item
 Needed to let a 3.3 V GPIO close the fob's button contact without connecting to it. Any of:
@@ -80,7 +80,7 @@ Needed to let a 3.3 V GPIO close the fob's button contact without connecting to 
 
 **Do not connect a GPIO directly to the fob button.** This document was written assuming
 the pad sits on a ~12 V rail; the fob actually on the bench carries a coin-cell holder, and
-nobody has put a meter on it yet ([`BUILD-LOG.md`](BUILD-LOG.md)). Until that number is
+nobody has put a meter on it yet ([`BUILD-LOG.md`](../BUILD-LOG.md)). Until that number is
 measured and written down you do not know what is on that pad, and anything above 3.3 V
 destroys the ESP32. Measuring it does not change the choice of part — the optocoupler is
 the right answer at any rail voltage, because it needs no shared reference at all.
@@ -117,7 +117,7 @@ the right answer at any rail voltage, because it needs no shared reference at al
 The soldering half of this step is done. The fob board — silkscreened `CYS02-E2` — has six
 conductors brought out to a connector: red and black at the cell holder, and a pair at each
 of the two button positions — yellow and orange at one, blue and green at the other. Photos in
-[`hardware/photos/`](hardware/photos/).
+[`hardware/photos/`](../hardware/photos/).
 
 Having **both** pads of a button on the pigtail is better than what the wiring below
 assumes. A switch across that pair closes the button with no reference to fob ground at
@@ -129,7 +129,7 @@ What is not done is the metering. Before wiring anything:
 1. Measure the cell voltage across red and black.
 2. Identify which pair is the **ON** button, and which conductor of that pair the encoder
    sees, by pressing the physical button and metering — not by colour convention.
-3. Write both into [`WIRING.md`](hardware/schematic/WIRING.md). The colour map above is
+3. Write both into [`WIRING.md`](../hardware/schematic/WIRING.md). The colour map above is
    read off photographs, not off a meter.
 
 ### Fob drive (NPN version)
@@ -159,7 +159,7 @@ brought out there is nothing to share.
 
 ### Receiver into the coil circuit
 
-Drawn in [`hardware/schematic/ladder_coil_circuit.svg`](hardware/schematic/ladder_coil_circuit.svg).
+Drawn in [`hardware/schematic/ladder_coil_circuit.svg`](../hardware/schematic/ladder_coil_circuit.svg).
 
 The receiver has four screw terminals in two pairs. Per the manufacturer's own wiring diagram:
 
@@ -215,8 +215,8 @@ Do not proceed until momentary behavior and hold time are both confirmed by obse
 
 ## 5. Firmware
 
-**This is now written.** [`firmware/`](firmware/) builds for this exact path as
-`path_a`, and [`firmware/README.md`](firmware/README.md) covers flashing it from a
+**This is now written.** [`firmware/`](../firmware/) builds for this exact path as
+`path_a`, and [`firmware/README.md`](../firmware/README.md) covers flashing it from a
 terminal in one command. What follows is the design this section originally
 specified, kept because it is the reasoning behind the code rather than a
 restatement of it — read it before changing a threshold.
@@ -549,7 +549,7 @@ Continuous 433 MHz transmission during ARMED sits outside the periodic-control-s
 
 The original nine-hour plan, kept as written. It is a sequence, not a schedule any more —
 the build has run across several sessions, and where it actually stands is in
-[`BUILD-LOG.md`](BUILD-LOG.md).
+[`BUILD-LOG.md`](../BUILD-LOG.md).
 
 | | Task |
 |---|---|

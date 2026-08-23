@@ -20,7 +20,7 @@ metadata:
     ESP32 enclosure.
 
     This probe is the TRIP SOURCE — there is no K-type and no thermostat. It reads frame temperature, which trails the winding, so
-    thresholds come from an observed baseline (BUILD-TONIGHT.md § 7
+    thresholds come from an observed baseline (archive/BUILD-TONIGHT.md § 7
     steps 8–9), not from the 110 °C winding figure in ARCHITECTURE.md.
 
     Nothing on this run is at mains potential. The motor frame is bonded

@@ -4,7 +4,7 @@
 call guiding it. It assumes no electrical or electronics background. Where a step needs
 judgement rather than hands, it says so and tells you to ask.
 
-**This replaces [BUILD-TONIGHT.md](BUILD-TONIGHT.md) as the procedure to follow.** That
+**This replaces [BUILD-TONIGHT.md](archive/BUILD-TONIGHT.md) as the procedure to follow.** That
 document is still in the repository and still correct, but it was written for one person
 working alone in a single evening, and it explains *why* far more than it explains *how*.
 Read it if you want the reasoning. Follow this one for the work.
@@ -246,7 +246,7 @@ relay click **off**:
 
 If all three do what they should, the fail-safe idea is real on this bench. If any one of
 them does not, **the build stops there** until it is understood. The full list, with the
-reasoning, is in [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md).
+reasoning, is in [BUILD-TONIGHT.md § 7](archive/BUILD-TONIGHT.md).
 
 ### Step 5 — Install everything in its final place
 
@@ -313,7 +313,7 @@ Be clear about this, because "it's installed" reads as "it's protected":
   every protective function depends on the computer continuing to run.
 - **The temperature limits are placeholders.** The real numbers come from watching the
   motor through a normal session and setting the limits around what it actually does. That
-  is [BUILD-TONIGHT.md § 7](BUILD-TONIGHT.md) steps 8–9, and it has not happened.
+  is [BUILD-TONIGHT.md § 7](archive/BUILD-TONIGHT.md) steps 8–9, and it has not happened.
 - **The fan shroud still has to be cleaned**, and the starter's overload heaters still have
   to be checked for correct sizing. Those are the original fault. A monitor installed over
   an uncleaned shroud will faithfully report a motor cooking itself.

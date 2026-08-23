@@ -64,7 +64,7 @@ longer exists.
   questions rather than being made silently by whichever outlet is nearest.
 - **[`firmware/`](firmware/) — the ESP32 supervisor, written.** Arduino-ESP32 under
   PlatformIO, with two build environments matching the project's two hardware paths:
-  `path_a` (frame NTC + 433 MHz heartbeat, per [`BUILD-TONIGHT.md`](BUILD-TONIGHT.md)) and
+  `path_a` (frame NTC + 433 MHz heartbeat, per [`archive/BUILD-TONIGHT.md`](archive/BUILD-TONIGHT.md)) and
   `path_b` (winding K-type via MAX31855 + wired relay, per
   [`ARCHITECTURE.md`](ARCHITECTURE.md)). One state machine and one output pin serve both;
   GPIO26 means "the coil circuit may be closed" in either case.
@@ -90,10 +90,17 @@ longer exists.
 
 ### Changed
 
-- **[`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) is superseded as the instructions**, and says so
-  at the top. It stays as the reasoning — why the heartbeat inverts the usual failure logic,
-  why the receiver must be in momentary mode, what each fault test actually proves — which
-  is the half that does not fit in a set of steps. Nothing was deleted from it.
+- **`BUILD-TONIGHT.md` moved to [`archive/`](archive/), and is superseded as the
+  instructions.** The banner saying so is now the first thing under its title, because an
+  old link or a search result lands somebody in the middle of a nine-hour plan that reads
+  as live. Its section numbers are still cited from the firmware, `ARCHITECTURE.md` and
+  `BUILD-LOG.md`; every one of those references was repointed, along with the document's own
+  twenty outbound links, which were a directory too shallow after the move. `archive/README.md`
+  states the rule for the folder: superseded as instructions, still load-bearing as reasoning —
+  a finished checklist belongs in `BUILD-LOG.md` instead.
+  `hardware/schematic/esp32_supervisor.tex` was repointed too, which leaves its committed
+  SVG one `make` behind its source; that is recorded in `hardware/README.md` rather than
+  left to be discovered.
 - **The fob's button-wire pairing is corrected to yellow/orange and blue/green.** The
   earlier reading of green/orange and blue/yellow came from the cell-side photograph, where
   the wires cross; the encoder-side photograph shows each pair landing at its own button.
@@ -111,16 +118,16 @@ longer exists.
   carries a coin-cell holder. Nothing about the design changes — an optocoupler is right at
   any rail voltage — but an unverified number that a GPIO could be wired to should not be
   sitting in a harness source, so it is marked unmeasured in the harness file,
-  [`WIRING.md`](hardware/schematic/WIRING.md), `BUILD-TONIGHT.md § 2` and the BOM, with the
+  [`WIRING.md`](hardware/schematic/WIRING.md), `archive/BUILD-TONIGHT.md § 2` and the BOM, with the
   "no GPIO touches a fob pad" rule restated on the honest grounds: not that 12 V is certain,
   but that the number is unknown.
 - **"Cut the probe's JST off" is no longer the instruction.** The mate is fitted.
-  `BUILD-TONIGHT.md § 3`, `WIRING.md` and
+  `archive/BUILD-TONIGHT.md § 3`, `WIRING.md` and
   [`frame_probe.yml`](hardware/harness/frame_probe.yml) updated; the old note survives as
   history rather than as a step.
 - **The fob pigtail brings out both pads of each button**, so the level shifter needs no
   ESP32-to-fob ground tie at all. The optocoupler and NPN tables in `WIRING.md` and
-  `BUILD-TONIGHT.md § 3` are rewritten around the pair, with the single-pad wiring kept as
+  `archive/BUILD-TONIGHT.md § 3` are rewritten around the pair, with the single-pad wiring kept as
   the fallback it now is.
 - **The sheets are marked as behind the build** rather than silently stale.
   [`hardware/README.md`](hardware/README.md) lists the three things on the bench that no
@@ -140,11 +147,11 @@ longer exists.
   sensing chain *answered*: an amplifier reporting an open-circuit flag answers every cycle
   and stays `E02`, while a bus silent for `SENSOR_TIMEOUT` becomes `E03`. `ARCHITECTURE.md`'s
   pseudocode and [`E03.md`](docs/codes/E03.md)'s firmware note are updated to match.
-- **The ack button is fitted on both build paths.** `BUILD-TONIGHT.md` § 5 claimed a Path A
+- **The ack button is fitted on both build paths.** `archive/BUILD-TONIGHT.md` § 5 claimed a Path A
   lockout "clears only by power-cycling the ESP32" while its own `setup()` pseudocode
   honoured a persisted `MANUAL_LOCKOUT` across reboots — a contradiction, and `E07`
   publishes the stricter reading. Honouring the persisted lockout is the safe behaviour, so
-  a build with no ack input would have no way out of lockout at all. `BUILD-TONIGHT.md` and
+  a build with no ack input would have no way out of lockout at all. `archive/BUILD-TONIGHT.md` and
   [`WIRING.md`](hardware/schematic/WIRING.md) now describe the GPIO27 input, which on Path A
   can be any scrounged momentary switch or a bare wire touched to GND.
 - **The registry index now flags the Path A / Path B threshold difference.** The code pages
@@ -212,5 +219,5 @@ Two things the registry assumes that the reference pseudocode does not yet do:
 
 Work before this release is in the git log and was not versioned: initial design docs,
 BOM verification against actual purchases, the same-day
-[`BUILD-TONIGHT.md`](BUILD-TONIGHT.md) path, the isolated power supply section, and the
+[`archive/BUILD-TONIGHT.md`](archive/BUILD-TONIGHT.md) path, the isolated power supply section, and the
 `hardware/` schematic and harness sources.

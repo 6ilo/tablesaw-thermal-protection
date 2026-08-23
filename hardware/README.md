@@ -25,7 +25,7 @@ how a builder ends up wiring the wrong thing.
 | Wiring the board on the bench | [`schematic/WIRING.md`](schematic/WIRING.md), then [`schematic/esp32_pictorial.svg`](schematic/esp32_pictorial.svg) |
 | Reviewing the safety logic | [`schematic/ladder_coil_circuit.svg`](schematic/ladder_coil_circuit.svg) |
 | Working inside the starter enclosure | [`schematic/oneline_mains.svg`](schematic/oneline_mains.svg) + [`harness/fob_and_receiver.yml`](harness/fob_and_receiver.yml) |
-| Mounting the probe | [`../BUILD-TONIGHT.md § 6`](../BUILD-TONIGHT.md) + [`harness/frame_probe.yml`](harness/frame_probe.yml) |
+| Mounting the probe | [`../archive/BUILD-TONIGHT.md § 6`](../archive/BUILD-TONIGHT.md) + [`harness/frame_probe.yml`](harness/frame_probe.yml) |
 | Asking "what do we actually have?" | [`BOM.csv`](BOM.csv) |
 | Asking "what is actually built?" | [`../BUILD-LOG.md`](../BUILD-LOG.md) + [`photos/`](photos/) |
 
@@ -80,6 +80,12 @@ current:
 Items 2 and 3 are corrected in the harness sources' prose already; item 1 needs a redraw,
 and it should wait until the supply decision is made rather than being drawn twice.
 
+One more, smaller: `esp32_supervisor.tex` now cites
+[`../archive/BUILD-TONIGHT.md`](../archive/BUILD-TONIGHT.md) where that document moved, but
+the committed `esp32_supervisor.svg` still carries the old path in its legend text. The
+source is correct and the render is one `make` behind it — regenerate with the redraw
+above rather than on its own.
+
 ## Open question the drawings flag rather than answer
 
 **The A202C's coil voltage has not been read off the coil label.** It
@@ -105,4 +111,4 @@ enclosure interior once it is insulated, torqued and in its final location.
 Every wiring section in the design docs applies to any work in this
 directory. See the DANGER block at the top of
 [`../ARCHITECTURE.md`](../ARCHITECTURE.md) and
-[`../BUILD-TONIGHT.md § 3`](../BUILD-TONIGHT.md).
+[`../archive/BUILD-TONIGHT.md § 3`](../archive/BUILD-TONIGHT.md).

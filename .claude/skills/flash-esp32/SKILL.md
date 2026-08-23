@@ -89,7 +89,7 @@ Log lines carry the error code from the registry in brackets, e.g.
 
 ## Other jobs this skill covers
 
-**Retuning thresholds after the commissioning baseline run** (BUILD-TONIGHT.md § 7 step 9).
+**Retuning thresholds after the commissioning baseline run** (archive/BUILD-TONIGHT.md § 7 step 9).
 Never edit the tracked defaults for a per-unit number; pass them at build time:
 
 ```bash
