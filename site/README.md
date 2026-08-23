@@ -54,7 +54,13 @@ tables, the requirement grid — has no hue at all. Colour appears in exactly th
 and each one carries meaning:
 
 **The spectrum.** One `--spectrum` gradient, built from seven `--sp1`…`--sp7` tokens with
-a lighter set for dark mode. It marks *what is live, closed, or hot*, and nothing else:
+a lighter set for dark mode. It drifts: CSS surfaces animate `background-position` with
+`alternate`, so the travel reverses rather than jumping back to the start, and the two SVG
+gradients do the same with a SMIL `animateTransform` on `gradientTransform` (they use
+`spreadMethod="repeat"` so the translate has something to reveal). Both are stilled under
+`prefers-reduced-motion` — the CSS by media query, the SMIL by `svg.pauseAnimations()`.
+
+It marks *what is live, closed, or hot*, and nothing else:
 
 | Where | Why |
 |---|---|
@@ -74,9 +80,8 @@ added, which is the entire content of the sketch.
 **The dashboard.** Its state colours are the operator's real ones — green armed, amber
 cooling, red tripped, purple locked out — because that is what somebody would actually see.
 
-Everything photographic is greyscale, applied as a CSS filter so the originals in the
-repository stay untouched. The whiteboard is the one photograph exempted, for the reason
-above.
+Photographs run in full colour. Nothing on the page is desaturated — "predominantly
+greyscale" is achieved by the page furniture having no hue, not by draining the images.
 
 ## Keeping it honest
 
@@ -144,3 +149,33 @@ powered. They are nonetheless the values a Path A build would print — the thre
 *is* the frame, so there is no second reading to difference against), and the 749 h ring
 that `saw_store_retention_hours()` works out from `SAW_LOG_RING_BYTES` and a 16-byte
 record. If any of those change, change the mockup.
+
+## The interactive diagrams
+
+Three of the authored figures are driven by one IIFE at the end of the file. No libraries,
+no build step, no external requests. Each interaction exists to demonstrate the mechanism
+the figure draws — none of them is a reveal for its own sake.
+
+**`#fig-topo` — the same fault through both circuits.** A three-step control. Steps one and
+two look nearly identical in both rows, which is the point; the difference only appears at
+step three, when the old arrangement's motor restarts by itself (its stroke turns
+`--sp7`) and the new one sits waiting for somebody to press Start. If you edit the copy,
+keep that shape: the payload is that stopping the motor and stopping the machine are not
+the same thing.
+
+**`#fig-sm` — the state machine.** Each state is a `<g class="node hit">` with
+`tabindex="0"` and `role="button"`, so it is reachable by keyboard as well as pointer.
+Selecting one dims every other node and every edge that does not touch it, and fills the
+readout from the `DETAIL` table. *Walk a trip* auto-steps `BOOT → ARMED → TRIPPED →
+COOLDOWN → ARMED`; clicking any state stops the walk.
+
+**`#fig-core` — the protection cycle.** *Run the loop* cycles the five stages and refills
+the watchdog bar on each lap. *Hang the sensor read* is the one worth keeping: the
+highlight stops at stage 0, the bar drains over five seconds, and then the pin flips from
+the live spectrum fill to an outline reading `GPIO26 low`. It is the clearest statement on
+the page of why the feed is last — nothing in the firmware handles the case, and the saw
+still stops.
+
+Interaction state lives in SVG attributes and two CSS classes (`.dim`, `.gap.open`) with
+short transitions, all disabled under `prefers-reduced-motion`. Adding a fourth interactive
+figure is probably a mistake; the three carry the three claims that matter.
