@@ -202,13 +202,17 @@ numbers in it. Press `Ctrl-]` to get out.
 power and no data — try another), or it stops with an error. Copy the last twenty lines and
 read them out; do not re-run it repeatedly hoping for a different answer.
 
-Full detail lives in [firmware/README.md](firmware/README.md).
+A step-by-step walkthrough of this step and the next one — the actual keystrokes, what
+the boot banner should say, and what each failure means — is
+[docs/guides/flash-and-wire.html](docs/guides/flash-and-wire.html). Full detail lives in
+[firmware/README.md](firmware/README.md).
 
 ### Step 3 — Wire the computer up
 
 This is the longest step and the one to do slowly, on the call, one wire at a time. The
 wire-by-wire list is [hardware/schematic/WIRING.md](hardware/schematic/WIRING.md) — the
-guide will read from it.
+guide will read from it. [docs/guides/flash-and-wire.html](docs/guides/flash-and-wire.html)
+walks the same wires in order, with the reason each one is where it is.
 
 Before any wire goes near the remote, **measure the remote's battery voltage** — red to
 black, meter on DC volts. Say the number out loud. Nobody has written it down yet, and the

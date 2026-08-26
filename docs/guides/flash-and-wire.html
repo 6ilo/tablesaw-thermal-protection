@@ -1,0 +1,683 @@
+<title>Flash and Wire the ESP32</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+:root{
+  --ground:#EDEEEA; --surface:#FDFDFC; --surface-2:#E3E5E0;
+  --ink:#14171A; --ink-2:#555C60; --ink-3:#7C8488;
+  --rule:#CBCEC8; --rule-soft:#DDDFDA;
+  --gold:#8A6716; --gold-fill:#D9A828;
+  --stop:#A6281F; --stop-wash:#F7E4E1; --on-stop:#FFF6F4;
+  --verify:#1D6250; --verify-wash:#DEEAE5;
+  --code-bg:#17191B; --code-ink:#E4E6E2; --code-dim:#8B9296; --code-rule:#2C3033;
+  --shadow:0 1px 2px rgba(20,23,26,.06), 0 8px 24px -16px rgba(20,23,26,.24);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121416; --surface:#1A1D1F; --surface-2:#23272A;
+    --ink:#E7E9E4; --ink-2:#9BA2A4; --ink-3:#767D80;
+    --rule:#2F3437; --rule-soft:#23272A;
+    --gold:#DFB244; --gold-fill:#DFB244;
+    --stop:#EE7A6C; --stop-wash:#301D1A; --on-stop:#2A100C;
+    --verify:#63BCA0; --verify-wash:#152E28;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121416; --surface:#1A1D1F; --surface-2:#23272A;
+  --ink:#E7E9E4; --ink-2:#9BA2A4; --ink-3:#767D80;
+  --rule:#2F3437; --rule-soft:#23272A;
+  --gold:#DFB244; --gold-fill:#DFB244;
+  --stop:#EE7A6C; --stop-wash:#301D1A; --on-stop:#2A100C;
+  --verify:#63BCA0; --verify-wash:#152E28;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Public Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+p{margin:0 0 1em}
+a{color:var(--ink); text-decoration-color:var(--gold-fill); text-underline-offset:3px; text-decoration-thickness:2px}
+a:hover{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold-fill); outline-offset:3px; border-radius:2px}
+code,kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+
+/* ---------- shell ---------- */
+.wrap{max-width:50rem; margin:0 auto; padding:0 1.5rem}
+/* Prose keeps a reading measure; tables and terminal blocks take the full frame. */
+.col{max-width:none}
+.col > p, .col > ul, .col > ol,
+.step > p, .step > ul, .step > ol,
+.placard, .checkpoint, .note, .gap-list, .cl{max-width:34rem}
+h3{max-width:34rem}
+@media (max-width:640px){ body{font-size:16px} .wrap{padding:0 1.1rem} }
+
+/* ---------- masthead ---------- */
+.mast{border-bottom:1px solid var(--rule); padding:3.5rem 0 2.25rem; margin-bottom:2.5rem}
+.eyebrow{
+  font-family:Archivo,sans-serif; font-weight:600; font-size:.72rem;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--gold); margin:0 0 1rem;
+  display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;
+}
+.eyebrow::after{content:""; flex:1; height:2px; background:var(--gold-fill); opacity:.55; min-width:1.5rem}
+h1{
+  font-family:Archivo,sans-serif; font-weight:800; letter-spacing:-.025em; line-height:1.02;
+  font-size:clamp(2.5rem,7vw,4.1rem); margin:0 0 1rem; text-wrap:balance;
+}
+.standfirst{font-size:1.12rem; color:var(--ink-2); max-width:34rem; margin:0}
+.standfirst strong{color:var(--ink); font-weight:600}
+.mast-meta{
+  display:flex; gap:1.75rem; flex-wrap:wrap; margin-top:2rem;
+  font-family:"JetBrains Mono",monospace; font-size:.76rem; color:var(--ink-3);
+}
+.mast-meta b{display:block; font-weight:600; color:var(--ink-2); letter-spacing:.02em}
+
+/* ---------- sections ---------- */
+h2{
+  font-family:Archivo,sans-serif; font-weight:800; letter-spacing:-.02em; line-height:1.08;
+  font-size:clamp(1.8rem,4vw,2.5rem); margin:0 0 .6rem; text-wrap:balance;
+}
+h3{
+  font-family:Archivo,sans-serif; font-weight:700; letter-spacing:-.01em;
+  font-size:1.22rem; margin:0 0 .55rem; text-wrap:balance;
+}
+h4{
+  font-family:Archivo,sans-serif; font-weight:600; font-size:.74rem; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--ink-3); margin:2rem 0 .75rem;
+}
+.part{padding-top:3.5rem; margin-top:3.5rem; border-top:3px solid var(--ink)}
+.part-lead{font-size:1.05rem; color:var(--ink-2); max-width:34rem}
+
+/* ---------- the spine ---------- */
+.proc{margin-top:2.5rem}
+.step{position:relative; padding-left:4.25rem; padding-bottom:3rem}
+.step::before{
+  content:""; position:absolute; left:1.44rem; top:.15rem; bottom:0;
+  width:2px; background:var(--gold-fill); opacity:.45;
+}
+.step:last-child::before{bottom:auto; height:2.4rem}
+.step.gate::before{background:var(--stop); width:3px; left:1.4rem; opacity:.85}
+.step .num{
+  position:absolute; left:0; top:0; width:3rem; height:2.1rem;
+  display:flex; align-items:center; justify-content:center;
+  font-family:"JetBrains Mono",monospace; font-weight:600; font-size:.82rem;
+  letter-spacing:.04em;
+  background:var(--gold-fill); color:#17191B; border-radius:2px;
+}
+.step.gate .num{background:var(--stop); color:var(--on-stop)}
+@media (max-width:640px){
+  .step{padding-left:0; padding-top:2.9rem}
+  .step::before{display:none}
+  .step .num{width:2.6rem; height:1.8rem}
+}
+
+/* ---------- placards ---------- */
+.placard{
+  border-left:5px solid var(--stop); background:var(--stop-wash);
+  padding:1rem 1.15rem; margin:1.5rem 0; border-radius:0 3px 3px 0;
+}
+.placard h5, .checkpoint h5{
+  font-family:Archivo,sans-serif; font-weight:700; font-size:.73rem; letter-spacing:.14em;
+  text-transform:uppercase; margin:0 0 .5rem; color:var(--stop);
+}
+.checkpoint{
+  border-left:5px solid var(--verify); background:var(--verify-wash);
+  padding:1rem 1.15rem; margin:1.5rem 0; border-radius:0 3px 3px 0;
+}
+.checkpoint h5{color:var(--verify)}
+.placard p:last-child,.checkpoint p:last-child,.note p:last-child{margin-bottom:0}
+.placard ul,.checkpoint ul{margin:0; padding-left:1.15rem}
+.placard li,.checkpoint li{margin-bottom:.35rem}
+.placard li:last-child,.checkpoint li:last-child{margin-bottom:0}
+.note{
+  background:var(--surface); border:1px solid var(--rule);
+  padding:1rem 1.15rem; margin:1.5rem 0; border-radius:3px; box-shadow:var(--shadow);
+}
+.note h5{
+  font-family:Archivo,sans-serif; font-weight:700; font-size:.73rem; letter-spacing:.14em;
+  text-transform:uppercase; margin:0 0 .5rem; color:var(--ink-3);
+}
+
+/* ---------- chips ---------- */
+.pin{
+  font-family:"JetBrains Mono",monospace; font-size:.83em; font-weight:600;
+  background:var(--surface-2); border:1px solid var(--rule);
+  padding:.08em .4em; border-radius:3px; white-space:nowrap;
+}
+.unmeasured{
+  display:inline-block; font-family:Archivo,sans-serif; font-weight:700;
+  font-size:.62rem; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--stop); border:1.5px solid var(--stop); border-radius:2px;
+  padding:.1em .38em; vertical-align:.12em; white-space:nowrap;
+}
+
+/* ---------- terminal ---------- */
+.term{
+  background:var(--code-bg); color:var(--code-ink); border-radius:4px;
+  border:1px solid var(--code-rule);
+  margin:1.4rem 0; overflow:hidden; box-shadow:var(--shadow);
+}
+.term-bar{
+  font-family:Archivo,sans-serif; font-size:.68rem; font-weight:600; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--code-dim);
+  padding:.55rem .95rem; border-bottom:1px solid var(--code-rule);
+}
+.term pre{
+  margin:0; padding:.95rem; overflow-x:auto;
+  font-family:"JetBrains Mono",monospace; font-size:.83rem; line-height:1.7;
+}
+.term .pr{color:var(--code-dim); user-select:none}
+.term .cm{color:#E8C46B}
+.term .ot{color:#93999D}
+.term .ok{color:#7FC9A9}
+.term .no{color:#EE8A7B}
+
+/* ---------- tables ---------- */
+.scroll{overflow-x:auto; margin:1.5rem 0; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; min-width:32rem; font-size:.92rem}
+caption{
+  text-align:left; font-family:Archivo,sans-serif; font-weight:600; font-size:.72rem;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); padding-bottom:.6rem;
+}
+th{
+  text-align:left; font-family:Archivo,sans-serif; font-weight:600; font-size:.7rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3);
+  padding:.5rem .8rem .5rem 0; border-bottom:2px solid var(--ink); vertical-align:bottom;
+}
+td{
+  padding:.62rem .8rem .62rem 0; border-bottom:1px solid var(--rule-soft);
+  vertical-align:top; font-variant-numeric:tabular-nums;
+}
+tr:last-child td{border-bottom:1px solid var(--rule)}
+th:last-child,td:last-child{padding-right:0}
+
+/* ---------- checklists ---------- */
+.cl{list-style:none; margin:1.5rem 0; padding:0; display:flex; flex-direction:column; gap:.15rem}
+.cl li{margin:0}
+.cl label{
+  display:grid; grid-template-columns:1.5rem 1fr; gap:.75rem; align-items:start;
+  padding:.6rem .8rem; border-radius:3px; cursor:pointer; border:1px solid transparent;
+}
+.cl label:hover{background:var(--surface); border-color:var(--rule-soft)}
+.cl input{
+  appearance:none; -webkit-appearance:none; margin:.22rem 0 0; width:1.15rem; height:1.15rem;
+  border:2px solid var(--ink-3); border-radius:2px; background:var(--surface);
+  display:grid; place-content:center; cursor:pointer; flex:none;
+}
+.cl input::after{
+  content:""; width:.62rem; height:.34rem; border:solid var(--ground);
+  border-width:0 0 2.5px 2.5px; transform:rotate(-45deg) translate(1px,-2px) scale(0);
+  transition:transform .12s ease;
+}
+.cl input:checked{background:var(--verify); border-color:var(--verify)}
+.cl input:checked::after{transform:rotate(-45deg) translate(1px,-2px) scale(1)}
+.cl input:checked + span{color:var(--ink-3); text-decoration:line-through; text-decoration-color:var(--rule)}
+.cl .hard{font-weight:600}
+@media (prefers-reduced-motion:reduce){ .cl input::after{transition:none} }
+
+/* ---------- closing ---------- */
+.gap-list{list-style:none; padding:0; margin:1.5rem 0; display:flex; flex-direction:column; gap:1.1rem}
+.gap-list li{padding-left:1.1rem; border-left:3px solid var(--stop)}
+.gap-list b{font-family:Archivo,sans-serif; font-weight:700; display:block; letter-spacing:-.005em}
+footer{
+  margin-top:4rem; padding:2rem 0 4rem; border-top:1px solid var(--rule);
+  font-size:.86rem; color:var(--ink-3);
+}
+footer p{margin:0 0 .5em}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Bench procedure &middot; Steps 2 and 3</p>
+  <h1>Flash and Wire the ESP32</h1>
+  <p class="standfirst">Getting the supervisor firmware onto the board, and the board wired to the probe, the fob and the button. <strong>All of it happens on the bench, with the saw disconnected.</strong> Nothing here goes near the motor or the mains.</p>
+  <div class="mast-meta">
+    <div><b>Build</b>path_a</div>
+    <div><b>Board</b>ESP32-DevKitC-32E</div>
+    <div><b>Needs</b>a Mac, a USB-C data cable, a meter</div>
+    <div><b>Then</b>Step 4 — prove it stops the saw</div>
+  </div>
+</header>
+
+<div class="col">
+
+<p>This page expands Steps 2 and 3 of <code>NEXT-STEPS.md</code> into the actual keystrokes and the actual wires. The sources of record are <code>firmware/README.md</code> for the flashing and <code>hardware/schematic/WIRING.md</code> for the wiring — if this page and one of those ever disagree, they win.</p>
+
+<p>It is written for someone who is not an electronics person, working with the project owner on a call. The rule from the procedure holds everywhere below: <strong>if anything does not go the way the step says, stop and ask.</strong> Not "try the next thing." Nothing here is urgent, and a guess is expensive.</p>
+
+<div class="placard">
+  <h5>Two things that stay true the whole time</h5>
+  <ul>
+    <li><strong>The saw's disconnect is locked off and the key is in your pocket.</strong> Even though this is bench work, the box gets opened in the same session.</li>
+    <li><strong>Dropping the contactor does not make the enclosure safe.</strong> An accessory 240&nbsp;V outlet was added ahead of everything protective and stays live. Only the disconnect kills it.</li>
+  </ul>
+</div>
+
+<h4>Before you start</h4>
+<ul class="cl" data-cl="prep">
+  <li><label><input type="checkbox" id="p1"><span class="hard">The ESP32 is on the bench, connected to nothing but the laptop.</span></label></li>
+  <li><label><input type="checkbox" id="p2"><span>You have a <strong>USB-C data cable</strong>. Charge-only cables look identical and will waste twenty minutes.</span></label></li>
+  <li><label><input type="checkbox" id="p3"><span>A multimeter, on the bench, batteries good.</span></label></li>
+  <li><label><input type="checkbox" id="p4"><span>Safety glasses on.</span></label></li>
+  <li><label><input type="checkbox" id="p5"><span>A pen and somewhere to write numbers down. Three measurements come out of today and none of them exist yet.</span></label></li>
+</ul>
+
+</div>
+
+<!-- ============================= PART A ============================= -->
+<section class="part">
+<div class="col">
+  <p class="eyebrow">Part A</p>
+  <h2>Loading the firmware</h2>
+  <p class="part-lead">One script does the whole job. It installs what it needs, runs its own tests, finds the board, reads the real flash size off the chip and picks the matching layout. Your job is to read what it prints.</p>
+</div>
+
+<div class="proc col">
+
+  <div class="step">
+    <div class="num">A1</div>
+    <h3>Plug the board into the Mac</h3>
+    <p>USB-C, straight into the laptop — not through a hub. A hub that cannot supply enough current shows up later as a corrupted upload, which is a confusing failure to chase.</p>
+    <p>Nothing else is connected to the board. No probe, no fob, no wires.</p>
+  </div>
+
+  <div class="step">
+    <div class="num">A2</div>
+    <h3>Ask the script what it can see</h3>
+    <p>Open a terminal in the project folder and run:</p>
+    <div class="term">
+      <div class="term-bar">terminal</div>
+<pre><span class="pr">$ </span>cd firmware
+<span class="pr">$ </span>./scripts/flash.sh doctor</pre>
+    </div>
+    <p>The first run installs PlatformIO, which takes a few minutes and prints a lot. That is normal. What matters is the four lines at the end:</p>
+    <div class="term">
+      <div class="term-bar">what to look for</div>
+<pre><span class="ot">board</span>
+  <span class="ok">port         /dev/cu.usbserial-0001</span>
+  <span class="ok">flash        8 MB (read from the chip)</span>
+<span class="ot">build</span>
+  <span class="ok">environment  path_a_8mb</span>
+  <span class="ok">generated    generated/error_codes.h present</span></pre>
+    </div>
+    <p>A <strong>port</strong> means the laptop can talk to the board. The <strong>flash size is read off the chip</strong>, not guessed, and that is what picks the environment — an 8&nbsp;MB layout on a 4&nbsp;MB chip does not boot at all, so the script refuses to guess.</p>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p><code>doctor</code> prints a port and an environment starting with <code>path_a</code>.</p>
+    </div>
+    <div class="placard">
+      <h5>Stop and ask if</h5>
+      <p>It says <strong>no serial port found</strong>. Nine times out of ten that is a charge-only cable — try another one before anything else. If a second cable does not fix it, the board's USB chip needs a driver on this Mac, and that is a job for the guide, not a thing to keep re-running.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">A3</div>
+    <h3>Run the tests before you write anything</h3>
+    <div class="term">
+      <div class="term-bar">terminal</div>
+<pre><span class="pr">$ </span>./scripts/flash.sh test</pre>
+    </div>
+    <p>76 tests, about a second, no board needed. They exercise the part of the code that decides whether the saw stops: every state transition, the sensor-fault rules, the temperature maths, the lockout counter.</p>
+    <div class="placard">
+      <h5>Stop and ask if</h5>
+      <p><strong>Any test fails.</strong> Do not flash a red build onto a saw. There is nothing to work around here — a failure means the logic that stops the motor is not behaving, and that is the whole product.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">A4</div>
+    <h3>Write it to the board</h3>
+    <div class="term">
+      <div class="term-bar">terminal</div>
+<pre><span class="pr">$ </span>./scripts/flash.sh flash</pre>
+    </div>
+    <p>It stops and asks you to confirm. Read what it is asking, because it is a real question and not a formality:</p>
+    <div class="term">
+      <div class="term-bar">the confirmation</div>
+<pre><span class="cm">About to write firmware to the board.</span>
+  <span class="ot">The supervisor cannot protect the saw while it is being flashed.</span>
+  <span class="ot">GPIO26 must have its 10 kOhm pulldown fitted, or the machine</span>
+  <span class="ot">disconnect must be locked out. See WIRING.md.</span>
+
+  Continue? [y/N] </pre>
+    </div>
+    <p>Uploading resets the board, and during the reset its pins are floating — the chip is not driving them either way. On a board sitting bare on a bench that means nothing. On a board already wired into the saw it means the transmit pin is undefined, which is exactly what the pulldown resistor in Part&nbsp;B exists to make safe.</p>
+    <p>Today the board is on the bench and unwired, so answer <code>y</code>.</p>
+    <div class="note">
+      <h5>One command instead of three</h5>
+      <p><code>./scripts/flash.sh all</code> chains <code>doctor</code>, then <code>test</code>, then <code>flash</code>. Same steps, same confirmation. Use it once you have seen each piece work on its own.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">A5</div>
+    <h3>Read the boot banner</h3>
+    <p>This is the step people skip, and it is the one that tells you whether the board is actually working.</p>
+    <div class="term">
+      <div class="term-bar">terminal</div>
+<pre><span class="pr">$ </span>./scripts/flash.sh monitor</pre>
+    </div>
+    <p>Press the board's <strong>EN</strong> button if nothing appears — the banner prints once, at startup, and you may have connected after it went by. Press <kbd>ctrl</kbd>&nbsp;+&nbsp;<kbd>]</kbd> to get out again.</p>
+    <div class="term">
+      <div class="term-bar">boot banner &mdash; abridged</div>
+<pre><span class="ok">=== table saw thermal supervisor ===</span>
+path            A (frame NTC, RF heartbeat)
+primary sensor  frame NTC
+trip / warn / reset   90.0 / 78.0 / 55.0 C (frame temperature)
+cooldown hold   120 s
+hold pin        GPIO26 (active HIGH, needs a 10k pulldown to GND)
+led / ack       GPIO2 / GPIO27
+reset reason    power-on
+<span class="cm">calibration     *** DEFAULTS IN USE ***</span>
+<span class="ok">self-test: 10/10 valid reads (need 8)</span></pre>
+    </div>
+    <p>Four things to check, and to say out loud on the call:</p>
+    <div class="scroll">
+      <table>
+        <caption>Reading the banner</caption>
+        <thead><tr><th style="width:11rem">Line</th><th>What it should say, and what it means if it doesn't</th></tr></thead>
+        <tbody>
+          <tr><td><code>path</code></td><td>Must read <strong>A (frame NTC, RF heartbeat)</strong>. Path&nbsp;B is for hardware this project has not bought — flashed by mistake, it reports a sensor fault forever, because there is no thermocouple amplifier on the bus to answer it.</td></tr>
+          <tr><td><code>self-test</code></td><td><strong>8 or more valid reads out of 10.</strong> Fewer means the firmware refused to arm because it does not trust the probe. With no probe connected yet, expect this to fail — see the note below.</td></tr>
+          <tr><td><code>reset reason</code></td><td><strong><code>power-on</code></strong> right after a flash. On a <em>later</em> boot, <code>TASK WATCHDOG</code> or <code>panic</code> is a real defect and gets chased, not ignored.</td></tr>
+          <tr><td><code>calibration</code></td><td><strong>DEFAULTS IN USE</strong> is expected and correct today. It means the two-point calibration has not been done on this board, so its temperatures are unverified. The board works; its numbers are not yet trustworthy.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <h5>A failed self-test right now is the right answer</h5>
+      <p>With no probe wired, the sensor pin reads nothing believable, so the firmware holds the contact open and puts the LED on SOS. That is the fail-safe behaviour working. Come back and re-read this banner after Part&nbsp;B, with the probe plugged in — <em>that</em> is when the self-test has to pass.</p>
+    </div>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p>The banner prints, it says <code>path A</code>, and the reset reason is <code>power-on</code>.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">A6</div>
+    <h3>Learn the LED, because it is the only display at the machine</h3>
+    <p>Once the enclosure is closed there is no serial log and probably no phone in hand. The onboard blue LED is how an operator knows what the supervisor is doing.</p>
+    <div class="scroll">
+      <table>
+        <caption>LED patterns</caption>
+        <thead><tr><th style="width:13rem">Pattern</th><th style="width:10rem">State</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Solid ON</td><td>ARMED</td><td>Ready. Press Start.</td></tr>
+          <tr><td>Slow blink (1&nbsp;Hz)</td><td>COOLDOWN</td><td>Wait for solid.</td></tr>
+          <tr><td>Fast blink (5&nbsp;Hz)</td><td>TRIPPED — thermal</td><td>Motor overtemperature.</td></tr>
+          <tr><td>Double-blink then pause</td><td>TRIPPED — sensor fault</td><td>Check sensor / wiring.</td></tr>
+          <tr><td>Triple-blink then long pause</td><td>MANUAL_LOCKOUT</td><td>Too many trips. Press ack after cooling to clear.</td></tr>
+          <tr><td>SOS pattern</td><td>Boot self-test failed</td><td>Do not use. Power-cycle.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>From a cold boot the board sits in <strong>COOLDOWN for two minutes</strong> before it goes solid. That wait is deliberate. A slow blink straight after flashing is not a fault.</p>
+  </div>
+
+  <div class="step">
+    <div class="num">A7</div>
+    <h3>Optional — put the fault pages on the board</h3>
+    <div class="term">
+      <div class="term-bar">terminal</div>
+<pre><span class="pr">$ </span>./scripts/flash.sh fs</pre>
+    </div>
+    <p>This uploads the operator fault pages into the board's own storage, so a phone standing at the saw with no internet can still read what an error code means. Skip it today if you like; it can be run any time.</p>
+    <p>Either way, the dashboard is there once the board is running: join the Wi-Fi network named <strong>ALN&nbsp;Table&nbsp;Saw</strong> and open <code>http://saw.local/</code>. It shows state, temperature and the thresholds this board is actually running. It cannot change anything — the network is deliberately advisory only, and there is no path from a web page to the pin that stops the saw.</p>
+  </div>
+
+</div>
+
+<div class="col">
+  <h4>When it goes wrong</h4>
+  <div class="scroll">
+    <table>
+      <caption>Flashing — the usual failures</caption>
+      <thead><tr><th style="width:17rem">What you see</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>No ESP32 serial port found</code></td><td>Charge-only cable, almost always. Try another. If that fails, the USB-to-serial chip needs a driver installed on this Mac.</td></tr>
+        <tr><td><code>Timed out waiting for packet header</code></td><td>The board is not listening. Hold <strong>BOOT</strong>, tap <strong>EN</strong>, release BOOT, run the command again.</td></tr>
+        <tr><td><code>the port is busy</code></td><td>A serial monitor is still open in another window. Close it — <code>monitor</code> holds the port.</td></tr>
+        <tr><td><code>MD5 of file does not match</code></td><td>Bad cable or an underpowered hub. Different cable, straight into the laptop.</td></tr>
+        <tr><td>Boots, then reboots forever</td><td>Wrong partition layout for the chip. Run <code>doctor</code> to see the real flash size, then flash with <code>--env path_a</code>, which is safe on either size.</td></tr>
+        <tr><td>Serial shows nothing at all</td><td>The board is not running. Look at the LED: an SOS pattern means the boot self-test failed, which is a wiring answer, not a flashing one.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="placard">
+    <h5>Two things never to do to make a flash succeed</h5>
+    <ul>
+      <li><strong>Never turn off a safety check</strong> to get a build through — not the watchdog, not the boot self-test, not the sensor validation. If one of them is in the way, it is telling you something true.</li>
+      <li><strong>Never raise the trip temperature</strong> to stop nuisance trips. Repeated trips mean the fan shroud is packed with sawdust, which is the exact failure this whole project exists to catch.</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ============================= PART B ============================= -->
+<section class="part">
+<div class="col">
+  <p class="eyebrow">Part B</p>
+  <h2>Wiring it up</h2>
+  <p class="part-lead">Six connections, done slowly and one at a time with the guide reading from <code>WIRING.md</code>. Two of them are measurements rather than wires, and they come first, because the numbers they produce decide what the later steps are allowed to do.</p>
+</div>
+
+<div class="proc col">
+
+  <div class="step gate">
+    <div class="num">B1</div>
+    <h3>Measure the fob's battery voltage — before anything touches it</h3>
+    <p>Meter on DC volts, red probe to the fob's red wire, black to black. <strong>Say the number out loud and write it down.</strong></p>
+    <p>This is a gate, not a formality. The project's older documents assumed the fob ran on a 12&nbsp;V cell; the board actually on the bench has a coin-cell holder, which is a different number. Nobody has measured it. The ESP32's pins are destroyed by anything above 3.3&nbsp;V, permanently and instantly.</p>
+    <div class="placard">
+      <h5>The rule that follows from not knowing</h5>
+      <p><strong>No ESP32 pin ever connects to a fob pad directly.</strong> Not because 12&nbsp;V is certain, but because the number is unknown. Everything between them goes through the level shifter in step B5.</p>
+    </div>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p>The cell voltage is written down, and the guide has recorded it in <code>WIRING.md</code>. <span class="unmeasured">not measured yet</span></p>
+    </div>
+  </div>
+
+  <div class="step gate">
+    <div class="num">B2</div>
+    <h3>Measure the divider resistor, and work out the fob's buttons</h3>
+    <p>Two more numbers that do not exist yet.</p>
+    <p><strong>The divider resistor.</strong> Meter on ohms, across the resistor before it is fitted. It is sold as 10&nbsp;kΩ but a cheap one really measures anywhere from 9.5&nbsp;kΩ to 10.5&nbsp;kΩ, and that error goes straight into every temperature the board reports. Write down the actual number; it gets typed into the firmware's calibration file.</p>
+    <p><strong>The fob's button pads.</strong> Six wires come out of the fob: red and black at the battery, and a pair at each of the two buttons — yellow with orange, blue with green. Which pair is the ON button, and which wire of that pair the fob's own chip is watching, is read off a photograph and nothing more. Meter it out with the guide before wiring anything to it.</p>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p>Three numbers are on paper: the resistor's real value, which pair is ON, and which wire of that pair is the one the fob reads. <span class="unmeasured">not measured yet</span></p>
+    </div>
+  </div>
+
+  <div class="step gate">
+    <div class="num">B3</div>
+    <h3>Fit the pulldown resistor first — before any other wire</h3>
+    <p>A 10&nbsp;kΩ resistor between <span class="pin">GPIO26</span> and <span class="pin">GND</span>. Fit it now, ahead of everything, and measure across it afterwards to confirm about 10&nbsp;kΩ.</p>
+    <p>Here is what it does. <span class="pin">GPIO26</span> is the pin that holds the fob transmitting, and transmitting is what lets the saw run. While the board is starting up, or has crashed, or is browning out, the chip is not driving that pin at all — it floats, and a floating pin can read as "on."</p>
+    <p>The resistor is what makes floating mean <strong>off</strong>. It quietly pulls the pin down to ground whenever nothing is driving it, so a crashed or half-booted supervisor stops transmitting, the receiver's contact opens, and the saw stops.</p>
+    <div class="placard">
+      <h5>This one has no substitute</h5>
+      <p>Without it, every claim this project makes about failing safely is untrue. It is also what makes it safe to re-flash the board once it is installed in the enclosure. Fit it first so that nothing you wire afterwards is ever briefly unprotected.</p>
+    </div>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p>The meter reads roughly 10&nbsp;kΩ between <span class="pin">GPIO26</span> and <span class="pin">GND</span>, with the board unpowered.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">B4</div>
+    <h3>Build a common ground, then the temperature divider</h3>
+    <p>Pick one <span class="pin">GND</span> pin on the ESP32 as the ground bus. Everything that needs a ground lands there. The board has several <span class="pin">GND</span> pins and they are all the same node — if you use more than one, tie them together so there is no doubt.</p>
+    <p>Then the probe circuit, which is three connections in a line:</p>
+    <div class="scroll">
+      <table>
+        <caption>NTC divider &mdash; 3V3 → 10 kΩ → GPIO34 → probe → GND</caption>
+        <thead><tr><th style="width:12rem">From</th><th style="width:9rem">To</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Top of the 10&nbsp;kΩ resistor <span class="pin">orange</span></td><td><span class="pin">3V3</span></td><td>The board's own regulated supply. Never connect an outside 3.3&nbsp;V here.</td></tr>
+          <tr><td>Junction of resistor and probe <span class="pin">purple</span></td><td><span class="pin">GPIO34</span></td><td><strong>This pin and no other.</strong> See the warning below.</td></tr>
+          <tr><td>Other side of the probe <span class="pin">black</span></td><td>ground bus</td><td>The probe is a thermistor — it has no polarity, so either of its two wires may go either way.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The probe plugs in. Its factory connector now has its mate fitted, so there is nothing to cut and nothing to solder. Keep that plug <strong>inside the enclosure</strong> rather than out on the motor, where dust and vibration would work it loose.</p>
+    <div class="placard">
+      <h5>Why GPIO34 specifically</h5>
+      <p>The ESP32 has two banks of measuring pins, and one of them stops working the moment Wi-Fi turns on — those pins simply read zero. <span class="pin">GPIO34</span> is on the bank that keeps working. Several other pins look interchangeable and are not. Moving the probe to <span class="pin">GPIO25</span>, <span class="pin">26</span>, <span class="pin">27</span>, <span class="pin">4</span>, <span class="pin">12</span>–<span class="pin">15</span>, <span class="pin">0</span> or <span class="pin">2</span> produces a board that reads zero degrees forever.</p>
+    </div>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p>The probe is plugged in and <code>monitor</code> shows the self-test passing — <strong>8 or more valid reads out of 10</strong> — with a temperature that looks like the room. Pinch the probe tip between two fingers: it should climb toward 30–35&nbsp;°C and fall back when you let go.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">B5</div>
+    <h3>Put the level shifter between GPIO26 and the fob</h3>
+    <p>This is the piece that lets the ESP32 press the fob's button without the two circuits touching electrically. An optocoupler is the recommended part: inside it, the ESP32 lights a tiny LED, and that light closes a switch on the fob's side. No shared wire, no shared ground, and the unknown cell voltage from step B1 cannot reach the ESP32 at all.</p>
+    <div class="scroll">
+      <table>
+        <caption>Optocoupler &mdash; recommended</caption>
+        <thead><tr><th style="width:11rem">Optocoupler pin</th><th style="width:13rem">Goes to</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>A</code> — anode</td><td><span class="pin">GPIO26</span> through a 330&nbsp;Ω resistor <span class="pin">brown</span></td><td>The resistor limits the current into the internal LED.</td></tr>
+          <tr><td><code>K</code> — cathode</td><td>ground bus <span class="pin">black</span></td><td></td></tr>
+          <tr><td><code>C</code> — collector</td><td>the ON pad the fob's chip watches</td><td>Which one that is comes from step B2's meter reading.</td></tr>
+          <tr><td><code>E</code> — emitter</td><td>the other ON pad</td><td>Both pads are on the pigtail, so nothing has to be tied to fob ground.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>If no optocoupler can be found, a small transistor will do the same job and <code>WIRING.md</code> gives that version. It works, and it is second choice for a reason: it needs the two grounds tied together, which puts that unmeasured cell voltage one mistake away from the ESP32.</p>
+    <div class="placard">
+      <h5>Handle the fob by the edges of the green board</h5>
+      <p>Those six solder joints are somebody's finished work. A tug on a wire lifts the pad off the board, and that is a repair, not an adjustment.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">B6</div>
+    <h3>Fit the acknowledge button and check the LED</h3>
+    <p><strong>The button</strong> is a plain momentary switch: one side to <span class="pin">GPIO27</span>, the other to the ground bus. No resistor — the chip supplies its own internally, so the pin sits high until a press pulls it low.</p>
+    <p>Any scrounged pushbutton works. So does touching a bare wire from <span class="pin">GPIO27</span> to <span class="pin">GND</span>, which is enough to finish commissioning before a proper button is mounted.</p>
+    <p>This button matters more than its size suggests. After three trips inside ten minutes the supervisor stops resetting itself and waits for a person — and that lockout is written into the board's memory, so <strong>power-cycling does not clear it.</strong> The button is the only way out. A press is only accepted once the motor has actually cooled; pressed while it is still hot, it is logged and ignored on purpose.</p>
+    <p><strong>The LED</strong> is already on the board at <span class="pin">GPIO2</span> and needs no wire. Check that it is really there — a few board revisions fit only a power LED. If yours has no blue LED that blinks, wire one from <span class="pin">GPIO2</span> through a 330&nbsp;Ω resistor to ground, because without it the operator has no indicator at the machine at all.</p>
+    <div class="checkpoint">
+      <h5>Done when</h5>
+      <p>Pressing the button changes nothing visible yet — correct, since the board is not in lockout. The guide will exercise it properly during the bench tests.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">B7</div>
+    <h3>Power it from a proper USB charger</h3>
+    <p>The board is powered <strong>through its own USB-C socket</strong>, from an ordinary listed USB phone charger. There is no power wire to run and nothing lands on the <span class="pin">VIN</span> pin.</p>
+    <p>That choice is doing real safety work. A listed charger is a certified supply with proper isolation built in, which keeps the mains side of this machine and the low-voltage side genuinely separate. The unidentified "220 to 12&nbsp;V converter" in the parts pile is not a substitute and must not be used.</p>
+    <div class="note">
+      <h5>One decision still open</h5>
+      <p>Which outlet the charger plugs into has not been settled. A separate wall outlet leaves the supervisor powered after the machine disconnect is opened; the new accessory receptacle ties it to the disconnect instead. Both are defensible. What is not defensible is drawings saying one and the enclosure doing the other, so whichever gets built has to be written into the build log. <span class="unmeasured">not decided</span></p>
+    </div>
+  </div>
+
+</div>
+
+<div class="col">
+  <h4>The whole pin map, on one screen</h4>
+  <div class="scroll">
+    <table>
+      <caption>ESP32 connections &mdash; Path A</caption>
+      <thead><tr><th style="width:7rem">Pin</th><th style="width:14rem">Connects to</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pin">GPIO26</span></td><td>level shifter, <em>and</em> a 10&nbsp;kΩ pulldown to GND</td><td>Holds the fob transmitting. High means the coil circuit may close. This is the pin the entire design turns on.</td></tr>
+        <tr><td><span class="pin">GPIO34</span></td><td>junction of the divider and the probe</td><td>Reads motor frame temperature. Input-only, and on the bank that survives Wi-Fi.</td></tr>
+        <tr><td><span class="pin">GPIO27</span></td><td>button, other side to GND</td><td>Acknowledge. The only way out of lockout.</td></tr>
+        <tr><td><span class="pin">GPIO2</span></td><td>onboard LED — no wire</td><td>Status at the machine.</td></tr>
+        <tr><td><span class="pin">3V3</span></td><td>top of the divider resistor</td><td>Supplies the probe circuit. Output only.</td></tr>
+        <tr><td><span class="pin">GND</span></td><td>the common ground bus</td><td>Probe, pulldown, optocoupler cathode, button.</td></tr>
+        <tr><td><span class="pin">USB-C</span></td><td>listed USB charger</td><td>Power in. No VIN wire anywhere in this build.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="placard">
+    <h5>The receiver is not on this page</h5>
+    <p>The radio receiver lives on the mains side of the machine, inside the control box, and wiring it is a separate job done with the disconnect locked out. Two things about it are worth knowing now, because both are easy to get backwards:</p>
+    <ul>
+      <li><strong>Do not follow the manufacturer's own wiring diagram.</strong> It runs the receiver straight to the contactor coil. On a pump that is fine. On a saw it removes the interlock that keeps the machine stopped after an interruption — the saw would <strong>restart by itself</strong> the moment the radio link recovered.</li>
+      <li><strong>The receiver has to be set to momentary mode</strong>, and then proven by watching it: hold a fob button and its switch must close, let go and it must open. <strong>If its switch is closed while nothing is transmitting, stop.</strong> That inverts the entire safety design, and everything else here depends on it being the other way round. <span class="unmeasured">not verified</span></li>
+    </ul>
+  </div>
+
+  <h4>Sanity check before first power-up</h4>
+  <p>The full list is at the end of <code>WIRING.md</code>. These are the ones that get checked with a meter or with your eyes before the board is powered with everything attached.</p>
+  <ul class="cl" data-cl="sanity">
+    <li><label><input type="checkbox" id="s1"><span class="hard">10&nbsp;kΩ measured between GPIO26 and GND.</span></label></li>
+    <li><label><input type="checkbox" id="s2"><span class="hard">With the ESP32 unpowered, the fob is not transmitting and the receiver's switch is open. Verified by watching it, not assumed.</span></label></li>
+    <li><label><input type="checkbox" id="s3"><span>Fob pigtail metered: cell voltage, which pair is ON, which wire the fob reads — all written down.</span></label></li>
+    <li><label><input type="checkbox" id="s4"><span>Divider resistor measured, and the real number is in the firmware's calibration file.</span></label></li>
+    <li><label><input type="checkbox" id="s5"><span>The probe is on GPIO34 and nowhere else.</span></label></li>
+    <li><label><input type="checkbox" id="s6"><span>Two-point calibration done — ice water and boiling water, both within 2&nbsp;°C — <em>before</em> the probe goes on the motor.</span></label></li>
+    <li><label><input type="checkbox" id="s7"><span>Receiver set to momentary and proven by observation. Drop-out time recorded.</span></label></li>
+    <li><label><input type="checkbox" id="s8"><span>Power comes from a listed USB charger, and which outlet feeds it is recorded.</span></label></li>
+  </ul>
+</div>
+</section>
+
+<!-- ============================= CLOSING ============================= -->
+<section class="part">
+<div class="col">
+  <p class="eyebrow">What comes next</p>
+  <h2>A flashed, wired board is not a protected saw</h2>
+  <p class="part-lead">Finishing both parts above gets you to the start of the work that actually proves something. Be blunt about this on the call, because "it's wired" reads to everyone else as "it's protected."</p>
+
+  <p>The next step is <strong>Step 4 — prove it stops the saw</strong>, still with the machine disconnected. Three tests, and every one of them must make the receiver's switch click open:</p>
+  <ol>
+    <li><strong>Heat the probe</strong> with a hair dryer or hot water. It should trip at its temperature limit.</li>
+    <li><strong>Pull the ESP32's power</strong> while it is armed. The switch must open within about a second.</li>
+    <li><strong>Unplug the probe</strong> while it is running. The switch must open.</li>
+  </ol>
+  <p>If all three do what they should, the fail-safe idea is real on this bench. If any one of them does not, the build stops there until it is understood.</p>
+
+  <h4>Still true after all of that</h4>
+  <ul class="gap-list">
+    <li><b>The passive backstop has not been bought.</b> The design calls for a bimetallic thermostat that cuts the motor on temperature with no electronics involved. It is not in the box. Until it is, every protective function depends on this board continuing to run.</li>
+    <li><b>The temperature limits are placeholders.</b> The real numbers come from watching the motor through a normal session and setting the limits around what it actually does. That has not happened.</li>
+    <li><b>The firmware has never run on this motor.</b> The tests prove the logic behaves. They prove nothing about this probe, this motor or this receiver.</li>
+    <li><b>The fan shroud still has to be cleaned</b> and the starter's overload heaters still have to be checked. That blocked shroud is the original fault. A monitor installed over an uncleaned one will faithfully report a motor cooking itself.</li>
+  </ul>
+
+  <p>So: finish these steps, then treat the saw as <strong>instrumented</strong>, not as <strong>protected</strong>, until the owner says otherwise. <strong>Do not cut wood.</strong></p>
+</div>
+
+<footer class="col">
+  <p>Derived from <code>NEXT-STEPS.md</code> steps 2 and 3. Sources of record: <code>firmware/README.md</code> for flashing, <code>hardware/schematic/WIRING.md</code> for wiring, <code>BUILD-LOG.md</code> for what is actually fitted.</p>
+  <p>Thresholds shown here are the provisional Path&nbsp;A frame-temperature values. The board's boot banner and dashboard print the numbers it is really running — trust those over any number in prose, including this page's.</p>
+</footer>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var KEY='tsaw-flash-wire-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  var boxes=document.querySelectorAll('.cl input[type=checkbox]');
+  Array.prototype.forEach.call(boxes,function(b){
+    if(state[b.id]) b.checked=true;
+    b.addEventListener('change',function(){
+      state[b.id]=b.checked;
+      try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){}
+    });
+  });
+})();
+</script>
