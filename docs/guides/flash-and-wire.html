@@ -2794,6 +2794,19 @@ reset reason    power-on
     <div class="num">B5</div>
     <h3>Put the level shifter between GPIO26 and the fob</h3>
     <p>This is the piece that lets the ESP32 press the fob's button without the two circuits touching electrically. An optocoupler is the recommended part: inside it, the ESP32 lights a tiny LED, and that light closes a switch on the fob's side. No shared wire, no shared ground, and the unknown cell voltage from step B1 cannot reach the ESP32 at all.</p>
+
+    <div class="note">
+      <h5>Why a GPIO cannot just go on the pad</h5>
+      <p>Because a button is not a voltage. It is a <strong>short between two pads</strong>, and a GPIO can only offer a voltage. Four things go wrong, and they are independent:</p>
+      <ul>
+        <li><strong>The pad's voltage is unknown.</strong> Above about 3.6&nbsp;V the pin's protection diode conducts into the ESP32's own supply rail and the chip is destroyed.</li>
+        <li><strong>You do not know which way the button pulls.</strong> The fob's chip holds that pad at one rail through its own internal resistor, and a press shorts it to the other. Which rail, and which of the pair the chip watches, is unmeasured — drive it the wrong way and nothing happens at all.</li>
+        <li><strong>There is no shared reference.</strong> The fob runs off its cell, the ESP32 off the charger. One wire between them has no return path, so to make a direct connection work at all you would have to bond the two grounds together.</li>
+        <li><strong>And bonding them builds a path for the fob to transmit while the supervisor is dead.</strong> With the grounds tied, current can leak through the ESP32's protection diodes in either direction — the cell is still in the fob when the ESP32 is unpowered. Note what the pulldown does and does not do here: it defines the <em>ESP32's pin</em>. It does not define the <em>fob's pad</em>, which has its own pull.</li>
+      </ul>
+      <p>That last one is not a component-damage problem, it is a <strong>safety-inversion</strong> problem. This whole design says: supervisor loses power, carrier stops, contact opens, saw stops. Any conductive path between the fob's always-live battery and the supervisor's sometimes-live supply is a candidate route for the carrier to outlive the supervisor.</p>
+      <p>The optocoupler has no such path. Its output is a <strong>floating switch</strong>, belonging to neither side, placed across the two pads — doing literally what a finger does. That is also why it makes the first two problems moot: the drive circuit stops depending on what the cell voltage turns out to be, or on which pad the chip is watching. Meter the cell anyway in step B1; you need it to know the fob is healthy, not to decide how to drive it.</p>
+    </div>
     <div class="scroll">
       <table>
         <caption>Optocoupler &mdash; recommended</caption>
