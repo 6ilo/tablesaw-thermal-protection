@@ -254,7 +254,7 @@ footer p{margin:0 0 .5em}
     <div><b>Build</b>path_a</div>
     <div><b>Board</b>ESP32-DevKitC-32E</div>
     <div><b>Needs</b>a Mac, a USB-C data cable, a meter</div>
-    <div><b>Then</b>Step 4 — prove it stops the saw</div>
+    <div><b>Blocked</b>Part B — 4 passives not on the bench</div>
   </div>
 </header>
 
@@ -480,6 +480,24 @@ reset reason    power-on
   <p class="eyebrow">Part B</p>
   <h2>Wiring it up</h2>
   <p class="part-lead">Six connections, done slowly and one at a time with the guide reading from <code>WIRING.md</code>. Two of them are measurements rather than wires, and they come first, because the numbers they produce decide what the later steps are allowed to do.</p>
+
+  <div class="placard">
+    <h5>Part B cannot start yet — four parts are missing</h5>
+    <p>The bench has the ESP32, the temperature probe and the fob. Every one of Part&nbsp;B's three circuits also needs something that is <strong>not on the bench</strong>, and none of the three has a workaround:</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th style="width:5rem">Ref</th><th style="width:12rem">Part</th><th>Without it</th></tr></thead>
+        <tbody>
+          <tr><td><code>R1</code></td><td>~10&nbsp;kΩ resistor, 1%</td><td><strong>The temperature probe cannot be read at all.</strong> A thermistor on its own produces no voltage — it needs a fixed resistor above it to divide against. There is nothing on the chip to borrow: <span class="pin">GPIO34</span> is input-only, and this board's input-only pins have no internal resistors.</td></tr>
+          <tr><td><code>R2</code></td><td>10&nbsp;kΩ resistor</td><td>No pulldown on <span class="pin">GPIO26</span>. This is the one item <code>WIRING.md</code> calls mandatory with no substitute — see step B3.</td></tr>
+          <tr><td><code>Q1</code></td><td>PC817 optocoupler</td><td>No safe way to drive the fob. The rule does not bend: no ESP32 pin touches a fob pad directly.</td></tr>
+          <tr><td><code>R3</code></td><td>330&nbsp;Ω resistor</td><td>Nothing limiting current into the optocoupler's input LED.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Any assorted resistor kit covers <code>R1</code>, <code>R2</code> and <code>R3</code>; only <code>Q1</code> is a real purchase, and a 2N3904 or 2N7000 substitutes if no optocoupler turns up (<code>WIRING.md</code> gives both, and says why they are second choice). <strong>Get <code>R1</code> in 1%</strong> — it is the reference every reported temperature is divided against, and it is the number step B2 tells you to measure.</p>
+    <p><strong>Part&nbsp;A above needs none of this.</strong> Flashing the board takes the ESP32, a laptop and a USB-C cable, and it is worth doing now: it proves the board is good and gets the failure modes out of the way while the parts are on order.</p>
+  </div>
 </div>
 
 <figure>
