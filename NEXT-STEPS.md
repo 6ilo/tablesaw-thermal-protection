@@ -149,7 +149,9 @@ it with a meter before anything gets connected.
 - A **multimeter** — the guide will tell you which setting
 - **Screwdrivers**, and a **torque screwdriver** if there is one
 - **Heat shrink or electrical tape**, and **wire cutters/strippers**
-- A **Mac laptop** with a USB-C cable, for Step 2
+- A **laptop** with a USB-C cable, for Step 2. A Mac runs the one-command script; on
+  **Windows** that script does not run and you type PlatformIO's own commands instead —
+  see [docs/guides/flash-and-wire.html](docs/guides/flash-and-wire.html)
 - A **hair dryer or heat gun**, and a mug of hot water, for Step 4
 - Your **phone**, for the call and for photographs — take a photo before you change
   anything, every time

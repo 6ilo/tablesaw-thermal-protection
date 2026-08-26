@@ -253,7 +253,7 @@ footer p{margin:0 0 .5em}
   <div class="mast-meta">
     <div><b>Build</b>path_a</div>
     <div><b>Board</b>ESP32-DevKitC-32E</div>
-    <div><b>Needs</b>a Mac, a USB-C data cable, a meter</div>
+    <div><b>Needs</b>a laptop (Mac or Windows), a USB-C data cable, a meter</div>
     <div><b>Blocked</b>Part B — 4 passives not on the bench</div>
   </div>
 </header>
@@ -288,7 +288,29 @@ footer p{margin:0 0 .5em}
 <div class="col">
   <p class="eyebrow">Part A</p>
   <h2>Loading the firmware</h2>
-  <p class="part-lead">One script does the whole job. It installs what it needs, runs its own tests, finds the board, reads the real flash size off the chip and picks the matching layout. Your job is to read what it prints.</p>
+  <p class="part-lead">On a Mac, one script does the whole job — it installs what it needs, runs its own tests, finds the board, reads the real flash size off the chip and picks the matching layout. On Windows the script does not run, and you drive the same build system by hand. Your job either way is to read what it prints.</p>
+
+  <div class="note">
+    <h5>On Windows, use these commands instead</h5>
+    <p><code>scripts/flash.sh</code> is a bash script. PowerShell cannot run it, and there is no point trying — it also looks for Mac-style serial ports (<code>/dev/cu.*</code>) and installs things with Homebrew. <strong>The build system underneath it, PlatformIO, runs on Windows perfectly well</strong>, so you type its commands directly. Everything else on this page — what the banner means, the LED patterns, all of Part&nbsp;B — applies unchanged.</p>
+    <p>Run these from the <code>firmware</code> folder, <strong>not</strong> from <code>firmware\scripts</code>:</p>
+    <div class="scroll">
+      <table>
+        <caption>Same steps, both platforms</caption>
+        <thead><tr><th style="width:5rem">Step</th><th style="width:16rem">Mac</th><th>Windows (PowerShell)</th></tr></thead>
+        <tbody>
+          <tr><td>install</td><td>the script does it</td><td><code>pip install platformio</code></td></tr>
+          <tr><td>A2</td><td><code>./scripts/flash.sh doctor</code></td><td><code>pio device list</code></td></tr>
+          <tr><td>A3</td><td><code>./scripts/flash.sh test</code></td><td><code>pio test -e native</code></td></tr>
+          <tr><td>A4</td><td><code>./scripts/flash.sh flash</code></td><td><code>pio run -e path_a -t upload</code></td></tr>
+          <tr><td>A5</td><td><code>./scripts/flash.sh monitor</code></td><td><code>pio device monitor -b 115200</code></td></tr>
+          <tr><td>A7</td><td><code>./scripts/flash.sh fs</code></td><td><code>pio run -e path_a -t uploadfs</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Use <code>-e path_a</code> and do not change it.</strong> That is the 4&nbsp;MB layout, and it boots on either chip. The Mac script reads the board's real flash size and may pick the 8&nbsp;MB layout instead, which only doubles how finely the long-term log is recorded — an 8&nbsp;MB layout on a 4&nbsp;MB chip does not boot at all, so by hand you take the one that always works.</p>
+    <p>Two smaller differences: <code>pip</code> not found means try <code>py -m pip install platformio</code>, and <code>pio</code> not found straight after installing usually means opening a fresh PowerShell window. To leave the serial monitor, press <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>C</kbd> rather than the <kbd>ctrl</kbd>&nbsp;+&nbsp;<kbd>]</kbd> mentioned below.</p>
+  </div>
 </div>
 
 <div class="proc col">
@@ -455,7 +477,7 @@ reset reason    power-on
       <caption>Flashing — the usual failures</caption>
       <thead><tr><th style="width:17rem">What you see</th><th>What it is</th></tr></thead>
       <tbody>
-        <tr><td><code>No ESP32 serial port found</code></td><td>Charge-only cable, almost always. Try another. If that fails, the USB-to-serial chip needs a driver installed on this Mac.</td></tr>
+        <tr><td><code>No ESP32 serial port found</code><br>(Windows: no <code>COM</code> port in <code>pio device list</code>)</td><td>Charge-only cable, almost always. Try another. If that fails, the USB-to-serial chip needs a driver: on a Mac by Homebrew cask, on Windows by downloading the CP210x driver from Silicon Labs or the CH34x/CH9102 driver from WCH. Device Manager shows which chip it is.</td></tr>
         <tr><td><code>Timed out waiting for packet header</code></td><td>The board is not listening. Hold <strong>BOOT</strong>, tap <strong>EN</strong>, release BOOT, run the command again.</td></tr>
         <tr><td><code>the port is busy</code></td><td>A serial monitor is still open in another window. Close it — <code>monitor</code> holds the port.</td></tr>
         <tr><td><code>MD5 of file does not match</code></td><td>Bad cable or an underpowered hub. Different cable, straight into the laptop.</td></tr>
