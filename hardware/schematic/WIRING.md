@@ -125,6 +125,19 @@ revisions only fit a power LED — wire one from `GPIO2` through a 330 Ω
 resistor to GND. Without it the operator loses the only indicator at
 the machine.
 
+**To GND, not to 3V3, and that is not a stylistic preference.** `GPIO2`
+is an ESP32 **strapping pin**: it is sampled at reset, and it has to be
+low or floating for the board to enter download mode. An LED wired the
+other way round — from 3V3, through the resistor, into `GPIO2` — lights
+identically and is the arrangement most people reach for, but it holds
+the pin high at reset and produces a board that intermittently refuses
+to flash. `GPIO5` is a strapping pin too, and is the MAX31855 chip
+select on Path B.
+
+Neither is a problem in this build as drawn. Both are one plausible
+"improvement" away from being one, which is why they are written down
+rather than left as something the wiring happens to get right.
+
 ## Ack button — GPIO27 to GND
 
 | Node | Goes to | Notes |
