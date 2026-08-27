@@ -38,9 +38,11 @@ import json
 import re
 import sys
 from pathlib import Path
-from xml.sax.saxutils import escape
 
 import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from svgcanvas import Canvas, tw          # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 CONFIG_H = REPO / "firmware" / "include" / "saw_config.h"
@@ -64,11 +66,6 @@ CLASSES = {
     "unused":  ("#C7CAD1", "not used on this build"),
 }
 
-# Rough advance widths. Deliberately approximate — every box is drawn from these
-# numbers, so a wrong glyph metric shows up as a visibly tight box rather than as
-# silent overlap, and the fix is one constant.
-SANS_PX = 0.60
-MONO_PX = 0.62
 
 
 def role_map(path=CONFIG_H):
@@ -111,41 +108,6 @@ def resolve(row, roles):
     raise SystemExit(f"pinmap: row needs a `role` or a `pin`: {row!r}")
 
 
-def tw(s, size, mono=False):
-    return len(s) * size * (MONO_PX if mono else SANS_PX)
-
-
-class Canvas:
-    def __init__(self):
-        self.parts = []
-
-    def add(self, s):
-        self.parts.append(s)
-
-    def rect(self, x, y, w, h, fill, r=0, stroke="none", sw=1):
-        self.add(
-            f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" '
-            f'rx="{r}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>'
-        )
-
-    def line(self, x1, y1, x2, y2, stroke, sw=1.5):
-        self.add(
-            f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" '
-            f'stroke="{stroke}" stroke-width="{sw}" stroke-linecap="round"/>'
-        )
-
-    def text(self, x, y, s, size=14, fill=INK, anchor="start", weight="400",
-             mono=False, ls=0):
-        fam = ("ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-               if mono else
-               "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif")
-        self.add(
-            f'<text x="{x:.1f}" y="{y:.1f}" font-family="{fam}" font-size="{size}" '
-            f'fill="{fill}" text-anchor="{anchor}" font-weight="{weight}" '
-            f'letter-spacing="{ls}">{escape(s)}</text>'
-        )
-
-
 def render(spec, roles):
     left = [r for r in spec["pins"] if r.get("side", "left") == "left"]
     right = [r for r in spec["pins"] if r.get("side") == "right"]
@@ -169,7 +131,7 @@ def render(spec, roles):
     H = legend_y + 88
 
     bx = (W - BOARD_W) / 2
-    c = Canvas()
+    c = Canvas(W, H)
 
     c.rect(0, 0, W, H, "#FFFFFF")
 
@@ -273,11 +235,7 @@ def render(spec, roles):
            "Neither is typed into the spec, so neither can disagree with its source. "
            "Regenerate: python3 tools/pinmap.py build", 11, MUTE)
 
-    body = "\n".join(c.parts)
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H:.0f}" '
-            f'viewBox="0 0 {W} {H:.0f}">\n{body}\n</svg>\n')
-
-
+    return c.render(W, H)
 def specs(one=None):
     if one:
         p = Path(one)
