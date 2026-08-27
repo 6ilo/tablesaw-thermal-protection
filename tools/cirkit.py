@@ -141,6 +141,66 @@ def route(c, a, b, colour, sw=2.6):
         c.circle(px, py, 3.4, colour)
 
 
+def _overlaps(r, others, pad=3):
+    ax0, ay0, ax1, ay1 = r
+    for bx0, by0, bx1, by1 in others:
+        if ax0 < bx1 + pad and bx0 < ax1 + pad and ay0 < by1 + pad and by0 < ay1 + pad:
+            return True
+    return False
+
+
+def place_label(c, a, b, colour, s, obstacles, bounds, size=10.5):
+    """Put a net label on its wire's first horizontal run, clear of everything.
+
+    The old rule was "draw it at the midpoint of the straight line between the two
+    pins", which is not a place the wire necessarily goes and not a place anything
+    else necessarily is not: on this sheet it put "USB-C" across a bundle of four
+    other conductors and "divider junction" over a component caption.
+
+    A label belongs where the wire LEAVES A PIN, because that is what it names, and
+    that is also the one stretch of a wire guaranteed to be a clean horizontal run.
+    Candidates are tried nearest-first and the first clear one wins; if the wire's
+    own side is full the far side is tried, then vertical offsets. Everything is
+    ordered, so the choice is deterministic.
+    """
+    (x1, y1), (x2, y2) = a, b
+    w, h = tw(s, size) + 12, 17
+    reach = abs(x2 - x1)
+
+    # Candidates: a grid around each endpoint, ordered by how far they sit from the
+    # pin being named, so the nearest clear spot always wins. Hand-listing offsets
+    # was tried first and was too sparse — in a crowded corner every listed position
+    # collided and the label fell through to the midpoint, which is the thing this
+    # function exists to avoid.
+    cands = []
+    for (px, py), (qx, _) in ((a, b), (b, a)):
+        d = 1 if qx > px else -1
+        for dy in range(-108, 112, 13):
+            for dx in (14, 34, 56, 84, 116):
+                lx = px + d * dx - (w if d < 0 else 0)
+                ly = py + dy - h / 2
+                cands.append((abs(dy) + dx * 0.55, lx, ly))
+    # Deterministic: sorted by distance, ties broken by the generated order.
+    cands = [(lx, ly) for _, lx, ly in
+             sorted((c for c in cands), key=lambda t: (round(t[0], 3), round(t[1], 2), round(t[2], 2)))]
+    cands.append(((x1 + x2) / 2 - w / 2, (y1 + y2) / 2 - h / 2))
+
+    # A candidate off the edge of the sheet is not a candidate. The widening search
+    # will happily walk a label past the right margin, where it renders half-cut and
+    # looks like a rendering bug rather than a placement one.
+    bx0, by0, bx1, by1 = bounds
+    for lx, ly in cands:
+        if lx < bx0 or ly < by0 or lx + w > bx1 or ly + h > by1:
+            continue
+        if not _overlaps((lx, ly, lx + w, ly + h), obstacles):
+            break
+    else:
+        lx, ly = cands[-1]                    # nothing fits; the midpoint it is
+    obstacles.append((lx, ly, lx + w, ly + h))
+    c.rect(lx, ly, w, h, PAPER, r=3, stroke=colour, sw=1)
+    c.text(lx + w / 2, ly + 12.5, s, size, INK, anchor="middle")
+
+
 def render(spec, parts, rmap):
     comps = spec["components"]
     nets = spec.get("nets", [])
@@ -178,7 +238,10 @@ def render(spec, parts, rmap):
         c.text(40, 77, spec["subtitle"], 14, MUTE)
     c.line(40, 97, W - 40, 97, RULE, 1)
 
-    # wires first so parts sit on top of their own pads
+    # Wires, then parts, then labels. The order matters: labels used to be drawn
+    # with the wires and were painted over by any part that followed, so the fix
+    # for "you cannot read it" could not simply be "move it somewhere clearer".
+    pending = []
     for n in nets:
         fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
         to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
@@ -187,12 +250,9 @@ def render(spec, parts, rmap):
         b = parts[comps[to]["part"]].pin_at(tp, *placed[to])
         route(c, a, b, colour, 3.2 if n.get("mains") else 2.6)
         if n.get("label"):
-            mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
-            s = n["label"]
-            w = tw(s, 10.5) + 12
-            c.rect(mx - w / 2, my - 9, w, 17, PAPER, r=3, stroke=colour, sw=1)
-            c.text(mx, my + 3.5, s, 10.5, INK, anchor="middle")
+            pending.append((a, b, colour, n["label"]))
 
+    obstacles = []
     for ref, cd in comps.items():
         p = parts[cd["part"]]
         ox, oy = placed[ref]
@@ -202,6 +262,20 @@ def render(spec, parts, rmap):
                anchor="middle", weight="600")
         if cd.get("note"):
             c.text(ox + p.w / 2, oy + p.h + 32, cd["note"], 10.5, MUTE, anchor="middle")
+        # The art plus its caption lines. The box must be as wide as the TEXT, not
+        # as wide as the part: a note like "no shared ground with the fob — that is
+        # the point" is three times the width of the optocoupler it sits under, and
+        # measuring the part instead let a label land squarely on it.
+        cap_w = tw(f"{ref}  {cap}", 12)
+        note_w = tw(cd["note"], 10.5) if cd.get("note") else 0
+        span = max(p.w, cap_w, note_w)
+        cx = ox + p.w / 2
+        obstacles.append((cx - span / 2, oy, cx + span / 2,
+                          oy + p.h + (36 if cd.get("note") else 22)))
+
+    label_bounds = (40, 108, W - 40, bottom + 30)
+    for a, b, colour, s in pending:
+        place_label(c, a, b, colour, s, obstacles, label_bounds)
 
     # legend of wire colours actually used
     c.line(40, legend_y - 24, W - 40, legend_y - 24, RULE, 1)
