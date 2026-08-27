@@ -16,7 +16,7 @@ that a part is fitted.
 
 ## Status at a glance
 
-Last updated **2026-08-23**.
+Last updated **2026-08-26**.
 
 | Subsystem | State | Detail |
 |---|---|---|
@@ -26,6 +26,7 @@ Last updated **2026-08-23**.
 | RF fob (`KA1`, remote half) | **Opened and pigtailed** to a connector | Level shifter not fitted. Battery rail not metered |
 | RF receiver (`KA1`, mains half) | Not recorded here yet | Momentary-mode programming ([BUILD-TONIGHT.md § 4](archive/BUILD-TONIGHT.md)) is the gate before it goes near the coil rung |
 | ESP32 (`U1`) | On the bench, unflashed, unwired | |
+| Level shifter (`Q1`) and the three resistors (`R1`, `R2`, `R3`) | **Not on the bench** | Logged "to scrounge" in [`BOM.csv`](hardware/BOM.csv) and still unscrounged. **This blocks all of Path A's wiring** — see [below](#2026-08-26--the-path-a-passives-are-not-on-the-bench) |
 | Firmware | Written; host tests pass in CI | **Never run on hardware.** [`firmware/README.md`](firmware/README.md) |
 | Passive thermostat (`TS1`) | Not purchased — TASK-6 | **SR-3 is unmet.** Everything protective on the coil rung depends on the ESP32 |
 | Winding sensor (`TC1`), GPIO relay (`KA2`), isolated PSU (`PSU1`) | Not purchased — TASK-1 / TASK-3 / TASK-2 | Path B is not startable |
@@ -34,6 +35,29 @@ Last updated **2026-08-23**.
 
 Purchase status for every part is in [`hardware/BOM.csv`](hardware/BOM.csv); this table is
 about what is *fitted*, which is a different question.
+
+---
+
+## 2026-08-26 — the Path A passives are not on the bench
+
+The three purchased assemblies — ESP32, frame probe, fob — are all on the bench. What is
+not on the bench is `Q1`, `R1`, `R2` and `R3`, and each of Path A's three circuits is
+blocked on one of them. `BOM.csv` has said "to scrounge" since it was written; this entry
+records that the scrounging has not happened, because "to scrounge" reads as a formality
+and these four are not one.
+
+| Ref | Blocks | Why there is no way round it |
+|---|---|---|
+| `R1` | The entire sensing chain | A thermistor is a variable resistor, not a source. With no fixed resistor above it there is no divider and `GPIO34` has nothing to read. Nothing on-chip substitutes: `GPIO34` is input-only, and `GPIO34`–`GPIO39` have no internal pull resistors. `GPIO32`/`GPIO33` do, but a loosely specified, temperature-dependent internal pullup as the reference for the trip source defeats both the measured-`R1` requirement and the two-point calibration |
+| `R2` | `GPIO26` | The mandatory pulldown. [`WIRING.md`](hardware/schematic/WIRING.md) § *Mandatory on every version* |
+| `Q1`, `R3` | The fob drive | No GPIO touches a fob pad directly, and the rail voltage is still unmetered |
+
+So the buildable work today is flashing, which needs only the board and a laptop.
+Everything in [NEXT-STEPS.md](NEXT-STEPS.md) Step 3 waits on four cheap parts.
+
+Nothing was built or unbuilt today. This entry exists because the parts list said
+"to scrounge" and the bench says otherwise, and the gap between those two was not
+written down anywhere.
 
 ---
 

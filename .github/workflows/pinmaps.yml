@@ -1,0 +1,89 @@
+name: Diagrams
+
+# Pinout cards and pictorial wiring sheets are read at a bench, next to a board, by
+# somebody deciding where a wire goes. A sheet that disagrees with the firmware about
+# which pin is the hold line is worse than no sheet, because it is believed.
+#
+# Both generators take their facts from sources rather than from their own specs:
+# pin numbers from firmware/include/saw_config.h, function tags from Espressif via
+# hardware/parts/esp32_pins.json. The only way a sheet goes stale is if somebody
+# changes one of those and does not re-render. That is what this gate catches —
+# note saw_config.h and hardware/parts/ in the paths below, which is the whole point.
+#
+# One workflow rather than two: the two generators share tools/svgcanvas.py and the
+# same part library, so a change to either can break both, and a gate that only ran
+# for one of them would let that through.
+
+on:
+  push:
+    branches: [main]
+    paths: &diagram_paths
+      - 'hardware/pinmaps/**'
+      - 'hardware/circuits/**'
+      - 'hardware/parts/**'
+      - 'tools/pinmap.py'
+      - 'tools/cirkit.py'
+      - 'tools/partlib.py'
+      - 'tools/svgcanvas.py'
+      - 'tools/ingest_esp32_pins.py'
+      - 'tools/requirements.txt'
+      - 'firmware/include/saw_config.h'
+      - '.github/workflows/pinmaps.yml'
+  pull_request:
+    paths: *diagram_paths
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: python3 -m pip install -r tools/requirements.txt
+
+      - name: The committed pin database matches known ESP32 facts
+        # Offline: re-validates the committed JSON without fetching from Espressif.
+        # Catches a hand-edited database as well as a mis-parsed one.
+        run: python3 tools/ingest_esp32_pins.py --check
+
+      - name: Every part is well formed and every pin is reachable
+        # Geometry, so arithmetic rather than judgement: a pin stranded inside a
+        # part's body is a wire that runs underneath the component.
+        run: python3 tools/cirkit.py lint
+
+      - name: The readability checks can still fail
+        # Runs the next step's check three times with one piece of the router
+        # disabled each time, and fails if it stays quiet. A gate nobody has ever
+        # seen fail is a gate nobody should trust, and this repository has had both
+        # kinds of bad check: one too strict to believe, and one that passed while
+        # looking at the wrong thing.
+        run: python3 tools/cirkit.py selftest
+
+      - name: Every role resolves and every committed sheet is current
+        run: |
+          python3 tools/pinmap.py check
+          python3 tools/cirkit.py check
+
+      - name: Re-render must produce no diff, and no untracked output
+        # `check` compares in memory; this proves the committed bytes are exactly
+        # what the generators write, so a hand-edited SVG is caught too.
+        #
+        # The --porcelain line is not belt-and-braces. `git diff` does not report
+        # UNTRACKED files, so a generator that starts emitting a new sheet would
+        # produce a clean diff and a silently uncommitted artifact. That is not
+        # hypothetical: it fooled a staleness test during development, and looked
+        # exactly like the gate working.
+        run: |
+          python3 tools/pinmap.py build
+          python3 tools/cirkit.py build
+          git diff --exit-code hardware/pinmaps/ hardware/circuits/
+          if [ -n "$(git status --porcelain hardware/pinmaps/ hardware/circuits/)" ]; then
+            echo "generated output is not committed:"
+            git status --porcelain hardware/pinmaps/ hardware/circuits/
+            exit 1
+          fi

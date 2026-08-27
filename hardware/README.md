@@ -80,6 +80,32 @@ current:
 Items 2 and 3 are corrected in the harness sources' prose already; item 1 needs a redraw,
 and it should wait until the supply decision is made rather than being drawn twice.
 
+Two more, on the ESP32 sheets themselves. Both are drawn statements that the rest of the
+repository has since moved away from, and both are visible on the rendered SVGs rather
+than only in the sources:
+
+4. **Neither ESP32 sheet has the ack button.** `esp32_supervisor.tex` lists "Ack button —
+   no panel yet" under *Not fitted, and why*, and `esp32_pictorial.tex`'s legend says
+   "no relay module and no ack button on this build". The firmware fits it on **both**
+   paths — `SAW_HAS_ACK_BUTTON` defaults to 1 on `SAW_PIN_ACK` 27 — and
+   [`../firmware/README.md § Deviations`](../firmware/README.md#deviations-from-the-reference-pseudocode)
+   item 4 records why: a persisted `MANUAL_LOCKOUT` is honoured across a reboot, so a
+   build with no ack input has no way out of lockout at all.
+   [`WIRING.md`](schematic/WIRING.md) already carries the connection. The sheets are the
+   last place still saying it is absent.
+5. **Both sheets assert the fob's cell as 12 V A23**, and both hang a safety warning off
+   that number — `esp32_supervisor.tex`'s "the pad sits on the fob's 12 V rail and will
+   destroy the ESP32", and trap 4 in the pictorial. The board on the bench carries a
+   coin-cell holder instead and **the rail has not been metered**, which
+   [`../BUILD-LOG.md`](../BUILD-LOG.md), [`BOM.csv`](BOM.csv) and
+   [`WIRING.md`](schematic/WIRING.md) all now say. The instruction those warnings give is
+   still the right one — no GPIO to a fob pad, ever — but it should rest on the voltage
+   being *unknown* rather than on a figure the project has withdrawn. Redraw it as
+   unmeasured, not as a different number.
+
+Both sheets also still draw the fob as a single ON pad plus a fob ground, which is item 3
+above in a second place.
+
 One more, smaller: `esp32_supervisor.tex` now cites
 [`../archive/BUILD-TONIGHT.md`](../archive/BUILD-TONIGHT.md) where that document moved, but
 the committed `esp32_supervisor.svg` still carries the old path in its legend text. The

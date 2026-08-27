@@ -1,0 +1,934 @@
+{
+ "parts": [
+  {
+   "id": "rf-receiver",
+   "title": "433 MHz RF relay receiver",
+   "subtitle": "VONVOFF/DONJON KA1 - AC 100-240 V, 30 A",
+   "w": 152,
+   "h": 98,
+   "shapes": [
+    {
+     "t": "path",
+     "d": "M124 16 L124 13 A4 3 0 0 1 124 7 A4 3 0 0 0 124 1 L133 1",
+     "stroke": "#B0B6BC",
+     "sw": 2.5,
+     "fill": "none"
+    },
+    {
+     "t": "rect",
+     "x": 6,
+     "y": 16,
+     "w": 140,
+     "h": 64,
+     "rx": 3,
+     "fill": "#1E5E3A",
+     "stroke": "#16181D",
+     "sw": 1.2
+    },
+    {
+     "t": "circle",
+     "cx": 13,
+     "cy": 23,
+     "r": 3,
+     "fill": "#D8DCE0",
+     "stroke": "#6E7178",
+     "sw": 0.8
+    },
+    {
+     "t": "circle",
+     "cx": 139,
+     "cy": 23,
+     "r": 3,
+     "fill": "#D8DCE0",
+     "stroke": "#6E7178",
+     "sw": 0.8
+    },
+    {
+     "t": "text",
+     "x": 76,
+     "y": 22,
+     "s": "433MHz  AC100-240V  30A",
+     "size": 6,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "rect",
+     "x": 22,
+     "y": 24,
+     "w": 54,
+     "h": 40,
+     "rx": 2,
+     "fill": "#2A2E33",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 22,
+     "y": 24,
+     "w": 54,
+     "h": 6,
+     "rx": 2,
+     "fill": "#16181D"
+    },
+    {
+     "t": "text",
+     "x": 49,
+     "y": 45,
+     "s": "T90",
+     "size": 9,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 49,
+     "y": 56,
+     "s": "40A 250VAC",
+     "size": 6,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "circle",
+     "cx": 88,
+     "cy": 32,
+     "r": 4.5,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "circle",
+     "cx": 86.5,
+     "cy": 30.5,
+     "r": 1.5,
+     "fill": "#FFFFFF"
+    },
+    {
+     "t": "text",
+     "x": 88,
+     "y": 45,
+     "s": "LED",
+     "size": 5.5,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "circle",
+     "cx": 114,
+     "cy": 34,
+     "r": 8,
+     "fill": "#2A2E33",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 114,
+     "cy": 34,
+     "r": 4.5,
+     "fill": "#9AA0A6"
+    },
+    {
+     "t": "text",
+     "x": 114,
+     "y": 49,
+     "s": "LEARN",
+     "size": 5.5,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 24,
+     "y": 73,
+     "s": "AC IN L",
+     "size": 6.2,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 56,
+     "y": 73,
+     "s": "AC IN N",
+     "size": 6.2,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 96,
+     "y": 73,
+     "s": "AC OUT L",
+     "size": 6.2,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 128,
+     "y": 73,
+     "s": "AC OUT N",
+     "size": 6.2,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "rect",
+     "x": 10,
+     "y": 76,
+     "w": 28,
+     "h": 22,
+     "rx": 1.5,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 42,
+     "y": 76,
+     "w": 28,
+     "h": 22,
+     "rx": 1.5,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 82,
+     "y": 76,
+     "w": 28,
+     "h": 22,
+     "rx": 1.5,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 114,
+     "y": 76,
+     "w": 28,
+     "h": 22,
+     "rx": 1.5,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 24,
+     "cy": 84,
+     "r": 5.5,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "circle",
+     "cx": 56,
+     "cy": 84,
+     "r": 5.5,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "circle",
+     "cx": 96,
+     "cy": 84,
+     "r": 5.5,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "circle",
+     "cx": 128,
+     "cy": 84,
+     "r": 5.5,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "line",
+     "x1": 20.5,
+     "y1": 84,
+     "x2": 27.5,
+     "y2": 84,
+     "stroke": "#16181D",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 52.5,
+     "y1": 84,
+     "x2": 59.5,
+     "y2": 84,
+     "stroke": "#16181D",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 92.5,
+     "y1": 84,
+     "x2": 99.5,
+     "y2": 84,
+     "stroke": "#16181D",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 124.5,
+     "y1": 84,
+     "x2": 131.5,
+     "y2": 84,
+     "stroke": "#16181D",
+     "sw": 1.2
+    },
+    {
+     "t": "rect",
+     "x": 18,
+     "y": 90,
+     "w": 12,
+     "h": 8,
+     "rx": 1,
+     "fill": "#16181D"
+    },
+    {
+     "t": "rect",
+     "x": 50,
+     "y": 90,
+     "w": 12,
+     "h": 8,
+     "rx": 1,
+     "fill": "#16181D"
+    },
+    {
+     "t": "rect",
+     "x": 90,
+     "y": 90,
+     "w": 12,
+     "h": 8,
+     "rx": 1,
+     "fill": "#16181D"
+    },
+    {
+     "t": "rect",
+     "x": 122,
+     "y": 90,
+     "w": 12,
+     "h": 8,
+     "rx": 1,
+     "fill": "#16181D"
+    }
+   ],
+   "pins": [
+    {
+     "name": "AC IN L",
+     "x": 24,
+     "y": 98,
+     "signals": [],
+     "description": "Line in - also the module's own supply, permanently live"
+    },
+    {
+     "name": "AC IN N",
+     "x": 56,
+     "y": 98,
+     "signals": [],
+     "description": "Neutral in - bonded to AC OUT N inside the module"
+    },
+    {
+     "name": "AC OUT L",
+     "x": 96,
+     "y": 98,
+     "signals": [],
+     "description": "Switched line out - AC IN L through the relay, not a dry contact"
+    },
+    {
+     "name": "AC OUT N",
+     "x": 128,
+     "y": 98,
+     "signals": [],
+     "description": "Neutral out - same bonded bus as AC IN N"
+    }
+   ],
+   "notes": "All four terminals sit at mains potential, so all four blocks are drawn in mains red - there is no safe terminal on this module. Pins are at the wire throat under each screw, on the bottom outer edge (y=h). Terminal order left to right is AC IN L, AC IN N, AC OUT L, AC OUT N, matching hardware/BOM.csv KA1. Two facts a router must respect and the picture cannot show: AC IN L is the unit's own supply as well as the line side of its relay, so it is live whenever the rung is live; and AC OUT L is simply switched AC IN L, with the two N terminals a bonded common bus - it is NOT a dry contact and must not be drawn as one. The 'LEARN' button is drawn because the unit must be put into momentary mode (1 learn press) before use. Marking text T90 / 40A 250VAC follows the BOM's '30 A rated on a 40 A relay'; if a photograph of the actual can shows different text, correct it here rather than on a sheet."
+  },
+  {
+   "id": "contactor",
+   "title": "Motor starter contactor",
+   "subtitle": "Gould/ITE A202C - NEMA Size 1",
+   "w": 150,
+   "h": 120,
+   "shapes": [
+    {
+     "t": "rect",
+     "x": 18,
+     "y": 6,
+     "w": 114,
+     "h": 98,
+     "rx": 5,
+     "fill": "#2A2E33",
+     "stroke": "#16181D",
+     "sw": 1.5
+    },
+    {
+     "t": "rect",
+     "x": 18,
+     "y": 6,
+     "w": 114,
+     "h": 10,
+     "rx": 5,
+     "fill": "#16181D"
+    },
+    {
+     "t": "rect",
+     "x": 26,
+     "y": 18,
+     "w": 98,
+     "h": 78,
+     "rx": 3,
+     "fill": "#2A2E33",
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 31,
+     "cy": 23,
+     "r": 2,
+     "fill": "#6E7178"
+    },
+    {
+     "t": "circle",
+     "cx": 119,
+     "cy": 23,
+     "r": 2,
+     "fill": "#6E7178"
+    },
+    {
+     "t": "rect",
+     "x": 44,
+     "y": 30,
+     "w": 62,
+     "h": 34,
+     "rx": 2,
+     "fill": "#D8DCE0",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "text",
+     "x": 75,
+     "y": 42,
+     "s": "GOULD ITE",
+     "size": 6.5,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 75,
+     "y": 58,
+     "s": "A202C",
+     "size": 14,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 75,
+     "y": 76,
+     "s": "NEMA SIZE 1",
+     "size": 6.5,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 75,
+     "y": 88,
+     "s": "CLASS A200  600V",
+     "size": 5.5,
+     "fill": "#9AA0A6",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "rect",
+     "x": 0,
+     "y": 18,
+     "w": 22,
+     "h": 16,
+     "rx": 2,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 0,
+     "y": 47,
+     "w": 22,
+     "h": 16,
+     "rx": 2,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 0,
+     "y": 76,
+     "w": 22,
+     "h": 16,
+     "rx": 2,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 128,
+     "y": 18,
+     "w": 22,
+     "h": 16,
+     "rx": 2,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 128,
+     "y": 47,
+     "w": 22,
+     "h": 16,
+     "rx": 2,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 128,
+     "y": 76,
+     "w": 22,
+     "h": 16,
+     "rx": 2,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 11,
+     "cy": 26,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "circle",
+     "cx": 11,
+     "cy": 55,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "circle",
+     "cx": 11,
+     "cy": 84,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "circle",
+     "cx": 139,
+     "cy": 26,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "circle",
+     "cx": 139,
+     "cy": 55,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "circle",
+     "cx": 139,
+     "cy": 84,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "text",
+     "x": 30,
+     "y": 29,
+     "s": "L1",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "start",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 30,
+     "y": 58,
+     "s": "L2",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "start",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 30,
+     "y": 87,
+     "s": "L3",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "start",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 120,
+     "y": 29,
+     "s": "T1",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 120,
+     "y": 58,
+     "s": "T2",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 120,
+     "y": 87,
+     "s": "T3",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": true
+    },
+    {
+     "t": "rect",
+     "x": 44,
+     "y": 104,
+     "w": 20,
+     "h": 16,
+     "rx": 2,
+     "fill": "#C08A4A",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 86,
+     "y": 104,
+     "w": 20,
+     "h": 16,
+     "rx": 2,
+     "fill": "#C08A4A",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 54,
+     "cy": 112,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "circle",
+     "cx": 96,
+     "cy": 112,
+     "r": 4,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 0.7
+    },
+    {
+     "t": "text",
+     "x": 54,
+     "y": 101,
+     "s": "A1",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 75,
+     "y": 101,
+     "s": "COIL",
+     "size": 6,
+     "fill": "#C08A4A",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 96,
+     "y": 101,
+     "s": "A2",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    }
+   ],
+   "pins": [
+    {
+     "name": "L1",
+     "x": 0,
+     "y": 26,
+     "signals": [],
+     "description": "Line in, pole 1 - mains"
+    },
+    {
+     "name": "L2",
+     "x": 0,
+     "y": 55,
+     "signals": [],
+     "description": "Line in, pole 2 - mains"
+    },
+    {
+     "name": "L3",
+     "x": 0,
+     "y": 84,
+     "signals": [],
+     "description": "Line in, pole 3 - mains; unused on a 2-pole unit"
+    },
+    {
+     "name": "T1",
+     "x": 150,
+     "y": 26,
+     "signals": [],
+     "description": "Load out to motor, pole 1 - mains"
+    },
+    {
+     "name": "T2",
+     "x": 150,
+     "y": 55,
+     "signals": [],
+     "description": "Load out to motor, pole 2 - mains"
+    },
+    {
+     "name": "T3",
+     "x": 150,
+     "y": 84,
+     "signals": [],
+     "description": "Load out to motor, pole 3 - mains; unused on a 2-pole unit"
+    },
+    {
+     "name": "A1",
+     "x": 54,
+     "y": 120,
+     "signals": [],
+     "description": "Coil terminal - the circuit this retrofit interrupts"
+    },
+    {
+     "name": "A2",
+     "x": 96,
+     "y": 120,
+     "signals": [],
+     "description": "Coil terminal, other end of the coil"
+    }
+   ],
+   "notes": "Drawn as the A202C FAMILY, three power pairs as briefed: L1/L2/L3 down the left edge, T1/T2/T3 down the right, coil A1/A2 on the bottom edge. Two things the caller should know before placing it. (1) The unit on this saw is recorded as 2-pole (ARCHITECTURE.md, Class A200, NEMA Size 1, 30 A open, 600 V, date code 1/85), so L3/T3 exist on this art but must be left unrouted on any sheet of THIS machine - or the family art gets swapped for a 2-pole variant. (2) The coil terminals are drawn in copper, deliberately NOT in the low-voltage colour: the A202C's coil voltage has not been read off the coil label (hardware/README.md open question, BUILD-LOG.md 'to confirm'), and colouring an unmeasured coil circuit as low-voltage would tell someone it is safe to touch when it may be at line voltage. Re-colour only once the label is read. Power terminals are mains red; every one of the six is live with the disconnect closed, and per BUILD-LOG the accessory receptacle is fed ahead of this device, so dropping the contactor does not make the enclosure dead. All eight pins sit on the outer edge at the screw throats."
+  },
+  {
+   "id": "thermostat-bimetallic",
+   "title": "Bimetallic thermostat",
+   "subtitle": "KSD9700 style - snap-action NC, opens 120-130C",
+   "w": 124,
+   "h": 74,
+   "shapes": [
+    {
+     "t": "line",
+     "x1": 0,
+     "y1": 51,
+     "x2": 38,
+     "y2": 51,
+     "stroke": "#C08A4A",
+     "sw": 3
+    },
+    {
+     "t": "line",
+     "x1": 86,
+     "y1": 51,
+     "x2": 124,
+     "y2": 51,
+     "stroke": "#C08A4A",
+     "sw": 3
+    },
+    {
+     "t": "rect",
+     "x": 36,
+     "y": 8,
+     "w": 52,
+     "h": 40,
+     "rx": 8,
+     "fill": "#9AA0A6",
+     "stroke": "#16181D",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 36,
+     "y1": 16,
+     "x2": 88,
+     "y2": 16,
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 36,
+     "y1": 42,
+     "x2": 88,
+     "y2": 42,
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 42,
+     "y": 12,
+     "w": 12,
+     "h": 7,
+     "rx": 3,
+     "fill": "#D8DCE0"
+    },
+    {
+     "t": "text",
+     "x": 62,
+     "y": 26,
+     "s": "KSD9700",
+     "size": 6,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 62,
+     "y": 38,
+     "s": "120-130C",
+     "size": 9,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "rect",
+     "x": 38,
+     "y": 44,
+     "w": 48,
+     "h": 14,
+     "rx": 2,
+     "fill": "#2A2E33",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 4,
+     "y": 47,
+     "w": 26,
+     "h": 8,
+     "rx": 3,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "rect",
+     "x": 94,
+     "y": 47,
+     "w": 26,
+     "h": 8,
+     "rx": 3,
+     "fill": "#B3261E",
+     "stroke": "#16181D",
+     "sw": 0.8
+    },
+    {
+     "t": "text",
+     "x": 62,
+     "y": 70,
+     "s": "N.C. - opens on rise",
+     "size": 6,
+     "fill": "#6E7178",
+     "anchor": "middle",
+     "mono": false
+    }
+   ],
+   "pins": [
+    {
+     "name": "1",
+     "x": 0,
+     "y": 51,
+     "signals": [],
+     "description": "Normally closed, opens on rise - no polarity"
+    },
+    {
+     "name": "2",
+     "x": 124,
+     "y": 51,
+     "signals": [],
+     "description": "Normally closed, opens on rise - no polarity"
+    }
+   ],
+   "notes": "NOT PURCHASED (BOM TS1, TASK-6) - render ghosted. Round metal can with a black phenolic base and two silicone-sleeved leads exiting left and right to pins on the outer edges; the sleeves are mains red because this contact goes in series with the contactor coil and both leads sit at coil-circuit potential, and the two terminals are interchangeable (no polarity). The can prints 120-130C because that band is a PURCHASING SPEC in this project, not a marking copied off a part in hand - it must open above the firmware's trip threshold so the supervisor acts first and logs, with this contact as the unmonitored backstop; the threshold itself lives in the ARCHITECTURE.md table, not on this drawing. It is a self-resetting snap-action switch, not a thermal fuse. KSD9700 is the style reference for the art; the actual part is unsourced, so treat the marking as the spec being shopped to.",
+   "ghost": true
+  }
+ ]
+}

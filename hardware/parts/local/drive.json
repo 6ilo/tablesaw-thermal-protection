@@ -1,0 +1,492 @@
+{
+ "parts": [
+  {
+   "id": "optocoupler-dip4",
+   "title": "Optocoupler (DIP-4)",
+   "subtitle": "PC817 / 4N25 / 4N35 \u2014 Q1, preferred",
+   "w": 120,
+   "h": 80,
+   "shapes": [
+    {
+     "t": "line",
+     "x1": 30,
+     "y1": 28,
+     "x2": 8,
+     "y2": 28,
+     "stroke": "#B0B6BC",
+     "sw": 3.5
+    },
+    {
+     "t": "line",
+     "x1": 30,
+     "y1": 54,
+     "x2": 8,
+     "y2": 54,
+     "stroke": "#B0B6BC",
+     "sw": 3.5
+    },
+    {
+     "t": "line",
+     "x1": 90,
+     "y1": 28,
+     "x2": 112,
+     "y2": 28,
+     "stroke": "#B0B6BC",
+     "sw": 3.5
+    },
+    {
+     "t": "line",
+     "x1": 90,
+     "y1": 54,
+     "x2": 112,
+     "y2": 54,
+     "stroke": "#B0B6BC",
+     "sw": 3.5
+    },
+    {
+     "t": "rect",
+     "x": 30,
+     "y": 14,
+     "w": 60,
+     "h": 54,
+     "rx": 3,
+     "fill": "#2A2E33",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "path",
+     "d": "M 34 64 L 34 18 L 86 18 L 86 64",
+     "stroke": "#3A3F45",
+     "sw": 1,
+     "fill": "none"
+    },
+    {
+     "t": "path",
+     "d": "M 52 14 A 8 8 0 0 0 68 14",
+     "stroke": "#6E7178",
+     "sw": 1.5,
+     "fill": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 38,
+     "cy": 22,
+     "r": 2.5,
+     "fill": "#6E7178"
+    },
+    {
+     "t": "line",
+     "x1": 60,
+     "y1": 17,
+     "x2": 60,
+     "y2": 21,
+     "stroke": "#6E7178",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 60,
+     "y1": 24,
+     "x2": 60,
+     "y2": 28,
+     "stroke": "#6E7178",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 60,
+     "y1": 31,
+     "x2": 60,
+     "y2": 35,
+     "stroke": "#6E7178",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 60,
+     "y1": 48,
+     "x2": 60,
+     "y2": 52,
+     "stroke": "#6E7178",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 60,
+     "y1": 55,
+     "x2": 60,
+     "y2": 59,
+     "stroke": "#6E7178",
+     "sw": 1.2
+    },
+    {
+     "t": "line",
+     "x1": 60,
+     "y1": 62,
+     "x2": 60,
+     "y2": 66,
+     "stroke": "#6E7178",
+     "sw": 1.2
+    },
+    {
+     "t": "text",
+     "x": 60,
+     "y": 45,
+     "s": "PC817",
+     "size": 9.5,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 19,
+     "y": 24,
+     "s": "A",
+     "size": 8,
+     "fill": "#6E7178",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 19,
+     "y": 50,
+     "s": "K",
+     "size": 8,
+     "fill": "#6E7178",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 101,
+     "y": 24,
+     "s": "C",
+     "size": 8,
+     "fill": "#6E7178",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 101,
+     "y": 50,
+     "s": "E",
+     "size": 8,
+     "fill": "#6E7178",
+     "anchor": "middle",
+     "mono": false
+    }
+   ],
+   "pins": [
+    {
+     "name": "A",
+     "x": 8,
+     "y": 28,
+     "signals": [],
+     "description": "LED anode \u2014 ESP32 GPIO26 via 330 \u03a9"
+    },
+    {
+     "name": "K",
+     "x": 8,
+     "y": 54,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "GND"
+      }
+     ],
+     "description": "LED cathode \u2014 common GND bus"
+    },
+    {
+     "name": "C",
+     "x": 112,
+     "y": 28,
+     "signals": [],
+     "description": "Collector \u2014 fob ON-button pad, encoder side"
+    },
+    {
+     "name": "E",
+     "x": 112,
+     "y": 54,
+     "signals": [],
+     "description": "Emitter \u2014 the other fob ON-button pad"
+    }
+   ],
+   "notes": "Drawn as a top view of the DIP-4: notch and pin-1 dot at top-left, so pin 1 = A, 2 = K, 3 = E, 4 = C \u2014 matching PC817/4N25/4N35. Input side (A, K) is left of the dashed isolation line, isolated output side (C, E) is right of it; the dashed line is the galvanic barrier and is the whole reason this part is preferred for Q1. Nothing here is at mains potential \u2014 both sides are low-voltage (ESP32 3V3 side and the coin-cell fob side), so no mains red is used. Pin names and destinations follow hardware/schematic/WIRING.md \u00a7 Optocoupler version. Leads run out to x=8 and x=112 so wires attach clear of the body."
+  },
+  {
+   "id": "npn-transistor",
+   "title": "NPN transistor (TO-92)",
+   "subtitle": "2N3904 (TO-92) \u2014 Q1 alternate",
+   "w": 90,
+   "h": 84,
+   "shapes": [
+    {
+     "t": "line",
+     "x1": 34,
+     "y1": 56,
+     "x2": 28,
+     "y2": 82,
+     "stroke": "#B0B6BC",
+     "sw": 3
+    },
+    {
+     "t": "line",
+     "x1": 45,
+     "y1": 56,
+     "x2": 45,
+     "y2": 82,
+     "stroke": "#B0B6BC",
+     "sw": 3
+    },
+    {
+     "t": "line",
+     "x1": 56,
+     "y1": 56,
+     "x2": 62,
+     "y2": 82,
+     "stroke": "#B0B6BC",
+     "sw": 3
+    },
+    {
+     "t": "path",
+     "d": "M 23 62 L 23 34 A 22 22 0 0 1 67 34 L 67 62 Z",
+     "fill": "#2A2E33",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "path",
+     "d": "M 28 34 A 17 17 0 0 1 62 34",
+     "stroke": "#3A3F45",
+     "sw": 2,
+     "fill": "none"
+    },
+    {
+     "t": "line",
+     "x1": 26,
+     "y1": 38,
+     "x2": 26,
+     "y2": 56,
+     "stroke": "#3A3F45",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 64,
+     "y1": 38,
+     "x2": 64,
+     "y2": 56,
+     "stroke": "#3A3F45",
+     "sw": 1
+    },
+    {
+     "t": "text",
+     "x": 45,
+     "y": 44,
+     "s": "2N3904",
+     "size": 8,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 32,
+     "y": 54,
+     "s": "E",
+     "size": 7,
+     "fill": "#9AA0A6",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 45,
+     "y": 54,
+     "s": "B",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 58,
+     "y": 54,
+     "s": "C",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "rect",
+     "x": 21,
+     "y": 56,
+     "w": 48,
+     "h": 7,
+     "rx": 2,
+     "fill": "#23262A",
+     "stroke": "#16181D",
+     "sw": 1
+    }
+   ],
+   "pins": [
+    {
+     "name": "B",
+     "x": 45,
+     "y": 82,
+     "signals": [],
+     "description": "Base \u2014 ESP32 GPIO26 via 1 k\u03a9"
+    },
+    {
+     "name": "C",
+     "x": 62,
+     "y": 82,
+     "signals": [],
+     "description": "Collector \u2014 fob ON-button pad, encoder side"
+    },
+    {
+     "name": "E",
+     "x": 28,
+     "y": 82,
+     "signals": [],
+     "description": "Emitter \u2014 other ON pad, or fob battery negative"
+    }
+   ],
+   "notes": "Drawn as a 2N3904: legs are E-B-C left to right, flat face forward. 2N2222 and S8050 share that order; BC547 is C-B-E and does NOT. This picture exists to identify legs, so it names only the part it depicts. See WIRING.md \u00a7 NPN version."
+  },
+  {
+   "id": "n-mosfet",
+   "title": "Logic-level N-MOSFET (TO-92)",
+   "subtitle": "2N7000 (TO-92) \u2014 Q1 fallback",
+   "w": 90,
+   "h": 84,
+   "shapes": [
+    {
+     "t": "line",
+     "x1": 33,
+     "y1": 56,
+     "x2": 33,
+     "y2": 82,
+     "stroke": "#B0B6BC",
+     "sw": 3
+    },
+    {
+     "t": "line",
+     "x1": 45,
+     "y1": 56,
+     "x2": 45,
+     "y2": 82,
+     "stroke": "#B0B6BC",
+     "sw": 3
+    },
+    {
+     "t": "line",
+     "x1": 57,
+     "y1": 56,
+     "x2": 57,
+     "y2": 82,
+     "stroke": "#B0B6BC",
+     "sw": 3
+    },
+    {
+     "t": "path",
+     "d": "M 25 62 L 25 36 A 20 20 0 0 1 65 36 L 65 62 Z",
+     "fill": "#33383D",
+     "stroke": "#16181D",
+     "sw": 1
+    },
+    {
+     "t": "path",
+     "d": "M 28 31 A 18 18 0 0 1 62 31",
+     "stroke": "#15607A",
+     "sw": 3.5,
+     "fill": "none"
+    },
+    {
+     "t": "line",
+     "x1": 25,
+     "y1": 57,
+     "x2": 65,
+     "y2": 57,
+     "stroke": "#23262A",
+     "sw": 1.5
+    },
+    {
+     "t": "text",
+     "x": 45,
+     "y": 45,
+     "s": "2N7000",
+     "size": 8,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "text",
+     "x": 33,
+     "y": 54,
+     "s": "S",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 45,
+     "y": 54,
+     "s": "G",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 57,
+     "y": 54,
+     "s": "D",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    }
+   ],
+   "pins": [
+    {
+     "name": "G",
+     "x": 45,
+     "y": 82,
+     "signals": [],
+     "description": "Gate \u2014 GPIO26 via 220 \u03a9, 100 k\u03a9 gate-to-source"
+    },
+    {
+     "name": "D",
+     "x": 57,
+     "y": 82,
+     "signals": [],
+     "description": "Drain \u2014 fob battery negative, low side"
+    },
+    {
+     "name": "S",
+     "x": 33,
+     "y": 82,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "GND"
+      }
+     ],
+     "description": "Source \u2014 ESP32 GND (shared reference required)"
+    }
+   ],
+   "notes": "Drawn as a 2N7000: legs are S-G-D left to right, flat face forward. The SOT-23 alternates (BSS138, AO3400, IRLML2502) are G-S-D and IRLZ44N in TO-220 is G-D-S, so none of them may be wired by copying these positions. See WIRING.md \u00a7 MOSFET fallback."
+  }
+ ]
+}

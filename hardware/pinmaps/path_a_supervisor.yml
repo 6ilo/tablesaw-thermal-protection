@@ -1,0 +1,78 @@
+# Path A supervisor — every ESP32 pin the build uses.
+#
+# Pin NUMBERS are not in this file. Each row names a role from
+# firmware/include/saw_config.h and tools/pinmap.py fills in the number, so this
+# sheet cannot drift from the firmware. Rails (3V3, GND, USB-C) have no role, so
+# they carry a literal `pin`.
+#
+# Render:  python3 tools/pinmap.py build
+
+title: ESP32 supervisor — Path A
+subtitle: Frame NTC as the trip source, 433 MHz fob heartbeat as the output. Drawn for the hardware on hand.
+
+board:
+  name: ESP32-DevKitC-32E
+  sub: 38-pin · USB-C · 3.3 V logic
+
+pins:
+  # ---- left: power and the sensing chain -----------------------------
+  - side: left
+    pin: USB-C
+    label: UL-listed USB charger
+    note: the isolation barrier. No VIN wire anywhere
+    class: power
+
+  - side: left
+    pin: 3V3
+    label: Top of the divider resistor
+    note: regulated on the module — never feed it
+    class: power
+
+  - side: left
+    pin: GND
+    label: Common ground bus
+    note: probe, pulldown, opto cathode, button
+    class: gnd
+
+  - side: left
+    role: SAW_PIN_NTC
+    label: NTC divider junction
+    note: ADC1 only. An ADC2 pin reads zero with Wi-Fi up
+    class: analog
+
+  # ---- right: the output and the operator interface -------------------
+  - side: right
+    role: SAW_PIN_HOLD
+    label: Optocoupler anode, via 330 Ω
+    note: HIGH = coil circuit may close. 10 kΩ pulldown MANDATORY
+    class: control
+
+  - side: right
+    role: SAW_PIN_ACK
+    label: Acknowledge button, to GND
+    note: internal pullup. The only way out of lockout
+    class: input
+
+  - side: right
+    role: SAW_PIN_LED
+    label: Onboard status LED
+    note: no external wire on most DevKitC revisions
+    class: input
+
+  - side: right
+    role: SAW_PIN_TC_SCK
+    label: MAX31855 clock
+    note: Path B only — TASK-1, not purchased
+    class: unused
+
+  - side: right
+    role: SAW_PIN_TC_DO
+    label: MAX31855 data out
+    note: Path B only — TASK-1, not purchased
+    class: unused
+
+  - side: right
+    role: SAW_PIN_TC_CS
+    label: MAX31855 chip select
+    note: Path B only — TASK-1, not purchased
+    class: unused
