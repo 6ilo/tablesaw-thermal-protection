@@ -99,7 +99,19 @@ both pads on the pigtail there is nothing to share.
 | Collector | ON-button pad, encoder side | |
 | Emitter | the other ON-button pad | Both pads are on the pigtail, so no ground tie is needed. Working from a single pad instead, this goes to fob battery negative and **ties ESP32 GND to fob GND** — that common reference is then required for it to switch at all |
 
-2N3904 / 2N2222 / BC547 / S8050 are all fine.
+2N3904 / 2N2222 / BC547 / S8050 all work electrically — but **they do
+not all have the same pin order**, and this page names pins by
+function rather than by position for that reason.
+
+| Part | Legs, flat face towards you, left to right |
+|---|---|
+| 2N3904, PN2222, S8050 | **E – B – C** |
+| BC547 | **C – B – E** — reversed |
+
+Fitting a BC547 where a 2N3904 was drawn, and following the physical
+leg positions, swaps collector and emitter. Check the pinout of the
+part actually in your hand against its datasheet before you wire it;
+do not copy leg positions from a photograph of a different part.
 
 ### MOSFET fallback (switches fob power, not the button)
 
@@ -107,6 +119,23 @@ Tape or solder-bridge the fob's ON button closed, then switch the
 fob's battery negative low-side with a logic-level N-FET (2N7000,
 BSS138, AO3400, IRLML2502, IRLZ44N). Gate through 220 Ω, plus a
 100 kΩ gate-to-source resistor for a defined off-state.
+
+**These five are three different pin orders in three different
+packages.** They are alternates for *availability*, not drop-in
+substitutes for each other:
+
+| Part | Package | Pins |
+|---|---|---|
+| 2N7000 | TO-92 | **S – G – D** |
+| BSS138, AO3400, IRLML2502 | SOT-23 | **G – S – D** |
+| IRLZ44N | TO-220 | **G – D – S** |
+
+Wire one by position rather than by function and the gate ends up
+where the source belongs. The failure direction is the safe one — a
+mis-wired level shifter does not switch, the fob does not transmit and
+the saw does not run — but it presents as "the supervisor never arms"
+and costs an evening. Read the legs off the datasheet for the part you
+have.
 
 ### Mandatory on every version
 
