@@ -80,7 +80,7 @@ nets:
 
   # acknowledge button, internal pullup, no external resistor
   - {from: SW1.1, to: "U1.@SAW_PIN_ACK", color: blue, label: ack}
-  - {from: SW1.2, to: U1.GND.R6, color: black}
+  - {from: SW1.2, to: U1.GND, color: black}      # left-header GND: SW1 is a left-column part
 
   # the hold line: GPIO26 -> 330R -> optocoupler -> the fob's ON pads
   - {from: "U1.@SAW_PIN_HOLD", to: R3.1, color: brown, label: hold}

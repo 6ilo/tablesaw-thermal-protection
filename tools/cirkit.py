@@ -188,6 +188,134 @@ def plan_channels(wires, boxes, W):
     return chan
 
 
+def bus_groups(wires, owners):
+    """Endpoints shared by two or more wires of the same colour.
+
+    Three black conductors landing on one GND pin are electrically ONE node, and
+    drawing them as three independent lines that happen to converge makes them read
+    as a tangle. Drawn as a trunk with a junction dot and branches, they read as
+    what they are.
+
+    Same colour is required. A junction whose trunk had to pick between a brown and
+    a black conductor would be asserting something about the circuit that the
+    netlist does not say, so mixed-colour convergences are left as separate wires.
+    """
+    from collections import defaultdict
+    at = defaultdict(list)
+    for i, (a, b, colour, _sw, _lab) in enumerate(wires):
+        at[(round(a[0], 1), round(a[1], 1))].append((i, 0, colour))
+        at[(round(b[0], 1), round(b[1], 1))].append((i, 1, colour))
+
+    groups = {}
+    for key in sorted(at):
+        members = at[key]
+        if len(members) < 2:
+            continue
+        if len({m[2] for m in members}) != 1:
+            continue
+        px, py = key
+        # Trunk direction: away from the OWNING part, not toward the far endpoints.
+        # Inferring it from the far ends put GPIO26's junction 24 px inside the
+        # board, because that pin is on the board's left header while everything it
+        # drives sits in the right column. Which side of its own part a pin is on is
+        # the only thing that decides where its trunk can go.
+        ox0, _, ox1, _ = owners[key]
+        d = -1 if px < (ox0 + ox1) / 2 else 1
+        groups[key] = {"pt": (px, py), "dir": d, "colour": members[0][2],
+                       "members": [(i, end) for i, end, _ in members]}
+    return groups
+
+
+def path_segments(a, b, channel):
+    """The three legs a normal dog-leg route actually draws."""
+    (x1, y1), (x2, y2) = a, b
+    if abs(y1 - y2) < 1.5:
+        return [("h", y1, x1, x2)]
+    mx = channel if channel is not None else (x1 + x2) / 2
+    return [("h", y1, x1, mx), ("v", mx, y1, y2), ("h", y2, mx, x2)]
+
+
+def _seg_hits(seg, box, inset=3):
+    bx0, by0, bx1, by1 = box
+    bx0, by0, bx1, by1 = bx0 + inset, by0 + inset, bx1 - inset, by1 - inset
+    kind, fixed, p0, p1 = seg
+    lo, hi = sorted((p0, p1))
+    if kind == "h":
+        return by0 < fixed < by1 and hi > bx0 and lo < bx1
+    return bx0 < fixed < bx1 and hi > by0 and lo < by1
+
+
+def blocking(segs, bx, own):
+    """Is this box a real obstruction for these segments?
+
+    One rule, used by the router to decide on a detour and by the checker to decide
+    on a complaint. They must agree: a checker with a laxer rule cannot see the
+    defect the router exists to prevent, which is exactly what happened when the
+    checker simply skipped every part a wire terminates on — the GPIO26 conductor
+    could vanish behind the whole board and be reported clean.
+    """
+    if not any(_seg_hits(sg, bx) for sg in segs):
+        return False
+    if bx not in own:
+        return True                       # an unrelated part is never acceptable
+    if bx[2] - bx[0] < 100:
+        return False                      # lying along a small part reads fine
+    span = 0.0
+    for kind, fixed, p0, p1 in segs:
+        if kind != "h":
+            continue
+        lo, hi = sorted((p0, p1))
+        span = max(span, min(hi, bx[2]) - max(lo, bx[0]))
+    return span >= 0.5 * (bx[2] - bx[0])
+
+
+def needs_detour(a, b, channel, boxes, own=()):
+    """The part a wire's ACTUAL path would run through, if any.
+
+    An earlier version asked whether a box merely sat inside the wire's bounding
+    region, which fired on wires that route cleanly past it — the 3V3 conductor was
+    sent on a lap of the sheet to avoid a probe its channel already cleared by
+    40 px. Testing the three legs the router really draws is both correct and
+    cheaper to reason about.
+
+    Endpoint parts are NOT exempt. A pin can sit on the far side of its own
+    component from everything it connects to (GPIO26 is on the DevKitC's left
+    header while the fob chain is in the right column), and that wire has to go
+    around the board rather than across its face.
+    """
+    segs = path_segments(a, b, channel)
+    worst, worst_w = None, 0
+    for bx in boxes:
+        if blocking(segs, bx, own) and bx[2] - bx[0] > worst_w:
+            worst, worst_w = bx, bx[2] - bx[0]
+    return worst
+
+
+def route_around(c, a, b, colour, sw, obstacle, ca, cb, sheet_h):
+    """Two channels and a transit above or below the obstacle.
+
+    pin -> channel -> transit -> channel -> pin. The side is whichever gives the
+    shorter path, so a wire to a part near the top goes over and one to a part near
+    the bottom goes under.
+    """
+    (x1, y1), (x2, y2) = a, b
+    _, by0, _, by1 = obstacle
+    over, under = by0 - 22, by1 + 22
+    cost_o = abs(y1 - over) + abs(y2 - over)
+    cost_u = abs(y1 - under) + abs(y2 - under)
+    yd = over if cost_o <= cost_u else under
+    yd = min(max(yd, 108), sheet_h - 40)
+
+    r = 8
+    def h(x_from, x_to, y):
+        c.line(x_from, y, x_to, y, colour, sw)
+    def v(x, y_from, y_to):
+        c.line(x, y_from, x, y_to, colour, sw)
+    h(x1, ca, y1); v(ca, y1, yd); h(ca, cb, yd); v(cb, yd, y2); h(cb, x2, y2)
+    for (px, py) in (a, b):
+        c.circle(px, py, 3.4, colour)
+
+
 def route(c, a, b, colour, sw=2.6, channel=None):
     """Orthogonal, with a mid-channel dogleg. Straight where it can be."""
     (x1, y1), (x2, y2) = a, b
@@ -216,7 +344,7 @@ def _overlaps(r, others, pad=3):
     return False
 
 
-def place_label(c, a, b, colour, s, obstacles, bounds, size=10.5):
+def place_label(c, a, b, colour, s, hard, soft, bounds, size=10.5):
     """Put a net label on its wire's first horizontal run, clear of everything.
 
     The old rule was "draw it at the midpoint of the straight line between the two
@@ -256,14 +384,23 @@ def place_label(c, a, b, colour, s, obstacles, bounds, size=10.5):
     # will happily walk a label past the right margin, where it renders half-cut and
     # looks like a rendering bug rather than a placement one.
     bx0, by0, bx1, by1 = bounds
-    for lx, ly in cands:
-        if lx < bx0 or ly < by0 or lx + w > bx1 or ly + h > by1:
-            continue
-        if not _overlaps((lx, ly, lx + w, ly + h), obstacles):
+    inb = [(lx, ly) for lx, ly in cands
+           if bx0 <= lx and by0 <= ly and lx + w <= bx1 and ly + h <= by1]
+
+    # Two passes. Conductors are a SOFT constraint: crossing somebody else's wire is
+    # untidy, but landing on a component is worse, and treating wires as hard
+    # obstacles over-constrained the sheet enough to push a label onto the fob.
+    # Prefer a spot clear of everything; settle for one clear of the parts.
+    chosen = None
+    for avoid in (hard + soft, hard):
+        for lx, ly in inb:
+            if not _overlaps((lx, ly, lx + w, ly + h), avoid):
+                chosen = (lx, ly)
+                break
+        if chosen:
             break
-    else:
-        lx, ly = cands[-1]                    # nothing fits; the midpoint it is
-    obstacles.append((lx, ly, lx + w, ly + h))
+    lx, ly = chosen or cands[-1]
+    hard.append((lx, ly, lx + w, ly + h))
     c.rect(lx, ly, w, h, PAPER, r=3, stroke=colour, sw=1)
     c.text(lx + w / 2, ly + 12.5, s, size, INK, anchor="middle")
 
@@ -272,28 +409,10 @@ def render(spec, parts, rmap):
     comps = spec["components"]
     nets = spec.get("nets", [])
 
-    # Which BOARD pins are in play, so the board can highlight them.
-    #
-    # Scoped to endpoints that actually land on the board. Collecting every pin
-    # name from every net highlighted any header pin that happened to share a name
-    # with a pin on another part — the charger's "5V" lit up the board's 5V header,
-    # which nothing in this circuit connects to. A highlight that marks an unused
-    # pin is worse than no highlight, because it is read as "wire here".
-    board_refs = {r for r, cd in comps.items() if cd["part"] == "esp32-devkitc-38"}
-    used = set()
-    for n in nets:
-        for ep in (n["from"], n["to"]):
-            ref, pin = ep.split(".", 1)
-            if ref not in board_refs:
-                continue
-            if pin.startswith("@") and pin[1:] in rmap:
-                pin = f"GPIO{rmap[pin[1:]]}"
-            used.add(pin)
-    board = partlib.Esp32DevKitC(used=used)
-    parts = dict(parts)
-    parts[board.id] = board
-
-    placed, W, bottom = layout(spec, parts)
+    pl = plan_sheet(spec, parts, rmap)
+    parts, placed, W, bottom = pl["parts"], pl["placed"], pl["W"], pl["bottom"]
+    boxes, wires, eff = pl["boxes"], pl["wires"], pl["eff"]
+    chan, groups, detour = pl["chan"], pl["groups"], pl["detour"]
     legend_y = bottom + 66
     H = legend_y + 96
 
@@ -305,31 +424,32 @@ def render(spec, parts, rmap):
         c.text(40, 77, spec["subtitle"], 14, MUTE)
     c.line(40, 97, W - 40, 97, RULE, 1)
 
-    # Wires, then parts, then labels. The order matters: labels used to be drawn
-    # with the wires and were painted over by any part that followed, so the fix
-    # for "you cannot read it" could not simply be "move it somewhere clearer".
-    # Resolve every net BEFORE drawing any of it: channels are allocated across the
-    # whole set, so no wire can be routed until all of them are known.
-    wires = []
-    for n in nets:
-        fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
-        to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
-        colour = WIRE.get(n.get("color", "grey"), n.get("color", "#7A8087"))
-        a = parts[comps[fr]["part"]].pin_at(fp, *placed[fr])
-        b = parts[comps[to]["part"]].pin_at(tp, *placed[to])
-        wires.append((a, b, colour, 3.2 if n.get("mains") else 2.6, n.get("label")))
+    # Trunks and junction dots first, so branches leave from a drawn node.
+    for g in groups.values():
+        px, py = g["pt"]
+        jx = px + g["dir"] * pl["trunk"]
+        c.line(px, py, jx, py, g["colour"], 3.0)
+        c.circle(jx, py, 4.6, g["colour"])
 
-    boxes = [(placed[r][0], placed[r][1],
-              placed[r][0] + parts[cd["part"]].w,
-              placed[r][1] + parts[cd["part"]].h)
-             for r, cd in comps.items()]
-    chan = plan_channels(wires, boxes, W)
-
-    pending = []
-    for i, (a, b, colour, sw, label) in enumerate(wires):
-        route(c, a, b, colour, sw, chan.get(i))
+    pending, wire_boxes = [], []
+    for i, (a, b, colour, sw, label) in enumerate(eff):
+        if i in detour:
+            block, ca, cb = detour[i]
+            route_around(c, a, b, colour, sw, block, ca, cb, H)
+            segs = [("h", a[1], a[0], ca), ("v", ca, a[1], b[1]),
+                    ("v", cb, a[1], b[1]), ("h", b[1], cb, b[0])]
+        else:
+            route(c, a, b, colour, sw, chan.get(i))
+            segs = path_segments(a, b, chan.get(i))
+        # A thin box per leg, so labels can be kept off conductors they do not name.
+        legs = []
+        for kind, fixed, p0, p1 in segs:
+            lo, hi = sorted((p0, p1))
+            legs.append((lo - 2, fixed - 3, hi + 2, fixed + 3) if kind == "h"
+                        else (fixed - 3, lo - 2, fixed + 3, hi + 2))
+        wire_boxes.append(legs)
         if label:
-            pending.append((a, b, colour, label))
+            pending.append((i, a, b, colour, label))
 
     obstacles = []
     for ref, cd in comps.items():
@@ -353,8 +473,12 @@ def render(spec, parts, rmap):
                           oy + p.h + (36 if cd.get("note") else 22)))
 
     label_bounds = (40, 108, W - 40, bottom + 30)
-    for a, b, colour, s in pending:
-        place_label(c, a, b, colour, s, obstacles, label_bounds)
+    for i, a, b, colour, s in pending:
+        # Every conductor except this label's own is an obstacle. A label sitting on
+        # the wire it names is legible and expected; one sitting on somebody else's
+        # is the clutter being removed.
+        others = [bx for j, legs in enumerate(wire_boxes) if j != i for bx in legs]
+        place_label(c, a, b, colour, s, obstacles, others, label_bounds)
 
     # legend of wire colours actually used
     c.line(40, legend_y - 24, W - 40, legend_y - 24, RULE, 1)
@@ -392,6 +516,90 @@ def rel(p):
         return p
 
 
+def plan_sheet(spec, parts, rmap):
+    """Everything decided before a single shape is drawn.
+
+    Shared by render() and crossings() ON PURPOSE. They diverged once already: the
+    checker recomputed plain dog-leg paths while the renderer had learned to detour
+    around the board and to start wires at bus junctions, so it was validating
+    routes that were no longer drawn — a check that passes by looking at the wrong
+    thing is worse than no check.
+    """
+    comps = spec["components"]
+    nets = spec.get("nets", [])
+
+    # Which BOARD pins are in play, so the board can highlight them. This lives here
+    # rather than in render() because the board instance it produces is part of the
+    # plan: building it without `used` in the planner silently dropped every pin
+    # highlight from the sheet while every check still passed.
+    board_refs = {r for r, cd in comps.items() if cd["part"] == "esp32-devkitc-38"}
+    used = set()
+    for n in nets:
+        for ep in (n["from"], n["to"]):
+            ref, pin = ep.split(".", 1)
+            if ref not in board_refs:
+                continue
+            if pin.startswith("@") and pin[1:] in rmap:
+                pin = f"GPIO{rmap[pin[1:]]}"
+            used.add(pin)
+
+    board = partlib.Esp32DevKitC(used=used)
+    parts = dict(parts)
+    parts[board.id] = board
+    placed, W, bottom = layout(spec, parts)
+
+    box = {r: (placed[r][0], placed[r][1],
+               placed[r][0] + parts[cd["part"]].w,
+               placed[r][1] + parts[cd["part"]].h)
+           for r, cd in comps.items()}
+    boxes = list(box.values())
+
+    wires, owners, own_of = [], {}, []
+    for n in spec.get("nets", []):
+        fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
+        to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
+        a = parts[comps[fr]["part"]].pin_at(fp, *placed[fr])
+        b = parts[comps[to]["part"]].pin_at(tp, *placed[to])
+        colour = WIRE.get(n.get("color", "grey"), n.get("color", "#7A8087"))
+        wires.append((a, b, colour, 3.2 if n.get("mains") else 2.6, n.get("label")))
+        owners[(round(a[0], 1), round(a[1], 1))] = box[fr]
+        owners[(round(b[0], 1), round(b[1], 1))] = box[to]
+        own_of.append((box[fr], box[to]))
+
+    TRUNK = 24
+    groups = bus_groups(wires, owners)
+    start = {}
+    for g in groups.values():
+        jx = g["pt"][0] + g["dir"] * TRUNK
+        for i, end in g["members"]:
+            start[(i, end)] = (jx, g["pt"][1])
+    eff = [(start.get((i, 0), a), start.get((i, 1), b), col, sw, lab)
+           for i, (a, b, col, sw, lab) in enumerate(wires)]
+
+    chan = plan_channels(eff, boxes, W)
+    gaps = corridors(boxes, W)
+
+    def near_channel(x, avoid):
+        ax0, _, ax1, _ = avoid
+        best = None
+        for g0, g1 in gaps:
+            if g1 <= ax0 + 1 or g0 >= ax1 - 1:
+                cx = (g0 + g1) / 2
+                if best is None or abs(cx - x) < abs(best - x):
+                    best = cx
+        return best if best is not None else x
+
+    detour = {}
+    for i, (a, b, *_r) in enumerate(eff):
+        blk = needs_detour(a, b, chan.get(i), boxes, own_of[i])
+        if blk is not None:
+            detour[i] = (blk, near_channel(a[0], blk), near_channel(b[0], blk))
+
+    return dict(parts=parts, placed=placed, W=W, bottom=bottom, box=box, boxes=boxes,
+                wires=wires, eff=eff, chan=chan, groups=groups, detour=detour,
+                own_of=own_of, trunk=TRUNK)
+
+
 def crossings(spec, parts, rmap):
     """Wires whose path runs under a part they do not connect to.
 
@@ -400,43 +608,21 @@ def crossings(spec, parts, rmap):
     future change to placement or allocation could quietly lose it, and a wire that
     disappears under a component is unreadable in the one way that matters.
     """
-    comps = spec["components"]
-    board = partlib.Esp32DevKitC()
-    parts = dict(parts)
-    parts[board.id] = board
-    placed, W, _ = layout(spec, parts)
-    box = {r: (placed[r][0], placed[r][1],
-               placed[r][0] + parts[cd["part"]].w,
-               placed[r][1] + parts[cd["part"]].h)
-           for r, cd in comps.items()}
-
-    wires, ends = [], []
-    for n in spec.get("nets", []):
-        fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
-        to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
-        wires.append((parts[comps[fr]["part"]].pin_at(fp, *placed[fr]),
-                      parts[comps[to]["part"]].pin_at(tp, *placed[to]),
-                      None, None, n.get("label")))
-        ends.append({fr, to})
-    chan = plan_channels(wires, list(box.values()), W)
-
-    def h_hits(y, xa, xb, bx):
-        x0, y0, x1, y1 = bx
-        return y0 + 2 < y < y1 - 2 and max(xa, xb) > x0 + 2 and min(xa, xb) < x1 - 2
-
-    def v_hits(x, ya, yb, bx):
-        x0, y0, x1, y1 = bx
-        return x0 + 2 < x < x1 - 2 and max(ya, yb) > y0 + 2 and min(ya, yb) < y1 - 2
-
+    pl = plan_sheet(spec, parts, rmap)
+    box, eff, chan, detour, own_of = (pl["box"], pl["eff"], pl["chan"],
+                                      pl["detour"], pl["own_of"])
     bad = []
-    for i, ((x1, y1), (x2, y2), _, _, label) in enumerate(wires):
-        mx = chan.get(i, (x1 + x2) / 2)
+    for i, (a, b, *_r) in enumerate(eff):
+        if i in detour:
+            blk, ca, cb = detour[i]
+            segs = [("h", a[1], a[0], ca), ("v", ca, a[1], b[1]),
+                    ("v", cb, a[1], b[1]), ("h", b[1], cb, b[0])]
+        else:
+            segs = path_segments(a, b, chan.get(i))
         for r, bx in box.items():
-            if r in ends[i]:
-                continue
-            if h_hits(y1, x1, mx, bx) or h_hits(y2, mx, x2, bx) or v_hits(mx, y1, y2, bx):
+            if blocking(segs, bx, own_of[i]):
                 net = spec["nets"][i]
-                bad.append(f"net {i} ({label or net.get('color', '?')}: "
+                bad.append(f"net {i} ({net.get('label') or net.get('color', '?')}: "
                            f"{net['from']} -> {net['to']}) runs under {r}")
     return bad
 
