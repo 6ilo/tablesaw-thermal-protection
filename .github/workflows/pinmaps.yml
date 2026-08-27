@@ -1,0 +1,53 @@
+name: Pinout sheets
+
+# A pinout card is read at a bench, next to a board, by someone deciding where a
+# wire goes. A sheet that disagrees with the firmware about which pin is the hold
+# line is worse than no sheet, because it is believed.
+#
+# tools/pinmap.py takes the pin NUMBERS out of firmware/include/saw_config.h, so
+# the only way a sheet can go stale is if someone changes a pin and does not
+# re-render. That is what this gate catches — note saw_config.h in the paths
+# below, which is the whole point: a firmware pin change re-checks the drawings.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hardware/pinmaps/**'
+      - 'tools/pinmap.py'
+      - 'tools/requirements.txt'
+      - 'firmware/include/saw_config.h'
+      - '.github/workflows/pinmaps.yml'
+  pull_request:
+    paths:
+      - 'hardware/pinmaps/**'
+      - 'tools/pinmap.py'
+      - 'tools/requirements.txt'
+      - 'firmware/include/saw_config.h'
+      - '.github/workflows/pinmaps.yml'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: python3 -m pip install -r tools/requirements.txt
+
+      - name: Every role resolves, and every committed sheet is current
+        # Fails if a spec names a SAW_PIN_* that no longer exists, or if a
+        # committed SVG differs from what its spec renders today.
+        run: python3 tools/pinmap.py check
+
+      - name: Re-render must produce no diff
+        # `check` compares in memory; this proves the committed bytes are
+        # exactly what the generator writes, so a hand-edited SVG is caught too.
+        run: |
+          python3 tools/pinmap.py build
+          git diff --exit-code hardware/pinmaps/
