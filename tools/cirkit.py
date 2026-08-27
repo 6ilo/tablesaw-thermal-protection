@@ -257,6 +257,11 @@ def cmd_build(args):
         out.write_text(render(spec, parts, rmap))
         print(f"  {rel(out)}  "
               f"({len(spec['components'])} parts, {len(spec.get('nets', []))} nets)")
+    # The catalogue has no spec of its own, so `check` cannot notice it going stale.
+    # Building it here puts it under CI's re-render-must-produce-no-diff step, which
+    # is the only thing that would catch a part changing shape without it updating.
+    if not args.spec:
+        cmd_catalogue(args)
     print(f"OK — {len(found)} sheet(s)")
 
 
@@ -442,6 +447,67 @@ def cmd_lint(args):
     return 0
 
 
+def cmd_catalogue(args):
+    """Render every part on one sheet, with its pins marked.
+
+    `parts` prints the vocabulary; this shows it. Two things are only visible in a
+    picture: whether a part is recognisable as the real component, which no
+    mechanical check can express, and whether its pins are where its art implies —
+    a coordinate can pass the linter by sitting on the bounding box and still be at
+    the wrong end of the part.
+    """
+    import partlib as pl
+    parts = pl.load_all()
+    order = sorted(parts.items(), key=lambda kv: (kv[1].w * kv[1].h))
+    COLS, CELL_W, PAD, TOP = 4, 250, 30, 120
+    rows = (len(order) + COLS - 1) // COLS
+
+    # rows size to their tallest part rather than to a constant
+    heights, grid = [], []
+    for r in range(rows):
+        chunk = order[r * COLS:(r + 1) * COLS]
+        grid.append(chunk)
+        heights.append(max(p.h for _, p in chunk) + 86)
+
+    W = PAD * 2 + COLS * CELL_W
+    H = TOP + sum(heights) + 40
+    c = Canvas(W, H)
+    c.rect(0, 0, W, H, PAPER)
+    c.text(PAD, 52, "Part library", 26, INK, weight="700")
+    c.text(PAD, 77, f"{len(order)} parts — imported art, local drawings and the board, "
+                    f"all in one pin format", 14, MUTE)
+    c.line(PAD, 97, W - PAD, 97, RULE, 1)
+
+    y = TOP
+    for r, chunk in enumerate(grid):
+        for i, (pid, part) in enumerate(chunk):
+            x = PAD + i * CELL_W + (CELL_W - part.w) / 2
+            part.draw(c, x, y)
+            # Name every pin on a small part; on a dense one the names collide into
+            # noise and the dots alone carry what this sheet is for — showing that a
+            # pin sits where the art implies. The board's own silkscreen names it.
+            label_pins = len(part.pins) <= 12
+            for name, pin in part.pins.items():
+                px, py = x + pin["x"], y + pin["y"]
+                c.circle(px, py, 3 if label_pins else 2, "#B3261E")
+                if label_pins:
+                    c.text(px, py - 6, name, 7, "#B3261E", anchor="middle", mono=True)
+            origin = ("wokwi" if isinstance(part, pl.ImportedPart)
+                      else "board" if isinstance(part, pl.Esp32DevKitC) else "local")
+            base = y + max(p.h for _, p in chunk)
+            c.text(PAD + i * CELL_W + CELL_W / 2, base + 26, pid, 11.5, INK,
+                   anchor="middle", weight="600", mono=True)
+            c.text(PAD + i * CELL_W + CELL_W / 2, base + 42,
+                   f"{origin} · {len(part.pins)} pins", 10, MUTE, anchor="middle")
+        y += heights[r]
+
+    out = SPEC_DIR / "_catalogue.svg"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(c.render())
+    print(f"  {rel(out)}  ({len(order)} parts)")
+    return 0
+
+
 def cmd_parts(args):
     d = partlib.describe()
     if args.json:
@@ -463,10 +529,11 @@ def main():
     b = sub.add_parser("build"); b.add_argument("spec", nargs="?")
     sub.add_parser("check")
     sub.add_parser("lint", help="mechanical geometry checks on local parts")
+    sub.add_parser("catalogue", help="render every part on one sheet, pins marked")
     pp = sub.add_parser("parts"); pp.add_argument("--json", action="store_true")
     args = ap.parse_args()
     fn = {"build": cmd_build, "check": cmd_check, "parts": cmd_parts,
-          "lint": cmd_lint}[args.cmd]
+          "lint": cmd_lint, "catalogue": cmd_catalogue}[args.cmd]
     sys.exit(fn(args) or 0)
 
 

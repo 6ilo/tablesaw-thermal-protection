@@ -1,0 +1,795 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1060" height="1248" viewBox="0 0 1060 1248">
+<rect x="0.00" y="0.00" width="1060.00" height="1248.50" rx="0" fill="#FFFFFF" stroke="none" stroke-width="1"/>
+<text x="30.00" y="52.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" fill="#16181D" text-anchor="start" font-weight="700" letter-spacing="0">Part library</text>
+<text x="30.00" y="77.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#6E7178" text-anchor="start" font-weight="400" letter-spacing="0">19 parts — imported art, local drawings and the board, all in one pin format</text>
+<line x1="30.00" y1="97.00" x2="1030.00" y2="97.00" stroke="#C7CAD1" stroke-width="1" stroke-linecap="round"/>
+<g transform="translate(125.43,120.00)">
+<svg width="59.13" height="11.34" version="1.1" viewBox="0 0 15.645 3" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs>
+          <linearGradient id="a" x2="0" y1="22.332" y2="38.348" gradientTransform="matrix(.14479 0 0 .14479 -23.155 -4.0573)" gradientUnits="userSpaceOnUse" spreadMethod="reflect">
+            <stop stop-color="#323232" offset="0"></stop>
+            <stop stop-color="#fff" stop-opacity=".42268" offset="1"></stop>
+          </linearGradient>
+        </defs>
+        <rect y="1.1759" width="15.558" height=".63826" fill="#aaa"></rect>
+        <g stroke-width=".14479" fill="#d5b597">
+          <path id="body" d="m4.6918 0c-1.0586 0-1.9185 0.67468-1.9185 1.5022 0 0.82756 0.85995 1.4978 1.9185 1.4978 0.4241 0 0.81356-0.11167 1.1312-0.29411h4.0949c0.31802 0.18313 0.71075 0.29411 1.1357 0.29411 1.0586 0 1.9185-0.67015 1.9185-1.4978 0-0.8276-0.85995-1.5022-1.9185-1.5022-0.42499 0-0.81773 0.11098-1.1357 0.29411h-4.0949c-0.31765-0.18244-0.7071-0.29411-1.1312-0.29411z"></path>
+          <use xlink:href="#body" fill="url(#a)" opacity=".44886"></use>
+          <rect x="4" y="0" width="1" height="3" clip-path="url(#g)" fill="#8F4814"></rect>
+
+          <path d="m6 0.29411v2.4117h0.96v-2.4117z" fill="#000000"></path>
+          <path d="m7.8 0.29411v2.4117h0.96v-2.4117z" fill="#FB0000"></path>
+
+          <rect x="10.69" y="0" width="1" height="3" fill="#F1D863" clip-path="url(#g)"></rect>
+          <clipPath id="g">
+            <use xlink:href="#body"></use>
+          </clipPath>
+        </g>
+      </svg>
+
+</g>
+<circle cx="125.43" cy="125.65" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="125.43" y="119.65" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1</text>
+<circle cx="184.23" cy="125.65" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="184.23" y="119.65" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2</text>
+<text x="155.00" y="196.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">wokwi-resistor</text>
+<text x="155.00" y="212.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">wokwi · 2 pins</text>
+<g transform="translate(388.94,120.00)">
+<svg width="32.13" height="34.89" version="1.1" viewBox="0 0 8.5 9.23" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs>
+        <radialGradient id="a" cx="9.33" cy="122" r="4.25" gradientTransform="matrix(1.75 -.511 .28 .959 -41.2 8.15)" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#808080" offset="0"></stop>
+          <stop stop-color="#b5b5b5" offset="1"></stop>
+        </radialGradient>
+      </defs>
+      <g fill="#aaa" stroke-width=".0673">
+        <rect x="4" y="5" width=".5" height="4.2" rx=".25" ry=".25"></rect>
+        <rect x="1.54" y="5" width=".5" height="4.2" rx=".25" ry=".25"></rect>
+        <rect x="6.5" y="5" width=".5" height="4.2" rx=".25" ry=".25"></rect>
+      </g>
+      <path id="handle" d="m2.74 0.128 0.145-0.128 0.177 0.0725 0.174-0.0725 0.151 0.0725 0.154-0.0725 0.151 0.0725 0.128-0.0725 0.134 0.0725 0.123-0.0725 0.145 0.128 2e-5 2h-1.48z" stroke-width=".0623"></path>
+      <rect x="0" y="2.06" width="8.5" height="3.48" fill="url(#a)" stroke-width=".0548"></rect>
+      <rect x=".0322" y="4.74" width="1.55" height=".805" stroke-width=".0637"></rect>
+      <rect x="6.95" y="4.74" width="1.55" height=".805" stroke-width=".0637"></rect>
+      <rect x="2.55" y="4.74" width="3.47" height=".805" stroke-width=".0955"></rect>
+    </svg>
+
+</g>
+<circle cx="395.44" cy="154.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="395.44" y="148.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1</text>
+<circle cx="404.94" cy="154.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="404.94" y="148.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2</text>
+<circle cx="414.44" cy="154.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="414.44" y="148.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">3</text>
+<text x="405.00" y="196.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">wokwi-slide-switch</text>
+<text x="405.00" y="212.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">wokwi · 3 pins</text>
+<g transform="translate(635.00,120.00)">
+<svg width="40.00" height="50.00" version="1.2" viewBox="-10 -5 35.456 39.618" xmlns="http://www.w3.org/2000/svg" transform="scale(1 1)">
+      <filter id="light1" x="-0.8" y="-0.8" height="2.2" width="2.8">
+        <feGaussianBlur stdDeviation="2"></feGaussianBlur>
+      </filter>
+      <filter id="light2" x="-0.8" y="-0.8" height="2.2" width="2.8">
+        <feGaussianBlur stdDeviation="4"></feGaussianBlur>
+      </filter>
+      <rect x="2.5099" y="20.382" width="2.1514" height="9.8273" fill="#8c8c8c"></rect>
+      <path d="m12.977 30.269c0-1.1736-0.86844-2.5132-1.8916-3.4024-0.41616-0.3672-1.1995-1.0015-1.1995-1.4249v-5.4706h-2.1614v5.7802c0 1.0584 0.94752 1.8785 1.9462 2.7482 0.44424 0.37584 1.3486 1.2496 1.3486 1.7694" fill="#8c8c8c"></path>
+
+      <path d="m14.173 13.001v-5.9126c0-3.9132-3.168-7.0884-7.0855-7.0884-3.9125 0-7.0877 3.1694-7.0877 7.0884v13.649c1.4738 1.651 4.0968 2.7526 7.0877 2.7526 4.6195 0 8.3686-2.6179 8.3686-5.8594v-1.5235c-7.4e-4 -1.1426-0.47444-2.2039-1.283-3.1061z" opacity=".3"></path>
+      <path d="m14.173 13.001v-5.9126c0-3.9132-3.168-7.0884-7.0855-7.0884-3.9125 0-7.0877 3.1694-7.0877 7.0884v13.649c1.4738 1.651 4.0968 2.7526 7.0877 2.7526 4.6195 0 8.3686-2.6179 8.3686-5.8594v-1.5235c-7.4e-4 -1.1426-0.47444-2.2039-1.283-3.1061z" fill="#e6e6e6" opacity=".5"></path>
+      <path d="m14.173 13.001v3.1054c0 2.7389-3.1658 4.9651-7.0855 4.9651-3.9125 2e-5 -7.0877-2.219-7.0877-4.9651v4.6296c1.4738 1.6517 4.0968 2.7526 7.0877 2.7526 4.6195 0 8.3686-2.6179 8.3686-5.8586l-4e-5 -1.5235c-7e-4 -1.1419-0.4744-2.2032-1.283-3.1054z" fill="#d1d1d1" opacity=".9"></path>
+      <g>
+        <path d="m14.173 13.001v3.1054c0 2.7389-3.1658 4.9651-7.0855 4.9651-3.9125 2e-5 -7.0877-2.219-7.0877-4.9651v4.6296c1.4738 1.6517 4.0968 2.7526 7.0877 2.7526 4.6195 0 8.3686-2.6179 8.3686-5.8586l-4e-5 -1.5235c-7e-4 -1.1419-0.4744-2.2032-1.283-3.1054z" opacity=".7"></path>
+        <path d="m14.173 13.001v3.1054c0 2.7389-3.1658 4.9651-7.0855 4.9651-3.9125 2e-5 -7.0877-2.219-7.0877-4.9651v3.1054c1.4738 1.6502 4.0968 2.7526 7.0877 2.7526 4.6195 0 8.3686-2.6179 8.3686-5.8586-7.4e-4 -1.1412-0.47444-2.2025-1.283-3.1047z" opacity=".25"></path>
+        <ellipse cx="7.0877" cy="16.106" rx="7.087" ry="4.9608" opacity=".25"></ellipse>
+      </g>
+      <polygon points="2.2032 16.107 3.1961 16.107 3.1961 13.095 6.0156 13.095 10.012 8.8049 3.407 8.8049 2.2032 9.648" fill="#666666"></polygon>
+      <polygon points="11.215 9.0338 7.4117 13.095 11.06 13.095 11.06 16.107 11.974 16.107 11.974 8.5241 10.778 8.5241" fill="#666666"></polygon>
+      <path d="m14.173 13.001v-5.9126c0-3.9132-3.168-7.0884-7.0855-7.0884-3.9125 0-7.0877 3.1694-7.0877 7.0884v13.649c1.4738 1.651 4.0968 2.7526 7.0877 2.7526 4.6195 0 8.3686-2.6179 8.3686-5.8594v-1.5235c-7.4e-4 -1.1426-0.47444-2.2039-1.283-3.1061z" opacity=".65" fill="red"></path>
+      <g fill="#ffffff">
+        <path d="m10.388 3.7541 1.4364-0.2736c-0.84168-1.1318-2.0822-1.9577-3.5417-2.2385l0.25416 1.0807c0.76388 0.27072 1.4068 0.78048 1.8511 1.4314z" opacity=".5"></path>
+        <path d="m0.76824 19.926v1.5199c0.64872 0.5292 1.4335 0.97632 2.3076 1.3169v-1.525c-0.8784-0.33624-1.6567-0.78194-2.3076-1.3118z" opacity=".5"></path>
+        <path d="m11.073 20.21c-0.2556 0.1224-0.52992 0.22968-0.80568 0.32976-0.05832 0.01944-0.11736 0.04032-0.17784 0.05832-0.56376 0.17928-1.1614 0.31896-1.795 0.39456-0.07488 0.0094-0.1512 0.01872-0.22464 0.01944-0.3204 0.03024-0.64368 0.05832-0.97056 0.05832-0.14832 0-0.30744-0.01512-0.4716-0.02376-1.2002-0.05688-2.3306-0.31464-3.2976-0.73944l-2e-5 -8.3895v-4.8254c0-1.471 0.84816-2.7295 2.0736-3.3494l-0.02232-0.05328-1.2478-1.512c-1.6697 1.003-2.79 2.8224-2.79 4.9118v11.905c-0.04968-0.04968-0.30816-0.30888-0.48024-0.52992l-0.30744 0.6876c1.4011 1.4818 3.8088 2.4617 6.5426 2.4617 1.6798 0 3.2371-0.37368 4.5115-1.0022l-0.52704-0.40896-0.01006 0.0072z" opacity=".5"></path>
+      </g>
+      <g class="light" style="display: none">
+        <ellipse cx="8" cy="10" rx="10" ry="10" filter="url(#light2)" fill="#ff8080" style="opacity: 1"></ellipse>
+        <ellipse cx="8" cy="10" rx="2" ry="2" fill="white" filter="url(#light1)"></ellipse>
+        <ellipse cx="8" cy="10" rx="3" ry="3" fill="white" filter="url(#light1)" style="opacity: 1"></ellipse>
+      </g>
+    </svg>
+
+</g>
+<circle cx="660.00" cy="162.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="660.00" y="156.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">A</text>
+<circle cx="650.00" cy="162.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="650.00" y="156.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">C</text>
+<text x="655.00" y="196.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">wokwi-led</text>
+<text x="655.00" y="212.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">wokwi · 2 pins</text>
+<g transform="translate(865.31,120.00)">
+<svg width="79.37" height="37.80" version="1.1" viewBox="0 0 21 10" xmlns="http://www.w3.org/2000/svg">
+        <g stroke-width=".4" fill="#f7b93c" stroke="#dda137">
+          <rect x=".20" y=".20" width="20.6" height="9.61" ry=".58"></rect>
+          <rect x="20.2" y="4.5" width=".40" height="1" fill="#dda137"></rect>
+        </g>
+        <g fill="none" stroke="#dda137" stroke-width=".47">
+          <ellipse cx="1.6" cy="1.35" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="6.68" cy="1.35" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="11.76" cy="1.35" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="19.38" cy="1.35" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="1.6" cy="8.65" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="6.68" cy="8.65" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="11.76" cy="8.65" rx=".76" ry=".76"></ellipse>
+          <ellipse cx="19.38" cy="8.65" rx=".76" ry=".76"></ellipse>
+        </g>
+        <text fill="#4a3510" font-family="sans-serif" font-size="2.8222px">
+          <tspan x="1.07" y="6.03">KS2E-M-DC5</tspan>
+        </text>
+      </svg>
+
+</g>
+<circle cx="870.81" cy="125.10" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="870.81" y="119.10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">NO2</text>
+<circle cx="890.31" cy="125.10" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="890.31" y="119.10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">NC2</text>
+<circle cx="910.31" cy="125.10" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="910.31" y="119.10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">P2</text>
+<circle cx="939.31" cy="125.10" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="939.31" y="119.10" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">COIL2</text>
+<circle cx="870.81" cy="152.70" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="870.81" y="146.70" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">NO1</text>
+<circle cx="890.31" cy="152.70" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="890.31" y="146.70" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">NC1</text>
+<circle cx="910.31" cy="152.70" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="910.31" y="146.70" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">P1</text>
+<circle cx="939.31" cy="152.70" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="939.31" y="146.70" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">COIL1</text>
+<text x="905.00" y="196.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">wokwi-ks2e-m-dc5</text>
+<text x="905.00" y="212.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">wokwi · 8 pins</text>
+<g transform="translate(121.36,256.00)">
+<svg width="67.28" height="45.35" version="1.1" viewBox="-3 0 18 12" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs>
+        <linearGradient x1="0" x2="1" y1="0" y2="1" id="grad-up-pushbutton0">
+          <stop stop-color="#ffffff" offset="0"></stop>
+          <stop offset="0.3" stop-color="red"></stop>
+          <stop offset="0.5" stop-color="red"></stop>
+          <stop offset="1"></stop>
+        </linearGradient>
+        <linearGradient x1="1" x2="0" y1="1" y2="0" id="grad-down-pushbutton0">
+          <stop stop-color="#ffffff" offset="0"></stop>
+          <stop offset="0.3" stop-color="red"></stop>
+          <stop offset="0.5" stop-color="red"></stop>
+          <stop offset="1"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="12" height="12" rx=".44" ry=".44" fill="#464646"></rect>
+      <rect x=".75" y=".75" width="10.5" height="10.5" rx=".211" ry=".211" fill="#eaeaea"></rect>
+      
+      <g fill="#1b1b1">
+        <circle cx="1.767" cy="1.7916" r=".37"></circle>
+        <circle cx="10.161" cy="1.7916" r=".37"></circle>
+        <circle cx="10.161" cy="10.197" r=".37"></circle>
+        <circle cx="1.767" cy="10.197" r=".37"></circle>
+      </g>
+      <g fill="#999" stroke-width="1.0154">
+        <path d="m12.365 2.426c0.06012 0 0.10849 0.0469 0.1085 0.10522v0.38698h2.2173c0.12023 0 0.217 0.0938 0.217 0.21045v0.50721c0 0.1166-0.09677 0.21045-0.217 0.21045h-2.2173v0.40101c0 0.0583-0.0484 0.10528-0.1085 0.10528h-0.36835v-1.9266z"></path>
+        <path d="m12.365 7.5c0.06012 0 0.10849 0.0469 0.1085 0.10522v0.38698h2.2173c0.12023 0 0.217 0.0938 0.217 0.21045v0.50721c0 0.1166-0.09677 0.21045-0.217 0.21045h-2.2173v0.40101c0 0.0583-0.0484 0.10528-0.1085 0.10528h-0.36835v-1.9266z"></path>
+        <path d="m-0.35085 4.3526c-0.06012 0-0.10849-0.0469-0.1085-0.10522v-0.38698h-2.2173c-0.12023 0-0.217-0.0938-0.217-0.21045v-0.50721c0-0.1166 0.09677-0.21045 0.217-0.21045h2.2173v-0.40101c0-0.0583 0.0484-0.10528 0.1085-0.10528h0.36835v1.9266z"></path>
+        <path d="m-0.35085 9.4266c-0.06012 0-0.10849-0.0469-0.1085-0.10522v-0.38698h-2.2173c-0.12023 0-0.217-0.0938-0.217-0.21045v-0.50721c0-0.1166 0.09677-0.21045 0.217-0.21045h2.2173v-0.40101c0-0.0583 0.0484-0.10528 0.1085-0.10528h0.36835v1.9266z"></path>
+      </g>
+      <g class="clickable-element">
+        <circle cx="6" cy="6" r="3.822" fill="url(#grad-up-pushbutton0)"></circle>
+        <circle class="button-active-circle" cx="6" cy="6" r="3.822" fill="url(#grad-down-pushbutton0)"></circle>
+        <circle cx="6" cy="6" r="2.9" stroke="#2f2f2f" stroke-opacity=".47" stroke-width=".08" fill="red"></circle>
+      </g>
+    </svg>
+
+</g>
+<circle cx="121.36" cy="269.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="121.36" y="263.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1.l</text>
+<circle cx="121.36" cy="288.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="121.36" y="282.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2.l</text>
+<circle cx="188.36" cy="269.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="188.36" y="263.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1.r</text>
+<circle cx="188.36" cy="288.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="188.36" y="282.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2.r</text>
+<text x="155.00" y="366.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">wokwi-pushbutton</text>
+<text x="155.00" y="382.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">wokwi · 4 pins</text>
+<g transform="translate(360.00,256.00)">
+<line x1="34.00" y1="56.00" x2="28.00" y2="82.00" stroke="#B0B6BC" stroke-width="3" stroke-linecap="round"/>
+<line x1="45.00" y1="56.00" x2="45.00" y2="82.00" stroke="#B0B6BC" stroke-width="3" stroke-linecap="round"/>
+<line x1="56.00" y1="56.00" x2="62.00" y2="82.00" stroke="#B0B6BC" stroke-width="3" stroke-linecap="round"/>
+<path d="M 23 62 L 23 34 A 22 22 0 0 1 67 34 L 67 62 Z" stroke="#16181D" stroke-width="1" fill="#2A2E33" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 28 34 A 17 17 0 0 1 62 34" stroke="#3A3F45" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="26.00" y1="38.00" x2="26.00" y2="56.00" stroke="#3A3F45" stroke-width="1" stroke-linecap="round"/>
+<line x1="64.00" y1="38.00" x2="64.00" y2="56.00" stroke="#3A3F45" stroke-width="1" stroke-linecap="round"/>
+<text x="45.00" y="44.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">2N3904</text>
+<text x="32.00" y="54.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#9AA0A6" text-anchor="middle" font-weight="400" letter-spacing="0">E</text>
+<text x="45.00" y="54.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">B</text>
+<text x="58.00" y="54.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">C</text>
+<rect x="21.00" y="56.00" width="48.00" height="7.00" rx="2" fill="#23262A" stroke="#16181D" stroke-width="1"/>
+</g>
+<circle cx="405.00" cy="338.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="405.00" y="332.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">B</text>
+<circle cx="422.00" cy="338.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="422.00" y="332.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">C</text>
+<circle cx="388.00" cy="338.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="388.00" y="332.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">E</text>
+<text x="405.00" y="366.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">npn-transistor</text>
+<text x="405.00" y="382.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 3 pins</text>
+<g transform="translate(610.00,256.00)">
+<line x1="33.00" y1="56.00" x2="33.00" y2="82.00" stroke="#B0B6BC" stroke-width="3" stroke-linecap="round"/>
+<line x1="45.00" y1="56.00" x2="45.00" y2="82.00" stroke="#B0B6BC" stroke-width="3" stroke-linecap="round"/>
+<line x1="57.00" y1="56.00" x2="57.00" y2="82.00" stroke="#B0B6BC" stroke-width="3" stroke-linecap="round"/>
+<path d="M 25 62 L 25 36 A 20 20 0 0 1 65 36 L 65 62 Z" stroke="#16181D" stroke-width="1" fill="#33383D" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 28 31 A 18 18 0 0 1 62 31" stroke="#15607A" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="25.00" y1="57.00" x2="65.00" y2="57.00" stroke="#23262A" stroke-width="1.5" stroke-linecap="round"/>
+<text x="45.00" y="45.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">2N7000</text>
+<text x="33.00" y="54.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">S</text>
+<text x="45.00" y="54.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">G</text>
+<text x="57.00" y="54.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">D</text>
+</g>
+<circle cx="655.00" cy="338.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="655.00" y="332.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">G</text>
+<circle cx="667.00" cy="338.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="667.00" y="332.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">D</text>
+<circle cx="643.00" cy="338.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="643.00" y="332.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">S</text>
+<text x="655.00" y="366.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">n-mosfet</text>
+<text x="655.00" y="382.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 3 pins</text>
+<g transform="translate(843.00,256.00)" opacity="0.45">
+<line x1="0.00" y1="51.00" x2="38.00" y2="51.00" stroke="#C08A4A" stroke-width="3" stroke-linecap="round"/>
+<line x1="86.00" y1="51.00" x2="124.00" y2="51.00" stroke="#C08A4A" stroke-width="3" stroke-linecap="round"/>
+<rect x="36.00" y="8.00" width="52.00" height="40.00" rx="8" fill="#9AA0A6" stroke="#16181D" stroke-width="1.2"/>
+<line x1="36.00" y1="16.00" x2="88.00" y2="16.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="36.00" y1="42.00" x2="88.00" y2="42.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<rect x="42.00" y="12.00" width="12.00" height="7.00" rx="3" fill="#D8DCE0" stroke="none" stroke-width="1"/>
+<text x="62.00" y="26.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">KSD9700</text>
+<text x="62.00" y="38.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">120-130C</text>
+<rect x="38.00" y="44.00" width="48.00" height="14.00" rx="2" fill="#2A2E33" stroke="#16181D" stroke-width="1"/>
+<rect x="4.00" y="47.00" width="26.00" height="8.00" rx="3" fill="#B3261E" stroke="#16181D" stroke-width="0.8"/>
+<rect x="94.00" y="47.00" width="26.00" height="8.00" rx="3" fill="#B3261E" stroke="#16181D" stroke-width="0.8"/>
+<text x="62.00" y="70.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">N.C. - opens on rise</text>
+</g>
+<circle cx="843.00" cy="307.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="843.00" y="301.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1</text>
+<circle cx="967.00" cy="307.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="967.00" y="301.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2</text>
+<text x="905.00" y="366.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">thermostat-bimetallic</text>
+<text x="905.00" y="382.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 2 pins</text>
+<g transform="translate(95.00,426.00)">
+<line x1="30.00" y1="28.00" x2="8.00" y2="28.00" stroke="#B0B6BC" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="30.00" y1="54.00" x2="8.00" y2="54.00" stroke="#B0B6BC" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="90.00" y1="28.00" x2="112.00" y2="28.00" stroke="#B0B6BC" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="90.00" y1="54.00" x2="112.00" y2="54.00" stroke="#B0B6BC" stroke-width="3.5" stroke-linecap="round"/>
+<rect x="30.00" y="14.00" width="60.00" height="54.00" rx="3" fill="#2A2E33" stroke="#16181D" stroke-width="1"/>
+<path d="M 34 64 L 34 18 L 86 18 L 86 64" stroke="#3A3F45" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 52 14 A 8 8 0 0 0 68 14" stroke="#6E7178" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="38.00" cy="22.00" r="2.50" fill="#6E7178" stroke="none" stroke-width="1"/>
+<line x1="60.00" y1="17.00" x2="60.00" y2="21.00" stroke="#6E7178" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="60.00" y1="24.00" x2="60.00" y2="28.00" stroke="#6E7178" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="60.00" y1="31.00" x2="60.00" y2="35.00" stroke="#6E7178" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="60.00" y1="48.00" x2="60.00" y2="52.00" stroke="#6E7178" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="60.00" y1="55.00" x2="60.00" y2="59.00" stroke="#6E7178" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="60.00" y1="62.00" x2="60.00" y2="66.00" stroke="#6E7178" stroke-width="1.2" stroke-linecap="round"/>
+<text x="60.00" y="45.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">PC817</text>
+<text x="19.00" y="24.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">A</text>
+<text x="19.00" y="50.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">K</text>
+<text x="101.00" y="24.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">C</text>
+<text x="101.00" y="50.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="8" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">E</text>
+</g>
+<circle cx="103.00" cy="454.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="103.00" y="448.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">A</text>
+<circle cx="103.00" cy="480.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="103.00" y="474.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">K</text>
+<circle cx="207.00" cy="454.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="207.00" y="448.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">C</text>
+<circle cx="207.00" cy="480.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="207.00" y="474.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">E</text>
+<text x="155.00" y="532.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">optocoupler-dip4</text>
+<text x="155.00" y="548.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 4 pins</text>
+<g transform="translate(337.30,426.00)">
+<svg width="135.41" height="71.81" version="1.1" viewBox="0 0 135.4 71.782" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="a">
+            <path d="m15.336 49.725c-0.945 0.682-2.127 1.088-3.411 1.088-3.104 0-5.612-2.374-5.612-5.281s2.508-5.281 5.612-5.281c1.038 0 2.009 0.266 2.842 0.728 2.108 0.79 3.314 1.004 5.699 0.917 0 0-2.134 1.335-1.968 2.97 0.149 1.458 3.053 2.494 3.053 2.494-2.438 0.388-4.177 1.403-6.215 2.365z"></path>
+          </clipPath>
+        </defs>
+        <path d="m115.3 0h-90.421v71.782h90.421zm-66.145 56.313c3.27 0 5.925 2.608 5.925 5.878s-2.655 5.924-5.925 5.924-5.925-2.654-5.925-5.924 2.655-5.878 5.925-5.878zm16.013-7.96c3.27 0 5.925 2.654 5.925 5.924s-2.655 5.925-5.925 5.925-5.924-2.655-5.924-5.925 2.654-5.924 5.924-5.924zm-33.698 1.324c2.29 0 4.149 1.859 4.149 4.148 0 2.29-1.859 4.149-4.149 4.149-2.289 0-4.148-1.859-4.148-4.149 0-2.289 1.859-4.148 4.148-4.148zm59.914 0.635c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698zm-11.4-8.143c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698zm-14.816-1.811c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698zm0-15.974c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698zm14.816-3.203c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698zm-14.816-9.601c3.27 0 5.925 2.654 5.925 5.924s-2.655 5.925-5.925 5.925-5.924-2.655-5.924-5.925 2.654-5.924 5.924-5.924zm-33.698 2.228c2.29 0 4.149 1.859 4.149 4.148 0 2.29-1.859 4.149-4.149 4.149-2.289 0-4.148-1.859-4.148-4.149 0-2.289 1.859-4.148 4.148-4.148zm59.914 0.288c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698zm-48.154-5.701c0-1.635 2.963-4.729 5.925-4.729s5.925 3.094 5.925 4.729c0 3.27-2.655 7.121-5.925 7.121s-5.925-3.851-5.925-7.121z" fill="#0f3661"></path>
+        <path d="m104.45 21.602v28.578h8.389v-28.578z" fill="none" stroke="#fff" stroke-width=".9px"></path>
+        <g fill="#29261c">
+          <path d="m105.37 42.328v6.554h6.554v-6.554z"></path>
+          <path d="m105.37 32.604v6.554h6.554v-6.554z"></path>
+          <path d="m105.37 22.865v6.554h6.554v-6.554z"></path>
+        </g>
+        <g fill="#9f9f9f">
+          <path d="m108.85 44.165c-0.382 0-0.749 0.151-1.019 0.422-0.27 0.27-0.422 0.636-0.422 1.018v1e-3c0 0.382 0.152 0.748 0.422 1.018s0.637 0.422 1.019 0.422h26.131c0.234 0 0.424-0.189 0.424-0.423v-2.035c0-0.234-0.19-0.423-0.424-0.423h-26.131z"></path>
+          <path d="m108.85 34.441c-0.382 0-0.749 0.151-1.019 0.422-0.27 0.27-0.422 0.636-0.422 1.018v1e-3c0 0.382 0.152 0.748 0.422 1.018s0.637 0.422 1.019 0.422h26.131c0.234 0 0.424-0.189 0.424-0.423v-2.035c0-0.234-0.19-0.423-0.424-0.423h-26.131z"></path>
+          <path d="m108.85 24.701c-0.382 0-0.749 0.152-1.019 0.422-0.27 0.271-0.422 0.637-0.422 1.019s0.152 0.749 0.422 1.019 0.637 0.422 1.019 0.422h26.131c0.234 0 0.424-0.19 0.424-0.423v-2.035c0-0.234-0.19-0.424-0.424-0.424h-26.131z"></path>
+        </g>
+        <path d="m96.494 43.126v-14.495h-4.787v14.495z" fill="#bbb9b9"></path>
+        <path d="m96.661 39.537v-7.317h-5.121v7.317z" fill="#29261c"></path>
+        <g fill="none" stroke="#bbb9b9" stroke-linejoin="miter">
+          <circle cx="31.465" cy="17.956" r="4.149" stroke-width="2.5px"></circle>
+          <circle cx="31.465" cy="53.825" r="4.149" stroke-width="2.5px"></circle>
+          <circle cx="65.163" cy="54.277" r="5.925" stroke-width=".95px"></circle>
+          <circle cx="65.163" cy="17.504" r="5.925" stroke-width=".95px"></circle>
+          <circle cx="65.163" cy="28.082" r="3.698" stroke-width="2.23px"></circle>
+          <circle cx="65.163" cy="44.056" r="3.698" stroke-width="2.23px"></circle>
+          <circle cx="49.15" cy="62.191" r="5.925" stroke-width=".75px"></circle>
+          <circle cx="49.15" cy="9.591" r="5.925" stroke-width=".75px"></circle>
+        </g>
+        <ellipse cx="48.82" cy="25.397" rx="6.375" ry="4.839" fill="#bababa"></ellipse>
+        <ellipse cx="48.82" cy="46.384" rx="6.375" ry="4.839" fill="#bbb9b9"></ellipse>
+        <circle cx="48.82" cy="25.397" r="2.612" fill="#eceee9"></circle>
+        <circle cx="48.82" cy="46.384" r="2.612" fill="#eceee9"></circle>
+        <path d="m48.82 25.397c-8.828 4.288-19.813 9.008-38 11.393" fill="none" stroke="#d6d8d4" stroke-linejoin="miter" stroke-width=".95px"></path>
+        <path d="m48.82 45.922c-9.482-5.223-20.452-6.013-38-4.789" fill="none" stroke="#d8d8d3" stroke-linejoin="miter" stroke-width=".95px"></path>
+        <path d="m9.023 43.72c-0.945 0.682-2.127 1.088-3.411 1.088-3.104 0-5.612-2.374-5.612-5.281s2.508-5.281 5.612-5.281c1.038 0 2.009 0.266 2.842 0.728 2.108 0.79 3.314 1.004 5.699 0.917 0 0-2.134 1.335-1.968 2.97 0.149 1.458 3.053 2.494 3.053 2.494-2.438 0.388-4.177 1.403-6.215 2.365z" fill="#151312"></path>
+        <g transform="translate(-6.313,-6.005)" clip-path="url(#a)">
+          <path d="m16.648 41.782c-0.617 0-1.284-0.077-1.895 0-2.276 0.284-4.755 1.806-6.429 3.282-0.732 0.645-1.351 1.332-1.854 2.171-0.172 0.287-0.363 0.562-0.527 0.852-8e-3 0.012-0.215 0.396-0.248 0.362-0.152-0.151-0.044-0.995-0.044-1.151 0-1.394 0.015-2.694 0.341-4.059 0.435-1.827 0.867-4.205 2.407-5.497 0.593-0.497 1.419-0.714 2.138-0.941 0.989-0.311 2.096-0.55 3.145-0.406 1.754 0.241 3.113 2.109 3.428 3.768 0.08 0.421-0.08 0.892-0.08 1.31" fill="#615a59"></path>
+        </g>
+        <g r="3.698" fill="none" stroke="#bbb9b9" stroke-linejoin="miter" stroke-width="2.23px">
+          <circle cx="91.379" cy="17.794"></circle>
+          <circle cx="91.379" cy="54.01"></circle>
+        </g>
+
+        <path d="m79.979 41.028c3.519 0 6.375 2.168 6.375 4.839 0 2.67-2.856 4.839-6.375 4.839-3.518 0-6.375-2.169-6.375-4.839 0-2.671 2.857-4.839 6.375-4.839zm0 1.141c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698z" fill="#bbb9b9"></path>
+        <path d="m79.979 20.04c3.519 0 6.375 2.169 6.375 4.839 0 2.671-2.856 4.839-6.375 4.839-3.518 0-6.375-2.168-6.375-4.839 0-2.67 2.857-4.839 6.375-4.839zm0 1.141c2.041 0 3.698 1.657 3.698 3.698s-1.657 3.698-3.698 3.698-3.698-1.657-3.698-3.698 1.657-3.698 3.698-3.698z" fill="#bbb9b9"></path>
+        <path d="m89.905 44.462v-17.142h8.391v17.142z" fill="none" stroke="#fff" stroke-linejoin="miter" stroke-width=".65px"></path>
+        <text fill="#fffefe" font-family="sans-serif" transform="rotate(-90)">
+          <tspan x="-39.297 -37.036 -34.776" y="95.418" font-size="3.735px">103</tspan>
+          <tspan x="-61.485" y="111.57" font-size="9.778px">S</tspan>
+          <tspan x="-15.512" y="111.573" font-size="15.828px">-</tspan>
+        </text>
+      </svg>
+
+</g>
+<circle cx="472.30" cy="452.20" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="472.30" y="446.20" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">GND</text>
+<circle cx="472.30" cy="461.80" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="472.30" y="455.80" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">VCC</text>
+<circle cx="472.30" cy="471.50" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="472.30" y="465.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">OUT</text>
+<text x="405.00" y="532.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">wokwi-ntc-temperature-sensor</text>
+<text x="405.00" y="548.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">wokwi · 3 pins</text>
+<g transform="translate(565.00,426.00)">
+<rect x="6.00" y="21.00" width="54.00" height="17.00" rx="8" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<line x1="13.00" y1="26.00" x2="54.00" y2="26.00" stroke="#D8DCE0" stroke-width="2" stroke-linecap="round"/>
+<line x1="13.00" y1="34.00" x2="54.00" y2="34.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="15.00" y1="23.00" x2="15.00" y2="36.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<rect x="56.00" y="22.00" width="20.00" height="15.00" rx="5" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<rect x="74.00" y="25.00" width="8.00" height="9.00" rx="3" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<path d="M80 30 L100 30 L112 34 L124 30 L130 30" stroke="#2A2E33" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M84 28 L100 28" stroke="#4A5057" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="128.00" y1="30.00" x2="136.00" y2="24.00" stroke="#B0B6BC" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="128.00" y1="30.00" x2="136.00" y2="36.00" stroke="#B0B6BC" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="134.00" y="16.00" width="28.00" height="28.00" rx="2" fill="#FFFFFF" stroke="#6E7178" stroke-width="1"/>
+<rect x="139.00" y="21.00" width="17.00" height="6.00" rx="1" fill="#D8DCE0" stroke="#9AA0A6" stroke-width="0.8"/>
+<rect x="139.00" y="33.00" width="17.00" height="6.00" rx="1" fill="#D8DCE0" stroke="#9AA0A6" stroke-width="0.8"/>
+<line x1="134.00" y1="30.00" x2="162.00" y2="30.00" stroke="#D8DCE0" stroke-width="1" stroke-linecap="round"/>
+<rect x="162.00" y="22.00" width="14.00" height="4.00" rx="0" fill="#B0B6BC" stroke="none" stroke-width="1"/>
+<rect x="162.00" y="34.00" width="14.00" height="4.00" rx="0" fill="#B0B6BC" stroke="none" stroke-width="1"/>
+<text x="6.00" y="51.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#16181D" text-anchor="start" font-weight="400" letter-spacing="0">10 kΩ B3950 NTC</text>
+<text x="6.00" y="60.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6" fill="#6E7178" text-anchor="start" font-weight="400" letter-spacing="0">5 × 25 mm stainless · 1 m PVC lead</text>
+<text x="176.00" y="51.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6" fill="#6E7178" text-anchor="end" font-weight="400" letter-spacing="0">JST XH 2.54, 2-pin</text>
+</g>
+<circle cx="741.00" cy="450.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="741.00" y="444.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1</text>
+<circle cx="741.00" cy="462.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="741.00" y="456.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2</text>
+<text x="655.00" y="532.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">ntc-probe</text>
+<text x="655.00" y="548.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 2 pins</text>
+<g transform="translate(814.00,426.00)" opacity="0.45">
+<path d="M18 30 L26 25 L34 35 L42 25 L50 30" stroke="#9AA0A6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M18 30 L26 35 L34 25 L42 35 L50 30" stroke="#6E7178" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="13.00" cy="30.00" r="5.50" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<circle cx="11.00" cy="28.00" r="1.80" fill="#D8DCE0" stroke="none" stroke-width="1"/>
+<rect x="50.00" y="22.00" width="70.00" height="16.00" rx="4" fill="#D8DCE0" stroke="#9AA0A6" stroke-width="1"/>
+<line x1="52.00" y1="30.00" x2="118.00" y2="30.00" stroke="#9AA0A6" stroke-width="0.8" stroke-linecap="round"/>
+<line x1="56.00" y1="23.00" x2="62.00" y2="37.00" stroke="#B0B6BC" stroke-width="1" stroke-linecap="round"/>
+<line x1="66.00" y1="23.00" x2="72.00" y2="37.00" stroke="#B0B6BC" stroke-width="1" stroke-linecap="round"/>
+<line x1="76.00" y1="23.00" x2="82.00" y2="37.00" stroke="#B0B6BC" stroke-width="1" stroke-linecap="round"/>
+<line x1="86.00" y1="23.00" x2="92.00" y2="37.00" stroke="#B0B6BC" stroke-width="1" stroke-linecap="round"/>
+<line x1="96.00" y1="23.00" x2="102.00" y2="37.00" stroke="#B0B6BC" stroke-width="1" stroke-linecap="round"/>
+<line x1="106.00" y1="23.00" x2="112.00" y2="37.00" stroke="#B0B6BC" stroke-width="1" stroke-linecap="round"/>
+<rect x="108.00" y="23.00" width="12.00" height="14.00" rx="2" fill="#C9A62E" stroke="#A8861A" stroke-width="1"/>
+<rect x="116.00" y="12.00" width="46.00" height="42.00" rx="3" fill="#E8C33A" stroke="#A8861A" stroke-width="1"/>
+<line x1="116.00" y1="33.00" x2="162.00" y2="33.00" stroke="#A8861A" stroke-width="0.8" stroke-linecap="round"/>
+<rect x="162.00" y="21.00" width="16.00" height="4.00" rx="0" fill="#B0B6BC" stroke="#6E7178" stroke-width="0.6"/>
+<rect x="162.00" y="39.00" width="16.00" height="7.00" rx="0" fill="#B0B6BC" stroke="#6E7178" stroke-width="0.6"/>
+<text x="128.00" y="40.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">K</text>
+<text x="152.00" y="26.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">+</text>
+<text x="152.00" y="47.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">−</text>
+<text x="6.00" y="61.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6.5" fill="#16181D" text-anchor="start" font-weight="400" letter-spacing="0">Type K · bead junction</text>
+<text x="178.00" y="61.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6" fill="#6E7178" text-anchor="end" font-weight="400" letter-spacing="0">yellow = K · wide blade = −</text>
+</g>
+<circle cx="992.00" cy="449.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="992.00" y="443.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">+</text>
+<circle cx="992.00" cy="468.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="992.00" y="462.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">−</text>
+<text x="905.00" y="532.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">thermocouple-k</text>
+<text x="905.00" y="548.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 2 pins</text>
+<g transform="translate(82.00,592.00)">
+<path d="M0,49 L12,37" stroke="#B3261E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M0,49 L12,61" stroke="#B3261E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="12.00" y="34.00" width="19.00" height="6.00" rx="1" fill="#B3261E" stroke="none" stroke-width="1"/>
+<rect x="12.00" y="58.00" width="19.00" height="6.00" rx="1" fill="#B3261E" stroke="none" stroke-width="1"/>
+<path d="M30,18 L42,9 L126,9 L114,18 Z" stroke="#9AA0A6" stroke-width="1" fill="#D8DCE0" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M114,18 L126,9 L126,71 L114,80 Z" stroke="#9AA0A6" stroke-width="1" fill="#B0B6BC" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="30.00" y="18.00" width="84.00" height="62.00" rx="4" fill="#FFFFFF" stroke="#9AA0A6" stroke-width="1.5"/>
+<line x1="30.00" y1="70.00" x2="114.00" y2="70.00" stroke="#9AA0A6" stroke-width="1" stroke-linecap="round"/>
+<circle cx="50.00" cy="42.00" r="11.00" fill="#FFFFFF" stroke="#6E7178" stroke-width="1.5"/>
+<text x="50.00" y="46.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#16181D" text-anchor="middle" font-weight="700" letter-spacing="0">UL</text>
+<text x="50.00" y="60.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">LISTED</text>
+<text x="70.00" y="40.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6.5" fill="#6E7178" text-anchor="start" font-weight="400" letter-spacing="0">OUTPUT</text>
+<text x="70.00" y="57.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#16181D" text-anchor="start" font-weight="700" letter-spacing="0">5V</text>
+<path d="M116,32 L125,26 L125,46 L116,52 Z" stroke="#16181D" stroke-width="1.5" fill="#2A2E33" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="118.00" y1="44.00" x2="124.00" y2="40.00" stroke="#D8DCE0" stroke-width="2" stroke-linecap="round"/>
+<path d="M120,39 L134,42 L146,44" stroke="#15607A" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<circle cx="82.00" cy="641.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="82.00" y="635.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">AC</text>
+<circle cx="228.00" cy="636.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="228.00" y="630.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">5V</text>
+<text x="155.00" y="716.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">usb-charger</text>
+<text x="155.00" y="732.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 2 pins</text>
+<g transform="translate(325.00,592.00)" opacity="0.45">
+<rect x="16.00" y="8.00" width="128.00" height="72.00" rx="3" fill="#1E5E3A" stroke="#14472C" stroke-width="1"/>
+<circle cx="26.00" cy="13.00" r="3.60" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<circle cx="26.00" cy="13.00" r="1.80" fill="#FFFFFF" stroke="none" stroke-width="1"/>
+<circle cx="26.00" cy="71.00" r="3.60" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<circle cx="26.00" cy="71.00" r="1.80" fill="#FFFFFF" stroke="none" stroke-width="1"/>
+<line x1="10.00" y1="28.00" x2="0.00" y2="28.00" stroke="#B0B6BC" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="10.00" y1="54.00" x2="0.00" y2="54.00" stroke="#B0B6BC" stroke-width="3.5" stroke-linecap="round"/>
+<rect x="4.00" y="18.00" width="38.00" height="46.00" rx="2" fill="#15607A" stroke="#0E4457" stroke-width="1"/>
+<rect x="4.00" y="24.00" width="9.00" height="8.00" rx="1" fill="#16181D" stroke="none" stroke-width="1"/>
+<rect x="4.00" y="50.00" width="9.00" height="8.00" rx="1" fill="#16181D" stroke="none" stroke-width="1"/>
+<circle cx="28.00" cy="28.00" r="7.00" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<line x1="24.00" y1="28.00" x2="32.00" y2="28.00" stroke="#6E7178" stroke-width="1.8" stroke-linecap="round"/>
+<circle cx="28.00" cy="54.00" r="7.00" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<line x1="24.00" y1="54.00" x2="32.00" y2="54.00" stroke="#6E7178" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="54.00" y1="38.00" x2="58.00" y2="38.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="54.00" y1="44.00" x2="58.00" y2="44.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="54.00" y1="50.00" x2="58.00" y2="50.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="54.00" y1="56.00" x2="58.00" y2="56.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="94.00" y1="38.00" x2="98.00" y2="38.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="94.00" y1="44.00" x2="98.00" y2="44.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="94.00" y1="50.00" x2="98.00" y2="50.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="94.00" y1="56.00" x2="98.00" y2="56.00" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="58.00" y="34.00" width="36.00" height="24.00" rx="2" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<circle cx="63.00" cy="39.00" r="2.00" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="77.00" y="49.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="5" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">31855</text>
+<rect x="128.00" y="16.00" width="16.00" height="64.00" rx="1.5" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<rect x="138.00" y="22.00" width="18.00" height="4.00" rx="0" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<rect x="138.00" y="34.00" width="18.00" height="4.00" rx="0" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<rect x="138.00" y="46.00" width="18.00" height="4.00" rx="0" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<rect x="138.00" y="58.00" width="18.00" height="4.00" rx="0" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<rect x="138.00" y="70.00" width="18.00" height="4.00" rx="0" fill="#C08A4A" stroke="none" stroke-width="1"/>
+<text x="46.00" y="25.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9" fill="#E4E6E2" text-anchor="start" font-weight="400" letter-spacing="0">MAX31855</text>
+<text x="46.00" y="32.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="start" font-weight="400" letter-spacing="0">T+</text>
+<text x="46.00" y="60.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="start" font-weight="400" letter-spacing="0">T−</text>
+<text x="124.00" y="27.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">VIN</text>
+<text x="124.00" y="39.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">GND</text>
+<text x="124.00" y="51.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">DO</text>
+<text x="124.00" y="63.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">CS</text>
+<text x="124.00" y="75.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">CLK</text>
+</g>
+<circle cx="325.00" cy="620.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="325.00" y="614.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">T+</text>
+<circle cx="325.00" cy="646.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="325.00" y="640.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">T−</text>
+<circle cx="481.00" cy="616.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="481.00" y="610.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">VIN</text>
+<circle cx="481.00" cy="628.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="481.00" y="622.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">GND</text>
+<circle cx="481.00" cy="640.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="481.00" y="634.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">DO</text>
+<circle cx="481.00" cy="652.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="481.00" y="646.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">CS</text>
+<circle cx="481.00" cy="664.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="481.00" y="658.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">CLK</text>
+<text x="405.00" y="716.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">max31855-breakout</text>
+<text x="405.00" y="732.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 7 pins</text>
+<g transform="translate(580.00,592.00)">
+<rect x="76.00" y="8.00" width="8.00" height="80.00" rx="0" fill="#D8DCE0" stroke="#9AA0A6" stroke-width="1"/>
+<rect x="62.00" y="34.00" width="32.00" height="28.00" rx="0" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<line x1="66.00" y1="34.00" x2="66.00" y2="62.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="70.00" y1="34.00" x2="70.00" y2="62.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="74.00" y1="34.00" x2="74.00" y2="62.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="86.00" y1="34.00" x2="86.00" y2="62.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="90.00" y1="34.00" x2="90.00" y2="62.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<rect x="86.00" y="28.00" width="13.00" height="40.00" rx="1" fill="#B0B6BC" stroke="#6E7178" stroke-width="1"/>
+<line x1="86.00" y1="38.00" x2="99.00" y2="38.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<line x1="86.00" y1="58.00" x2="99.00" y2="58.00" stroke="#6E7178" stroke-width="1" stroke-linecap="round"/>
+<rect x="99.00" y="26.00" width="18.00" height="44.00" rx="2" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<rect x="115.00" y="30.00" width="35.00" height="9.00" rx="1" fill="#B0B6BC" stroke="#6E7178" stroke-width="1"/>
+<rect x="115.00" y="57.00" width="35.00" height="9.00" rx="1" fill="#B0B6BC" stroke="#6E7178" stroke-width="1"/>
+<circle cx="138.00" cy="34.50" r="3.00" fill="#FFFFFF" stroke="#6E7178" stroke-width="1"/>
+<circle cx="138.00" cy="61.50" r="3.00" fill="#FFFFFF" stroke="#6E7178" stroke-width="1"/>
+<circle cx="38.00" cy="48.00" r="31.00" fill="#B0B6BC" stroke="#6E7178" stroke-width="2"/>
+<circle cx="38.00" cy="48.00" r="25.00" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<circle cx="38.00" cy="48.00" r="20.00" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<circle cx="31.00" cy="41.00" r="6.00" fill="#6E7178" stroke="none" stroke-width="1"/>
+<line x1="38.00" y1="17.00" x2="38.00" y2="22.00" stroke="#6E7178" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="38.00" y1="74.00" x2="38.00" y2="79.00" stroke="#6E7178" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="7.00" y1="48.00" x2="12.00" y2="48.00" stroke="#6E7178" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="64.00" y1="48.00" x2="69.00" y2="48.00" stroke="#6E7178" stroke-width="1.5" stroke-linecap="round"/>
+</g>
+<circle cx="730.00" cy="626.50" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="730.00" y="620.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">1</text>
+<circle cx="730.00" cy="653.50" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="730.00" y="647.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">2</text>
+<text x="655.00" y="716.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">pushbutton-panel</text>
+<text x="655.00" y="732.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 2 pins</text>
+<g transform="translate(829.00,592.00)">
+<path d="M124 16 L124 13 A4 3 0 0 1 124 7 A4 3 0 0 0 124 1 L133 1" stroke="#B0B6BC" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="6.00" y="16.00" width="140.00" height="64.00" rx="3" fill="#1E5E3A" stroke="#16181D" stroke-width="1.2"/>
+<circle cx="13.00" cy="23.00" r="3.00" fill="#D8DCE0" stroke="#6E7178" stroke-width="0.8"/>
+<circle cx="139.00" cy="23.00" r="3.00" fill="#D8DCE0" stroke="#6E7178" stroke-width="0.8"/>
+<text x="76.00" y="22.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">433MHz  AC100-240V  30A</text>
+<rect x="22.00" y="24.00" width="54.00" height="40.00" rx="2" fill="#2A2E33" stroke="#16181D" stroke-width="1"/>
+<rect x="22.00" y="24.00" width="54.00" height="6.00" rx="2" fill="#16181D" stroke="none" stroke-width="1"/>
+<text x="49.00" y="45.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">T90</text>
+<text x="49.00" y="56.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">40A 250VAC</text>
+<circle cx="88.00" cy="32.00" r="4.50" fill="#B3261E" stroke="#16181D" stroke-width="0.8"/>
+<circle cx="86.50" cy="30.50" r="1.50" fill="#FFFFFF" stroke="none" stroke-width="1"/>
+<text x="88.00" y="45.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="5.5" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">LED</text>
+<circle cx="114.00" cy="34.00" r="8.00" fill="#2A2E33" stroke="#16181D" stroke-width="1"/>
+<circle cx="114.00" cy="34.00" r="4.50" fill="#9AA0A6" stroke="none" stroke-width="1"/>
+<text x="114.00" y="49.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="5.5" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">LEARN</text>
+<text x="24.00" y="73.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6.2" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">AC IN L</text>
+<text x="56.00" y="73.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6.2" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">AC IN N</text>
+<text x="96.00" y="73.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6.2" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">AC OUT L</text>
+<text x="128.00" y="73.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6.2" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">AC OUT N</text>
+<rect x="10.00" y="76.00" width="28.00" height="22.00" rx="1.5" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="42.00" y="76.00" width="28.00" height="22.00" rx="1.5" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="82.00" y="76.00" width="28.00" height="22.00" rx="1.5" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="114.00" y="76.00" width="28.00" height="22.00" rx="1.5" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<circle cx="24.00" cy="84.00" r="5.50" fill="#9AA0A6" stroke="#16181D" stroke-width="0.8"/>
+<circle cx="56.00" cy="84.00" r="5.50" fill="#9AA0A6" stroke="#16181D" stroke-width="0.8"/>
+<circle cx="96.00" cy="84.00" r="5.50" fill="#9AA0A6" stroke="#16181D" stroke-width="0.8"/>
+<circle cx="128.00" cy="84.00" r="5.50" fill="#9AA0A6" stroke="#16181D" stroke-width="0.8"/>
+<line x1="20.50" y1="84.00" x2="27.50" y2="84.00" stroke="#16181D" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="52.50" y1="84.00" x2="59.50" y2="84.00" stroke="#16181D" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="92.50" y1="84.00" x2="99.50" y2="84.00" stroke="#16181D" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="124.50" y1="84.00" x2="131.50" y2="84.00" stroke="#16181D" stroke-width="1.2" stroke-linecap="round"/>
+<rect x="18.00" y="90.00" width="12.00" height="8.00" rx="1" fill="#16181D" stroke="none" stroke-width="1"/>
+<rect x="50.00" y="90.00" width="12.00" height="8.00" rx="1" fill="#16181D" stroke="none" stroke-width="1"/>
+<rect x="90.00" y="90.00" width="12.00" height="8.00" rx="1" fill="#16181D" stroke="none" stroke-width="1"/>
+<rect x="122.00" y="90.00" width="12.00" height="8.00" rx="1" fill="#16181D" stroke="none" stroke-width="1"/>
+</g>
+<circle cx="853.00" cy="690.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="853.00" y="684.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">AC IN L</text>
+<circle cx="885.00" cy="690.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="885.00" y="684.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">AC IN N</text>
+<circle cx="925.00" cy="690.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="925.00" y="684.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">AC OUT L</text>
+<circle cx="957.00" cy="690.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="957.00" y="684.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">AC OUT N</text>
+<text x="905.00" y="716.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">rf-receiver</text>
+<text x="905.00" y="732.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 4 pins</text>
+<g transform="translate(70.00,776.00)">
+<rect x="8.00" y="12.00" width="100.00" height="76.00" rx="3" fill="#1E5E3A" stroke="#14452F" stroke-width="1.5"/>
+<path d="M14,84 L26,84 L26,78 L38,78 L38,84 L50,84 L50,78 L62,78 L62,84 L70,84" stroke="#C08A4A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16.00" y="16.00" width="24.00" height="10.00" rx="1" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<circle cx="19.00" cy="19.00" r="1.20" fill="#6E7178" stroke="none" stroke-width="1"/>
+<rect x="46.00" y="16.00" width="16.00" height="8.00" rx="1" fill="#9AA0A6" stroke="#6E7178" stroke-width="0.8"/>
+<circle cx="42.00" cy="52.00" r="20.00" fill="#9AA0A6" stroke="#6E7178" stroke-width="1.5"/>
+<circle cx="42.00" cy="52.00" r="14.00" fill="#D8DCE0" stroke="#9AA0A6" stroke-width="1"/>
+<rect x="36.00" y="29.00" width="12.00" height="6.00" rx="1" fill="#B0B6BC" stroke="#6E7178" stroke-width="0.8"/>
+<text x="42.00" y="57.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">+</text>
+<rect x="74.00" y="20.00" width="17.00" height="17.00" rx="2" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<circle cx="82.50" cy="28.50" r="4.50" fill="#D8DCE0" stroke="#6E7178" stroke-width="0.8"/>
+<rect x="74.00" y="60.00" width="17.00" height="17.00" rx="2" fill="#9AA0A6" stroke="#6E7178" stroke-width="1"/>
+<circle cx="82.50" cy="68.50" r="4.50" fill="#D8DCE0" stroke="#6E7178" stroke-width="0.8"/>
+<text x="98.00" y="52.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6.5" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">CYS02-E2</text>
+<path d="M112,32 L136,32 L170,12" stroke="#B3261E" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M112,38 L136,38 L170,26" stroke="#16181D" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M112,44 L136,44 L170,40" stroke="#D9A400" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M112,50 L136,50 L170,54" stroke="#C9611A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M112,56 L136,56 L170,68" stroke="#15607A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M112,62 L136,62 L170,82" stroke="#1E6B45" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="100.00" y="28.00" width="12.00" height="38.00" rx="2" fill="#2A2E33" stroke="none" stroke-width="1"/>
+<rect x="124.00" y="29.00" width="9.00" height="36.00" rx="2" fill="#6E7178" stroke="none" stroke-width="1"/>
+</g>
+<circle cx="240.00" cy="788.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="240.00" y="782.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">BAT+</text>
+<circle cx="240.00" cy="802.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="240.00" y="796.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">BAT-</text>
+<circle cx="240.00" cy="816.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="240.00" y="810.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">ON-A</text>
+<circle cx="240.00" cy="830.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="240.00" y="824.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">ON-B</text>
+<circle cx="240.00" cy="844.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="240.00" y="838.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">ALT-A</text>
+<circle cx="240.00" cy="858.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="240.00" y="852.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">ALT-B</text>
+<text x="155.00" y="1148.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">key-fob</text>
+<text x="155.00" y="1164.50" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 6 pins</text>
+<g transform="translate(330.00,776.00)">
+<rect x="18.00" y="6.00" width="114.00" height="98.00" rx="5" fill="#2A2E33" stroke="#16181D" stroke-width="1.5"/>
+<rect x="18.00" y="6.00" width="114.00" height="10.00" rx="5" fill="#16181D" stroke="none" stroke-width="1"/>
+<rect x="26.00" y="18.00" width="98.00" height="78.00" rx="3" fill="#2A2E33" stroke="#6E7178" stroke-width="1"/>
+<circle cx="31.00" cy="23.00" r="2.00" fill="#6E7178" stroke="none" stroke-width="1"/>
+<circle cx="119.00" cy="23.00" r="2.00" fill="#6E7178" stroke="none" stroke-width="1"/>
+<rect x="44.00" y="30.00" width="62.00" height="34.00" rx="2" fill="#D8DCE0" stroke="#16181D" stroke-width="1"/>
+<text x="75.00" y="42.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="6.5" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">GOULD ITE</text>
+<text x="75.00" y="58.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">A202C</text>
+<text x="75.00" y="76.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6.5" fill="#E4E6E2" text-anchor="middle" font-weight="400" letter-spacing="0">NEMA SIZE 1</text>
+<text x="75.00" y="88.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="5.5" fill="#9AA0A6" text-anchor="middle" font-weight="400" letter-spacing="0">CLASS A200  600V</text>
+<rect x="0.00" y="18.00" width="22.00" height="16.00" rx="2" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="0.00" y="47.00" width="22.00" height="16.00" rx="2" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="0.00" y="76.00" width="22.00" height="16.00" rx="2" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="128.00" y="18.00" width="22.00" height="16.00" rx="2" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="128.00" y="47.00" width="22.00" height="16.00" rx="2" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<rect x="128.00" y="76.00" width="22.00" height="16.00" rx="2" fill="#B3261E" stroke="#16181D" stroke-width="1"/>
+<circle cx="11.00" cy="26.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<circle cx="11.00" cy="55.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<circle cx="11.00" cy="84.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<circle cx="139.00" cy="26.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<circle cx="139.00" cy="55.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<circle cx="139.00" cy="84.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<text x="30.00" y="29.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#E4E6E2" text-anchor="start" font-weight="400" letter-spacing="0">L1</text>
+<text x="30.00" y="58.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#E4E6E2" text-anchor="start" font-weight="400" letter-spacing="0">L2</text>
+<text x="30.00" y="87.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#E4E6E2" text-anchor="start" font-weight="400" letter-spacing="0">L3</text>
+<text x="120.00" y="29.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">T1</text>
+<text x="120.00" y="58.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">T2</text>
+<text x="120.00" y="87.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#E4E6E2" text-anchor="end" font-weight="400" letter-spacing="0">T3</text>
+<rect x="44.00" y="104.00" width="20.00" height="16.00" rx="2" fill="#C08A4A" stroke="#16181D" stroke-width="1"/>
+<rect x="86.00" y="104.00" width="20.00" height="16.00" rx="2" fill="#C08A4A" stroke="#16181D" stroke-width="1"/>
+<circle cx="54.00" cy="112.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<circle cx="96.00" cy="112.00" r="4.00" fill="#9AA0A6" stroke="#16181D" stroke-width="0.7"/>
+<text x="54.00" y="101.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">A1</text>
+<text x="75.00" y="101.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="6" fill="#C08A4A" text-anchor="middle" font-weight="400" letter-spacing="0">COIL</text>
+<text x="96.00" y="101.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#16181D" text-anchor="middle" font-weight="400" letter-spacing="0">A2</text>
+</g>
+<circle cx="330.00" cy="802.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="330.00" y="796.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">L1</text>
+<circle cx="330.00" cy="831.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="330.00" y="825.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">L2</text>
+<circle cx="330.00" cy="860.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="330.00" y="854.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">L3</text>
+<circle cx="480.00" cy="802.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="480.00" y="796.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">T1</text>
+<circle cx="480.00" cy="831.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="480.00" y="825.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">T2</text>
+<circle cx="480.00" cy="860.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="480.00" y="854.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">T3</text>
+<circle cx="384.00" cy="896.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="384.00" y="890.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">A1</text>
+<circle cx="426.00" cy="896.00" r="3.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="426.00" y="890.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" fill="#B3261E" text-anchor="middle" font-weight="400" letter-spacing="0">A2</text>
+<text x="405.00" y="1148.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">contactor</text>
+<text x="405.00" y="1164.50" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">local · 8 pins</text>
+<rect x="571.00" y="776.00" width="168.00" height="346.50" rx="7" fill="#1B1E22" stroke="none" stroke-width="1"/>
+<rect x="597.00" y="784.00" width="116.00" height="42.00" rx="3" fill="#3A3F45" stroke="none" stroke-width="1"/>
+<text x="655.00" y="809.00" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9" fill="#AAB0B6" text-anchor="middle" font-weight="400" letter-spacing="0">WROOM-32E</text>
+<path d="M635.0 838.0 l7 -9 l7 9 l7 -9 l7 9" stroke="#5A6067" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="655.00" y="1110.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" fill="#8A9096" text-anchor="middle" font-weight="400" letter-spacing="0">DevKitC-32E</text>
+<rect x="638.00" y="1117.50" width="34.00" height="11.00" rx="2" fill="#8A9096" stroke="none" stroke-width="1"/>
+<rect x="566.00" y="805.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="812.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">3V3</text>
+<rect x="566.00" y="820.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="828.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">EN</text>
+<rect x="566.00" y="836.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="843.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">VP</text>
+<rect x="566.00" y="851.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="859.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">VN</text>
+<rect x="566.00" y="867.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="874.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO34</text>
+<text x="734.00" y="874.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">&lt;</text>
+<rect x="566.00" y="882.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="890.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO35</text>
+<text x="734.00" y="890.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">&lt;</text>
+<rect x="566.00" y="898.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="905.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO32</text>
+<rect x="566.00" y="913.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="921.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO33</text>
+<rect x="566.00" y="929.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="936.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO25</text>
+<rect x="566.00" y="944.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="952.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO26</text>
+<rect x="566.00" y="960.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="967.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO27</text>
+<rect x="566.00" y="975.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="983.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO14</text>
+<rect x="566.00" y="991.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="998.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO12</text>
+<text x="734.00" y="998.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="566.00" y="1006.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="1014.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GND</text>
+<rect x="566.00" y="1022.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="1029.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">GPIO13</text>
+<rect x="566.00" y="1037.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="1045.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">SD2</text>
+<rect x="566.00" y="1053.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="1060.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">SD3</text>
+<rect x="566.00" y="1068.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="1076.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">CMD</text>
+<rect x="566.00" y="1084.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="583.00" y="1091.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="start" font-weight="400" letter-spacing="0">5V</text>
+<rect x="734.00" y="805.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="812.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GND</text>
+<rect x="734.00" y="820.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="828.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO23</text>
+<rect x="734.00" y="836.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="843.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO22</text>
+<rect x="734.00" y="851.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="859.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">TX0</text>
+<rect x="734.00" y="867.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="874.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">RX0</text>
+<rect x="734.00" y="882.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="890.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO21</text>
+<rect x="734.00" y="898.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="905.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GND</text>
+<rect x="734.00" y="913.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="921.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO19</text>
+<rect x="734.00" y="929.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="936.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO18</text>
+<rect x="734.00" y="944.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="952.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO5</text>
+<text x="576.00" y="952.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="734.00" y="960.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="967.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO17</text>
+<text x="576.00" y="967.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="734.00" y="975.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="983.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO16</text>
+<text x="576.00" y="983.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="734.00" y="991.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="998.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO4</text>
+<rect x="734.00" y="1006.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="1014.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO0</text>
+<text x="576.00" y="1014.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="734.00" y="1022.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="1029.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO2</text>
+<text x="576.00" y="1029.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="734.00" y="1037.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="1045.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">GPIO15</text>
+<text x="576.00" y="1045.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8" fill="#E0B23C" text-anchor="middle" font-weight="700" letter-spacing="0">!</text>
+<rect x="734.00" y="1053.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="1060.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">SD1</text>
+<rect x="734.00" y="1068.75" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="1076.45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">SD0</text>
+<rect x="734.00" y="1084.25" width="10.00" height="9.00" rx="1.5" fill="#6E7178" stroke="none" stroke-width="1"/>
+<text x="727.00" y="1091.95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.2" fill="#9BA2A8" text-anchor="end" font-weight="400" letter-spacing="0">CLK</text>
+<circle cx="571.00" cy="809.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="825.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="840.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="856.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="871.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="887.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="902.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="918.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="933.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="949.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="964.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="980.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="995.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="1011.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="1026.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="1042.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="1057.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="1073.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="571.00" cy="1088.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="809.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="825.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="840.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="856.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="871.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="887.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="902.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="918.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="933.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="949.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="964.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="980.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="995.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="1011.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="1026.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="1042.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="1057.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="1073.25" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="739.00" cy="1088.75" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<circle cx="655.00" cy="1128.50" r="2.00" fill="#B3261E" stroke="none" stroke-width="1"/>
+<text x="655.00" y="1148.50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#16181D" text-anchor="middle" font-weight="600" letter-spacing="0">esp32-devkitc-38</text>
+<text x="655.00" y="1164.50" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="10" fill="#6E7178" text-anchor="middle" font-weight="400" letter-spacing="0">board · 39 pins</text>
+</svg>

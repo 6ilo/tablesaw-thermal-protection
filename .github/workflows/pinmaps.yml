@@ -61,10 +61,21 @@ jobs:
           python3 tools/pinmap.py check
           python3 tools/cirkit.py check
 
-      - name: Re-render must produce no diff
+      - name: Re-render must produce no diff, and no untracked output
         # `check` compares in memory; this proves the committed bytes are exactly
         # what the generators write, so a hand-edited SVG is caught too.
+        #
+        # The --porcelain line is not belt-and-braces. `git diff` does not report
+        # UNTRACKED files, so a generator that starts emitting a new sheet would
+        # produce a clean diff and a silently uncommitted artifact. That is not
+        # hypothetical: it fooled a staleness test during development, and looked
+        # exactly like the gate working.
         run: |
           python3 tools/pinmap.py build
           python3 tools/cirkit.py build
           git diff --exit-code hardware/pinmaps/ hardware/circuits/
+          if [ -n "$(git status --porcelain hardware/pinmaps/ hardware/circuits/)" ]; then
+            echo "generated output is not committed:"
+            git status --porcelain hardware/pinmaps/ hardware/circuits/
+            exit 1
+          fi
