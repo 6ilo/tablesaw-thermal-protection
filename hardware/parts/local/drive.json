@@ -220,7 +220,7 @@
   {
    "id": "npn-transistor",
    "title": "NPN transistor (TO-92)",
-   "subtitle": "2N3904 / 2N2222 / BC547 \u2014 Q1 alternate",
+   "subtitle": "2N3904 (TO-92) \u2014 Q1 alternate",
    "w": 90,
    "h": 84,
    "shapes": [
@@ -358,12 +358,12 @@
      "description": "Emitter \u2014 other ON pad, or fob battery negative"
     }
    ],
-   "notes": "TO-92 seen from the flat face with the leads pointing down; on that view the order left-to-right is E, B, C, which is the 2N3904/2N2222 pinout printed on the face. A BC547 or S8050 in the same package is C, B, E \u2014 mirrored \u2014 so meter the part in hand before soldering rather than trusting this picture's left-right order. Splayed legs and the moulded base flange distinguish it from the MOSFET alternate, which is drawn with straight legs and a teal gate band. Low-voltage part; no mains terminals."
+   "notes": "Drawn as a 2N3904: legs are E-B-C left to right, flat face forward. 2N2222 and S8050 share that order; BC547 is C-B-E and does NOT. This picture exists to identify legs, so it names only the part it depicts. See WIRING.md \u00a7 NPN version."
   },
   {
    "id": "n-mosfet",
    "title": "Logic-level N-MOSFET (TO-92)",
-   "subtitle": "2N7000 / BSS138 \u2014 Q1 fallback",
+   "subtitle": "2N7000 (TO-92) \u2014 Q1 fallback",
    "w": 90,
    "h": 84,
    "shapes": [
@@ -486,7 +486,7 @@
      "description": "Source \u2014 ESP32 GND (shared reference required)"
     }
    ],
-   "notes": "Same TO-92 silhouette as the NPN so it still reads as that package, but deliberately not identical at a glance: lighter grey body, straight (unsplayed) legs, no base flange, a moulded parting line, and a teal low-voltage band over the dome marking the logic-level gate. Pinout is 2N7000 seen from the flat face, leads down: S, G, D left to right. This is the fallback that switches the fob's battery negative low-side with the ON button bridged closed, so unlike the optocoupler it does tie ESP32 GND to fob GND. Low-voltage part; no mains terminals."
+   "notes": "Drawn as a 2N7000: legs are S-G-D left to right, flat face forward. The SOT-23 alternates (BSS138, AO3400, IRLML2502) are G-S-D and IRLZ44N in TO-220 is G-D-S, so none of them may be wired by copying these positions. See WIRING.md \u00a7 MOSFET fallback."
   }
  ]
 }
