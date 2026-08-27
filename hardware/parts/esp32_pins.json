@@ -1,0 +1,524 @@
+{
+ "source": {
+  "project": "Espressif ESP-IDF",
+  "ref": "release/v5.5",
+  "urls": {
+   "adc": "https://raw.githubusercontent.com/espressif/esp-idf/release/v5.5/components/soc/esp32/include/soc/adc_channel.h",
+   "touch": "https://raw.githubusercontent.com/espressif/esp-idf/release/v5.5/components/soc/esp32/include/soc/touch_sensor_channel.h",
+   "rtcio": "https://raw.githubusercontent.com/espressif/esp-idf/release/v5.5/components/soc/esp32/include/soc/rtc_io_channel.h",
+   "caps": "https://raw.githubusercontent.com/espressif/esp-idf/release/v5.5/components/soc/esp32/include/soc/soc_caps.h",
+   "docs": "https://raw.githubusercontent.com/espressif/esp-idf/release/v5.5/docs/en/api-reference/peripherals/gpio/esp32.inc"
+  },
+  "licence": "Apache-2.0",
+  "note": "Pinned to a release ref on purpose: touch_sensor_channel.h moved out of components/soc on master, so master silently loses touch tags."
+ },
+ "chip": {
+  "name": "ESP32",
+  "pin_count": 40,
+  "absent": [
+   24,
+   28,
+   29,
+   30,
+   31
+  ]
+ },
+ "pins": {
+  "0": {
+   "gpio": 0,
+   "tags": [
+    "ADC2_CH1",
+    "TOUCH1",
+    "RTC_GPIO11",
+    "STRAPPING"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 1
+   },
+   "touch": 1,
+   "rtc": 11,
+   "input_only": false,
+   "strapping": true,
+   "flash_reserved": false
+  },
+  "1": {
+   "gpio": 1,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "2": {
+   "gpio": 2,
+   "tags": [
+    "ADC2_CH2",
+    "TOUCH2",
+    "RTC_GPIO12",
+    "STRAPPING"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 2
+   },
+   "touch": 2,
+   "rtc": 12,
+   "input_only": false,
+   "strapping": true,
+   "flash_reserved": false
+  },
+  "3": {
+   "gpio": 3,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "4": {
+   "gpio": 4,
+   "tags": [
+    "ADC2_CH0",
+    "TOUCH0",
+    "RTC_GPIO10"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 0
+   },
+   "touch": 0,
+   "rtc": 10,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "5": {
+   "gpio": 5,
+   "tags": [
+    "STRAPPING"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": true,
+   "flash_reserved": false
+  },
+  "6": {
+   "gpio": 6,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "7": {
+   "gpio": 7,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "8": {
+   "gpio": 8,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "9": {
+   "gpio": 9,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "10": {
+   "gpio": 10,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "11": {
+   "gpio": 11,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "12": {
+   "gpio": 12,
+   "tags": [
+    "ADC2_CH5",
+    "TOUCH5",
+    "RTC_GPIO15",
+    "STRAPPING"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 5
+   },
+   "touch": 5,
+   "rtc": 15,
+   "input_only": false,
+   "strapping": true,
+   "flash_reserved": false
+  },
+  "13": {
+   "gpio": 13,
+   "tags": [
+    "ADC2_CH4",
+    "TOUCH4",
+    "RTC_GPIO14"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 4
+   },
+   "touch": 4,
+   "rtc": 14,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "14": {
+   "gpio": 14,
+   "tags": [
+    "ADC2_CH6",
+    "TOUCH6",
+    "RTC_GPIO16"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 6
+   },
+   "touch": 6,
+   "rtc": 16,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "15": {
+   "gpio": 15,
+   "tags": [
+    "ADC2_CH3",
+    "TOUCH3",
+    "RTC_GPIO13",
+    "STRAPPING"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 3
+   },
+   "touch": 3,
+   "rtc": 13,
+   "input_only": false,
+   "strapping": true,
+   "flash_reserved": false
+  },
+  "16": {
+   "gpio": 16,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "17": {
+   "gpio": 17,
+   "tags": [
+    "FLASH"
+   ],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": true
+  },
+  "18": {
+   "gpio": 18,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "19": {
+   "gpio": 19,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "20": {
+   "gpio": 20,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "21": {
+   "gpio": 21,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "22": {
+   "gpio": 22,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "23": {
+   "gpio": 23,
+   "tags": [],
+   "adc": null,
+   "touch": null,
+   "rtc": null,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "25": {
+   "gpio": 25,
+   "tags": [
+    "ADC2_CH8",
+    "RTC_GPIO6"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 8
+   },
+   "touch": null,
+   "rtc": 6,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "26": {
+   "gpio": 26,
+   "tags": [
+    "ADC2_CH9",
+    "RTC_GPIO7"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 9
+   },
+   "touch": null,
+   "rtc": 7,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "27": {
+   "gpio": 27,
+   "tags": [
+    "ADC2_CH7",
+    "TOUCH7",
+    "RTC_GPIO17"
+   ],
+   "adc": {
+    "unit": 2,
+    "channel": 7
+   },
+   "touch": 7,
+   "rtc": 17,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "32": {
+   "gpio": 32,
+   "tags": [
+    "ADC1_CH4",
+    "TOUCH9",
+    "RTC_GPIO9"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 4
+   },
+   "touch": 9,
+   "rtc": 9,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "33": {
+   "gpio": 33,
+   "tags": [
+    "ADC1_CH5",
+    "TOUCH8",
+    "RTC_GPIO8"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 5
+   },
+   "touch": 8,
+   "rtc": 8,
+   "input_only": false,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "34": {
+   "gpio": 34,
+   "tags": [
+    "ADC1_CH6",
+    "RTC_GPIO4",
+    "INPUT ONLY"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 6
+   },
+   "touch": null,
+   "rtc": 4,
+   "input_only": true,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "35": {
+   "gpio": 35,
+   "tags": [
+    "ADC1_CH7",
+    "RTC_GPIO5",
+    "INPUT ONLY"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 7
+   },
+   "touch": null,
+   "rtc": 5,
+   "input_only": true,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "36": {
+   "gpio": 36,
+   "tags": [
+    "ADC1_CH0",
+    "RTC_GPIO0",
+    "INPUT ONLY"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 0
+   },
+   "touch": null,
+   "rtc": 0,
+   "input_only": true,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "37": {
+   "gpio": 37,
+   "tags": [
+    "ADC1_CH1",
+    "RTC_GPIO1",
+    "INPUT ONLY"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 1
+   },
+   "touch": null,
+   "rtc": 1,
+   "input_only": true,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "38": {
+   "gpio": 38,
+   "tags": [
+    "ADC1_CH2",
+    "RTC_GPIO2",
+    "INPUT ONLY"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 2
+   },
+   "touch": null,
+   "rtc": 2,
+   "input_only": true,
+   "strapping": false,
+   "flash_reserved": false
+  },
+  "39": {
+   "gpio": 39,
+   "tags": [
+    "ADC1_CH3",
+    "RTC_GPIO3",
+    "INPUT ONLY"
+   ],
+   "adc": {
+    "unit": 1,
+    "channel": 3
+   },
+   "touch": null,
+   "rtc": 3,
+   "input_only": true,
+   "strapping": false,
+   "flash_reserved": false
+  }
+ }
+}

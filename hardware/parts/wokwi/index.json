@@ -1,0 +1,241 @@
+{
+ "source": {
+  "package": "@wokwi/elements",
+  "version": "1.9.2",
+  "url": "https://registry.npmjs.org/@wokwi/elements/-/elements-1.9.2.tgz",
+  "repository": "https://github.com/wokwi/wokwi-elements",
+  "licence": "MIT",
+  "copyright": "Copyright (c) 2020 Uri Shaked",
+  "note": "Extracted by rendering the real components headlessly — see tools/ingest_wokwi.mjs. The ESP32 board is deliberately NOT taken from here: Wokwi ships a 30-pin DevKit v1 and this project uses a 38-pin DevKitC-32E."
+ },
+ "parts": {
+  "wokwi-resistor": {
+   "use": "R1 divider, R2 GPIO26 pulldown, R3 opto series",
+   "viewBox": "0 0 15.645 3",
+   "width": "15.645mm",
+   "height": "3mm",
+   "pins": [
+    {
+     "name": "1",
+     "x": 0,
+     "y": 5.65,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "2",
+     "x": 58.8,
+     "y": 5.65,
+     "signals": [],
+     "description": null
+    }
+   ],
+   "svg": "wokwi-resistor.svg"
+  },
+  "wokwi-pushbutton": {
+   "use": "acknowledge button on GPIO27",
+   "viewBox": "-3 0 18 12",
+   "width": "17.802mm",
+   "height": "12mm",
+   "pins": [
+    {
+     "name": "1.l",
+     "x": 0,
+     "y": 13,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "2.l",
+     "x": 0,
+     "y": 32,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "1.r",
+     "x": 67,
+     "y": 13,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "2.r",
+     "x": 67,
+     "y": 32,
+     "signals": [],
+     "description": null
+    }
+   ],
+   "svg": "wokwi-pushbutton.svg"
+  },
+  "wokwi-led": {
+   "use": "status LED, where an external one is fitted",
+   "viewBox": "-10 -5 35.456 39.618",
+   "width": "40",
+   "height": "50",
+   "pins": [
+    {
+     "name": "A",
+     "x": 25,
+     "y": 42,
+     "signals": [],
+     "description": "Anode"
+    },
+    {
+     "name": "C",
+     "x": 15,
+     "y": 42,
+     "signals": [],
+     "description": "Cathode"
+    }
+   ],
+   "svg": "wokwi-led.svg"
+  },
+  "wokwi-ntc-temperature-sensor": {
+   "use": "stands in for the DROK frame probe RT1",
+   "viewBox": "0 0 135.4 71.782",
+   "width": "35.826mm",
+   "height": "19mm",
+   "pins": [
+    {
+     "name": "GND",
+     "x": 135,
+     "y": 26.2,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "GND"
+      }
+     ],
+     "description": null
+    },
+    {
+     "name": "VCC",
+     "x": 135,
+     "y": 35.8,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "VCC"
+      }
+     ],
+     "description": null
+    },
+    {
+     "name": "OUT",
+     "x": 135,
+     "y": 45.5,
+     "signals": [
+      {
+       "type": "analog",
+       "channel": 0
+      }
+     ],
+     "description": null
+    }
+   ],
+   "svg": "wokwi-ntc-temperature-sensor.svg"
+  },
+  "wokwi-ks2e-m-dc5": {
+   "use": "relay — Path B KA2, not purchased",
+   "viewBox": "0 0 21 10",
+   "width": "21mm",
+   "height": "10mm",
+   "pins": [
+    {
+     "name": "NO2",
+     "x": 5.5,
+     "y": 5.1,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "NC2",
+     "x": 25,
+     "y": 5.1,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "P2",
+     "x": 45,
+     "y": 5.1,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "COIL2",
+     "x": 74,
+     "y": 5.1,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "GND"
+      }
+     ],
+     "description": null
+    },
+    {
+     "name": "NO1",
+     "x": 5.5,
+     "y": 32.7,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "NC1",
+     "x": 25,
+     "y": 32.7,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "P1",
+     "x": 45,
+     "y": 32.7,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "COIL1",
+     "x": 74,
+     "y": 32.7,
+     "signals": [],
+     "description": null
+    }
+   ],
+   "svg": "wokwi-ks2e-m-dc5.svg"
+  },
+  "wokwi-slide-switch": {
+   "use": "generic two-position switch",
+   "viewBox": "0 0 8.5 9.23",
+   "width": "8.5mm",
+   "height": "9.23mm",
+   "pins": [
+    {
+     "name": "1",
+     "x": 6.5,
+     "y": 34,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "2",
+     "x": 16,
+     "y": 34,
+     "signals": [],
+     "description": null
+    },
+    {
+     "name": "3",
+     "x": 25.5,
+     "y": 34,
+     "signals": [],
+     "description": null
+    }
+   ],
+   "svg": "wokwi-slide-switch.svg"
+  }
+ }
+}
