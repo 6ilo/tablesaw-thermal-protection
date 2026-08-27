@@ -121,13 +121,80 @@ def layout(spec, parts):
     return placed, total_w, TOP + content_h
 
 
-def route(c, a, b, colour, sw=2.6):
+def corridors(boxes, W, pad=8):
+    """The vertical strips of the sheet no part occupies.
+
+    Channels are cut from these, so a wire's vertical run is in clear space by
+    construction rather than by luck. Deriving them from the part boxes means the
+    board needs no special case: it is simply the widest obstacle, and wires route
+    around it because there is no corridor through it.
+    """
+    spans = sorted((x0 - pad, x1 + pad) for x0, _, x1, _ in boxes)
+    merged = []
+    for lo, hi in spans:
+        if merged and lo <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], hi)
+        else:
+            merged.append([lo, hi])
+    gaps, cursor = [], 0.0
+    for lo, hi in merged:
+        if lo - cursor > 24:
+            gaps.append((cursor, lo))
+        cursor = max(cursor, hi)
+    if W - cursor > 24:
+        gaps.append((cursor, W))
+    return gaps
+
+
+def plan_channels(wires, boxes, W):
+    """Give every dog-legged wire its own vertical track.
+
+    Previously every wire turned at the midpoint of its own straight line. Since a
+    whole column of parts sits at roughly one x, their midpoints coincided and four
+    or five conductors collapsed onto one track, which is most of what made the
+    sheet unreadable.
+
+    Allocation, all deterministic:
+      1. Pick the corridor with the widest overlap of the wire's x-span; ties go to
+         the leftmost corridor.
+      2. Within a corridor, order wires by the y they are heading TO, then by
+         declaration index. Ordering by destination keeps the second horizontal legs
+         from interleaving, which is where crossings actually come from.
+      3. Spread the tracks evenly across the corridor's usable width.
+    """
+    want = {}
+    for i, (a, b, *_rest) in enumerate(wires):
+        if abs(a[1] - b[1]) < 1.5:
+            continue                                  # straight run, no turn needed
+        lo, hi = sorted((a[0], b[0]))
+        best, best_overlap = None, 0
+        for gi, (g0, g1) in enumerate(corridors(boxes, W)):
+            ov = min(hi, g1) - max(lo, g0)
+            if ov > best_overlap + 0.01:
+                best, best_overlap = gi, ov
+        if best is not None and best_overlap > 12:
+            want.setdefault(best, []).append(i)
+
+    gaps = corridors(boxes, W)
+    chan = {}
+    for gi, idxs in want.items():
+        g0, g1 = gaps[gi]
+        usable = max(g1 - g0 - 28, 12)
+        order = sorted(idxs, key=lambda i: (round(wires[i][1][1], 2), i))
+        n = len(order)
+        for k, i in enumerate(order):
+            frac = (k + 1) / (n + 1)
+            chan[i] = g0 + 14 + usable * frac
+    return chan
+
+
+def route(c, a, b, colour, sw=2.6, channel=None):
     """Orthogonal, with a mid-channel dogleg. Straight where it can be."""
     (x1, y1), (x2, y2) = a, b
     if abs(y1 - y2) < 1.5:
         c.line(x1, y1, x2, y2, colour, sw)
     else:
-        mx = (x1 + x2) / 2
+        mx = channel if channel is not None else (x1 + x2) / 2
         r = min(9, abs(y2 - y1) / 2, max(abs(mx - x1), 1))
         sy = 1 if y2 > y1 else -1
         sx = 1 if x2 > x1 else -1
@@ -241,16 +308,28 @@ def render(spec, parts, rmap):
     # Wires, then parts, then labels. The order matters: labels used to be drawn
     # with the wires and were painted over by any part that followed, so the fix
     # for "you cannot read it" could not simply be "move it somewhere clearer".
-    pending = []
+    # Resolve every net BEFORE drawing any of it: channels are allocated across the
+    # whole set, so no wire can be routed until all of them are known.
+    wires = []
     for n in nets:
         fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
         to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
         colour = WIRE.get(n.get("color", "grey"), n.get("color", "#7A8087"))
         a = parts[comps[fr]["part"]].pin_at(fp, *placed[fr])
         b = parts[comps[to]["part"]].pin_at(tp, *placed[to])
-        route(c, a, b, colour, 3.2 if n.get("mains") else 2.6)
-        if n.get("label"):
-            pending.append((a, b, colour, n["label"]))
+        wires.append((a, b, colour, 3.2 if n.get("mains") else 2.6, n.get("label")))
+
+    boxes = [(placed[r][0], placed[r][1],
+              placed[r][0] + parts[cd["part"]].w,
+              placed[r][1] + parts[cd["part"]].h)
+             for r, cd in comps.items()]
+    chan = plan_channels(wires, boxes, W)
+
+    pending = []
+    for i, (a, b, colour, sw, label) in enumerate(wires):
+        route(c, a, b, colour, sw, chan.get(i))
+        if label:
+            pending.append((a, b, colour, label))
 
     obstacles = []
     for ref, cd in comps.items():
@@ -313,6 +392,55 @@ def rel(p):
         return p
 
 
+def crossings(spec, parts, rmap):
+    """Wires whose path runs under a part they do not connect to.
+
+    Corridors make this impossible by construction today, which is exactly why it
+    is worth asserting: the property is a consequence of the routing design, so a
+    future change to placement or allocation could quietly lose it, and a wire that
+    disappears under a component is unreadable in the one way that matters.
+    """
+    comps = spec["components"]
+    board = partlib.Esp32DevKitC()
+    parts = dict(parts)
+    parts[board.id] = board
+    placed, W, _ = layout(spec, parts)
+    box = {r: (placed[r][0], placed[r][1],
+               placed[r][0] + parts[cd["part"]].w,
+               placed[r][1] + parts[cd["part"]].h)
+           for r, cd in comps.items()}
+
+    wires, ends = [], []
+    for n in spec.get("nets", []):
+        fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
+        to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
+        wires.append((parts[comps[fr]["part"]].pin_at(fp, *placed[fr]),
+                      parts[comps[to]["part"]].pin_at(tp, *placed[to]),
+                      None, None, n.get("label")))
+        ends.append({fr, to})
+    chan = plan_channels(wires, list(box.values()), W)
+
+    def h_hits(y, xa, xb, bx):
+        x0, y0, x1, y1 = bx
+        return y0 + 2 < y < y1 - 2 and max(xa, xb) > x0 + 2 and min(xa, xb) < x1 - 2
+
+    def v_hits(x, ya, yb, bx):
+        x0, y0, x1, y1 = bx
+        return x0 + 2 < x < x1 - 2 and max(ya, yb) > y0 + 2 and min(ya, yb) < y1 - 2
+
+    bad = []
+    for i, ((x1, y1), (x2, y2), _, _, label) in enumerate(wires):
+        mx = chan.get(i, (x1 + x2) / 2)
+        for r, bx in box.items():
+            if r in ends[i]:
+                continue
+            if h_hits(y1, x1, mx, bx) or h_hits(y2, mx, x2, bx) or v_hits(mx, y1, y2, bx):
+                net = spec["nets"][i]
+                bad.append(f"net {i} ({label or net.get('color', '?')}: "
+                           f"{net['from']} -> {net['to']}) runs under {r}")
+    return bad
+
+
 def specs(one=None):
     if one:
         p = Path(one)
@@ -341,13 +469,20 @@ def cmd_build(args):
 
 def cmd_check(args):
     parts, rmap = partlib.load_all(), roles()
-    stale = []
+    stale, buried = [], []
     for s in specs(None):
         spec = yaml.safe_load(s.read_text())
+        buried += crossings(spec, parts, rmap)
         want = render(spec, parts, rmap)      # raises on any unresolvable endpoint
         out = s.with_suffix(".svg")
         if not out.exists() or out.read_text() != want:
             stale.append(rel(out))
+    if buried:
+        print("cirkit: these wires run under a part they do not connect to:",
+              file=sys.stderr)
+        for b in buried:
+            print(f"  {b}", file=sys.stderr)
+        return 1
     if stale:
         print("cirkit: these sheets are stale:", file=sys.stderr)
         for p in stale:

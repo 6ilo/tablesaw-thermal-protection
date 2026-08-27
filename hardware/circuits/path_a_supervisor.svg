@@ -3,34 +3,34 @@
 <text x="40.00" y="52.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" fill="#16181D" text-anchor="start" font-weight="700" letter-spacing="0">Path A supervisor — low-voltage wiring</text>
 <text x="40.00" y="77.00" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#6E7178" text-anchor="start" font-weight="400" letter-spacing="0">Frame NTC as the trip source, 433 MHz fob heartbeat as the output. Mains side is on ladder_coil_circuit.svg, not here.</text>
 <line x1="40.00" y1="97.00" x2="874.00" y2="97.00" stroke="#C7CAD1" stroke-width="1" stroke-linecap="round"/>
-<path d="M211.0 176.0 H327.5 Q336.5 176.0 336.5 185.0 V500.9 Q336.5 509.9 345.5 509.9 H462.0" stroke="#C0392B" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M211.0 176.0 H331.9 Q340.9 176.0 340.9 185.0 V500.9 Q340.9 509.9 349.9 509.9 H462.0" stroke="#C0392B" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="211.00" cy="176.00" r="3.40" fill="#C0392B" stroke="none" stroke-width="1"/>
 <circle cx="462.00" cy="509.92" r="3.40" fill="#C0392B" stroke="none" stroke-width="1"/>
-<path d="M378.0 191.2 H252.2 Q243.2 191.2 243.2 200.2 V372.6 Q243.2 381.6 234.2 381.6 H108.4" stroke="#D98C1F" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M378.0 191.2 H319.6 Q310.6 191.2 310.6 200.2 V372.6 Q310.6 381.6 301.6 381.6 H108.4" stroke="#D98C1F" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="378.00" cy="191.17" r="3.40" fill="#D98C1F" stroke="none" stroke-width="1"/>
 <circle cx="108.43" cy="381.65" r="3.40" fill="#D98C1F" stroke="none" stroke-width="1"/>
-<path d="M167.2 381.6 H263.6 Q272.6 381.6 272.6 372.6 V262.2 Q272.6 253.2 281.6 253.2 H378.0" stroke="#7A5EA8" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M167.2 381.6 H256.1 Q265.1 381.6 265.1 372.6 V262.2 Q265.1 253.2 274.1 253.2 H378.0" stroke="#7A5EA8" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="167.23" cy="381.65" r="3.40" fill="#7A5EA8" stroke="none" stroke-width="1"/>
 <circle cx="378.00" cy="253.17" r="3.40" fill="#7A5EA8" stroke="none" stroke-width="1"/>
 <path d="M167.2 381.6 H186.6 Q195.6 381.6 195.6 372.6 V299.0 Q195.6 290.0 204.6 290.0 H224.0" stroke="#7A5EA8" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="167.23" cy="381.65" r="3.40" fill="#7A5EA8" stroke="none" stroke-width="1"/>
 <circle cx="224.00" cy="290.00" r="3.40" fill="#7A5EA8" stroke="none" stroke-width="1"/>
-<path d="M224.0 302.0 H292.0 Q301.0 302.0 301.0 311.0 V383.7 Q301.0 392.7 310.0 392.7 H378.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M224.0 302.0 H316.7 Q325.7 302.0 325.7 311.0 V383.7 Q325.7 392.7 334.7 392.7 H378.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="224.00" cy="302.00" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <circle cx="378.00" cy="392.67" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
-<path d="M213.0 467.8 H286.5 Q295.5 467.8 295.5 458.8 V355.2 Q295.5 346.2 304.5 346.2 H378.0" stroke="#2E6DA4" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M213.0 467.8 H286.4 Q295.4 467.8 295.4 458.8 V355.2 Q295.4 346.2 304.4 346.2 H378.0" stroke="#2E6DA4" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="213.00" cy="467.84" r="3.40" fill="#2E6DA4" stroke="none" stroke-width="1"/>
 <circle cx="378.00" cy="346.17" r="3.40" fill="#2E6DA4" stroke="none" stroke-width="1"/>
-<path d="M213.0 494.8 H370.5 Q379.5 494.8 379.5 485.8 V293.2 Q379.5 284.2 388.5 284.2 H546.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M213.0 494.8 H271.3 Q280.3 494.8 280.3 485.8 V293.2 Q280.3 284.2 289.3 284.2 H546.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="213.00" cy="494.84" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <circle cx="546.00" cy="284.17" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
-<path d="M378.0 330.7 H555.7 Q564.7 330.7 564.7 321.7 V175.0 Q564.7 166.0 573.7 166.0 H751.4" stroke="#8A5A3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M378.0 330.7 H580.2 Q589.2 330.7 589.2 321.7 V175.0 Q589.2 166.0 598.2 166.0 H751.4" stroke="#8A5A3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="378.00" cy="330.67" r="3.40" fill="#8A5A3C" stroke="none" stroke-width="1"/>
 <circle cx="751.43" cy="165.98" r="3.40" fill="#8A5A3C" stroke="none" stroke-width="1"/>
 <path d="M810.2 166.0 H778.6 Q769.6 166.0 769.6 175.0 V236.7 Q769.6 245.7 760.6 245.7 H729.0" stroke="#8A5A3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="810.23" cy="165.98" r="3.40" fill="#8A5A3C" stroke="none" stroke-width="1"/>
 <circle cx="729.00" cy="245.67" r="3.40" fill="#8A5A3C" stroke="none" stroke-width="1"/>
-<path d="M729.0 271.7 H643.8 Q637.5 271.7 637.5 277.9 V277.9 Q637.5 284.2 631.2 284.2 H546.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M729.0 271.7 H616.6 Q610.4 271.7 610.4 277.9 V277.9 Q610.4 284.2 604.1 284.2 H546.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="729.00" cy="271.67" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <circle cx="546.00" cy="284.17" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <path d="M833.0 245.7 H840.5 Q849.5 245.7 849.5 254.7 V374.7 Q849.5 383.7 858.5 383.7 H866.0" stroke="#8A5A3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -39,10 +39,10 @@
 <path d="M833.0 271.7 H840.5 Q849.5 271.7 849.5 280.7 V388.7 Q849.5 397.7 858.5 397.7 H866.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="833.00" cy="271.67" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <circle cx="866.00" cy="397.67" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
-<path d="M378.0 330.7 H555.7 Q564.7 330.7 564.7 339.7 V486.3 Q564.7 495.3 573.7 495.3 H751.4" stroke="#8A5A3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M378.0 330.7 H643.8 Q652.8 330.7 652.8 339.7 V486.3 Q652.8 495.3 661.8 495.3 H751.4" stroke="#8A5A3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="378.00" cy="330.67" r="3.40" fill="#8A5A3C" stroke="none" stroke-width="1"/>
 <circle cx="751.43" cy="495.32" r="3.40" fill="#8A5A3C" stroke="none" stroke-width="1"/>
-<path d="M810.2 495.3 H687.1 Q678.1 495.3 678.1 486.3 V293.2 Q678.1 284.2 669.1 284.2 H546.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M810.2 495.3 H640.6 Q631.6 495.3 631.6 486.3 V293.2 Q631.6 284.2 622.6 284.2 H546.0" stroke="#22262A" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="810.23" cy="495.32" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <circle cx="546.00" cy="284.17" r="3.40" fill="#22262A" stroke="none" stroke-width="1"/>
 <g transform="translate(65.00,132.00)">
