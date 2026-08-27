@@ -34,6 +34,7 @@ keeps codedocs.py installable anywhere Python is.
 """
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -44,6 +45,7 @@ import yaml
 REPO = Path(__file__).resolve().parent.parent
 CONFIG_H = REPO / "firmware" / "include" / "saw_config.h"
 SPEC_DIR = REPO / "hardware" / "pinmaps"
+PIN_DB = REPO / "hardware" / "parts" / "esp32_pins.json"
 
 # Shared with hardware/schematic/tsstyle.tex so a generated card sits beside the
 # CircuiTikZ sheets without looking like it came from somewhere else.
@@ -75,6 +77,23 @@ def role_map(path=CONFIG_H):
         raise SystemExit(f"pinmap: cannot read {path}")
     pat = re.compile(r"^#define\s+(SAW_PIN_[A-Z0-9_]+)\s+(\d+)", re.M)
     return {m.group(1): int(m.group(2)) for m in pat.finditer(path.read_text())}
+
+
+def capability(path=PIN_DB):
+    """Per-GPIO function tags, from Espressif's own headers via ingest_esp32_pins.py.
+
+    Absent is not fatal: the sheet renders without tags rather than refusing to
+    draw. A missing database should not stop somebody printing a wiring card.
+    """
+    if not path.exists():
+        return {}
+    d = json.loads(path.read_text())
+    return {int(k): v for k, v in d["pins"].items()}
+
+
+# Capability tags are neutral facts; these three are warnings, and colouring them
+# the same as ADC1_CH6 would bury the one that can cost somebody an afternoon.
+TAG_WARN = {"INPUT ONLY": "#B3261E", "STRAPPING": "#8A6716", "FLASH": "#8A6716"}
 
 
 def resolve(row, roles):
@@ -131,7 +150,7 @@ def render(spec, roles):
     left = [r for r in spec["pins"] if r.get("side", "left") == "left"]
     right = [r for r in spec["pins"] if r.get("side") == "right"]
 
-    PITCH, PILL_H = 46, 30
+    PITCH, PILL_H = 58, 30
     TOP = 132
     # The board sizes to its own caption. A fixed width silently ran the
     # sub-line out under the right-hand pills the moment a board name grew.
@@ -147,7 +166,7 @@ def render(spec, roles):
     used = sorted({r.get("class", "unused") for r in spec["pins"]},
                   key=lambda c: list(CLASSES).index(c) if c in CLASSES else 99)
     legend_y = TOP + board_h + 74
-    H = legend_y + 78
+    H = legend_y + 88
 
     bx = (W - BOARD_W) / 2
     c = Canvas()
@@ -179,6 +198,16 @@ def render(spec, roles):
     c.rect(bx + BOARD_W / 2 - 24, TOP + board_h - 9, 48, 16, "#8A9096", r=3)
 
     # --- pin rows ---------------------------------------------------------
+    caps = capability()
+
+    def chip(x, y, text, colour, side):
+        """A function tag. Returns the x to continue from, growing outward."""
+        w = tw(text, 10, mono=True) + 13
+        cx = x - w if side == "left" else x
+        c.rect(cx, y, w, 16, "none", r=3, stroke=colour, sw=1.2)
+        c.text(cx + w / 2, y + 11.5, text, 10, colour, anchor="middle", mono=True, ls=0.3)
+        return (cx - 5) if side == "left" else (cx + w + 5)
+
     def row(r, i, side):
         pin, role = resolve(r, roles)
         cls = r.get("class", "unused")
@@ -200,14 +229,21 @@ def render(spec, roles):
         c.text(px + pw / 2, y + 20, pin, 14, "#FFFFFF", anchor="middle",
                weight="700", mono=True)
 
-        # label and note run outward from the pill
         tx = px - 14 if side == "left" else px + pw + 14
         anchor = "end" if side == "left" else "start"
+        c.text(tx, y + 14, r.get("label", ""), 14.5, INK, anchor=anchor, weight="600")
+
+        # Function tags, from the capability database rather than from the spec —
+        # the spec never states them, so they cannot be stated wrongly.
+        m = re.match(r"GPIO(\d+)$", pin)
+        tags = caps.get(int(m.group(1)), {}).get("tags", []) if m else []
+        cursor = tx
+        for t in tags:
+            cursor = chip(cursor, y + 20, t, TAG_WARN.get(t, MUTE), side)
+
         note = r.get("note")
-        c.text(tx, y + (14 if note else 20), r.get("label", ""), 14.5, INK,
-               anchor=anchor, weight="600")
         if note:
-            c.text(tx, y + 28, note, 12, MUTE, anchor=anchor)
+            c.text(tx, y + 48, note, 12, MUTE, anchor=anchor)
 
         # role provenance, small, under the pill — this is the honesty bit
         if role:
@@ -228,9 +264,14 @@ def render(spec, roles):
         c.text(x + 23, legend_y + 1, desc, 12.5, INK)
         x += 23 + tw(desc, 12.5) + 34
 
-    foot = ("Pin numbers generated from firmware/include/saw_config.h — this sheet "
-            "cannot disagree with the firmware. Regenerate: python3 tools/pinmap.py build")
-    c.text(40, H - 26, foot, 11, MUTE)
+    # Two lines rather than one: a single line ran past the right margin and the
+    # provenance is the last thing that should be clipped off a generated sheet.
+    c.text(40, H - 36,
+           "Pin numbers from firmware/include/saw_config.h. Function tags from Espressif "
+           "ESP-IDF release/v5.5 via hardware/parts/esp32_pins.json.", 11, MUTE)
+    c.text(40, H - 21,
+           "Neither is typed into the spec, so neither can disagree with its source. "
+           "Regenerate: python3 tools/pinmap.py build", 11, MUTE)
 
     body = "\n".join(c.parts)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H:.0f}" '
