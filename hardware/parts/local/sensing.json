@@ -1,0 +1,874 @@
+{
+ "parts": [
+  {
+   "id": "ntc-probe",
+   "title": "NTC Frame Probe",
+   "subtitle": "DROK B0F8NQ9S4R \u00b7 10 k\u03a9 B3950 \u00b7 JST XH 2.54 2-pin",
+   "w": 180,
+   "h": 64,
+   "notes": "RT1 in hardware/BOM.csv \u2014 on hand and connectorised, so it is drawn with the factory JST XH still fitted (the mate J1 is on the ESP32 side). Low-voltage part: no mains red anywhere on it, deliberately, because it is the one sensor lead a person will handle while the cabinet is open. The steel can is drawn at about 3:1 rather than the true 5:1 (5 x 25 mm) so the body stays readable next to a 1 m lead that is shown foreshortened. The pair is non-polarised \u2014 swapping 1 and 2 changes nothing \u2014 so neither conductor is coloured as a signal.",
+   "shapes": [
+    {
+     "t": "rect",
+     "x": 6,
+     "y": 21,
+     "w": 54,
+     "h": 17,
+     "rx": 8,
+     "fill": "#9AA0A6",
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 13,
+     "y1": 26,
+     "x2": 54,
+     "y2": 26,
+     "stroke": "#D8DCE0",
+     "sw": 2
+    },
+    {
+     "t": "line",
+     "x1": 13,
+     "y1": 34,
+     "x2": 54,
+     "y2": 34,
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 15,
+     "y1": 23,
+     "x2": 15,
+     "y2": 36,
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 56,
+     "y": 22,
+     "w": 20,
+     "h": 15,
+     "rx": 5,
+     "fill": "#2A2E33"
+    },
+    {
+     "t": "rect",
+     "x": 74,
+     "y": 25,
+     "w": 8,
+     "h": 9,
+     "rx": 3,
+     "fill": "#2A2E33"
+    },
+    {
+     "t": "path",
+     "d": "M80 30 L100 30 L112 34 L124 30 L130 30",
+     "stroke": "#2A2E33",
+     "sw": 8,
+     "fill": "none"
+    },
+    {
+     "t": "path",
+     "d": "M84 28 L100 28",
+     "stroke": "#4A5057",
+     "sw": 1.5,
+     "fill": "none"
+    },
+    {
+     "t": "line",
+     "x1": 128,
+     "y1": 30,
+     "x2": 136,
+     "y2": 24,
+     "stroke": "#B0B6BC",
+     "sw": 2.5
+    },
+    {
+     "t": "line",
+     "x1": 128,
+     "y1": 30,
+     "x2": 136,
+     "y2": 36,
+     "stroke": "#B0B6BC",
+     "sw": 2.5
+    },
+    {
+     "t": "rect",
+     "x": 134,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "rx": 2,
+     "fill": "#FFFFFF",
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 139,
+     "y": 21,
+     "w": 17,
+     "h": 6,
+     "rx": 1,
+     "fill": "#D8DCE0",
+     "stroke": "#9AA0A6",
+     "sw": 0.8
+    },
+    {
+     "t": "rect",
+     "x": 139,
+     "y": 33,
+     "w": 17,
+     "h": 6,
+     "rx": 1,
+     "fill": "#D8DCE0",
+     "stroke": "#9AA0A6",
+     "sw": 0.8
+    },
+    {
+     "t": "line",
+     "x1": 134,
+     "y1": 30,
+     "x2": 162,
+     "y2": 30,
+     "stroke": "#D8DCE0",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 162,
+     "y": 22,
+     "w": 14,
+     "h": 4,
+     "fill": "#B0B6BC"
+    },
+    {
+     "t": "rect",
+     "x": 162,
+     "y": 34,
+     "w": 14,
+     "h": 4,
+     "fill": "#B0B6BC"
+    },
+    {
+     "t": "text",
+     "x": 6,
+     "y": 51,
+     "s": "10 k\u03a9 B3950 NTC",
+     "size": 7,
+     "fill": "#16181D",
+     "anchor": "start",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 6,
+     "y": 60,
+     "s": "5 \u00d7 25 mm stainless \u00b7 1 m PVC lead",
+     "size": 6,
+     "fill": "#6E7178",
+     "anchor": "start",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 176,
+     "y": 51,
+     "s": "JST XH 2.54, 2-pin",
+     "size": 6,
+     "fill": "#6E7178",
+     "anchor": "end",
+     "mono": false
+    }
+   ],
+   "pins": [
+    {
+     "name": "1",
+     "x": 176,
+     "y": 24,
+     "signals": [],
+     "description": "Thermistor element, either conductor \u2014 the pair is not polarised"
+    },
+    {
+     "name": "2",
+     "x": 176,
+     "y": 36,
+     "signals": [],
+     "description": "Thermistor element, other conductor \u2014 interchangeable with 1"
+    }
+   ]
+  },
+  {
+   "id": "thermocouple-k",
+   "title": "K-Type Thermocouple",
+   "subtitle": "Type K \u00b7 exposed bead junction \u00b7 yellow mini plug",
+   "w": 182,
+   "h": 66,
+   "notes": "TC1 in hardware/BOM.csv \u2014 NOT PURCHASED (TASK-1), so the caller should render this ghosted. The yellow body is the ANSI identifier for Type K and is the only reason a person can tell it from a J or T plug at a glance, so it is coloured yellow rather than a palette body colour. The two blades are drawn deliberately unequal: on a real mini plug the wider blade is the negative pin, and that asymmetry is the polarity key \u2014 a reversed pair still fits nothing but reads backwards, which is why both pin descriptions carry the warning. Low-voltage part; no mains colours. The bead is drawn oversized relative to the lead so the junction is visible at sheet scale.",
+   "shapes": [
+    {
+     "t": "path",
+     "d": "M18 30 L26 25 L34 35 L42 25 L50 30",
+     "stroke": "#9AA0A6",
+     "sw": 2,
+     "fill": "none"
+    },
+    {
+     "t": "path",
+     "d": "M18 30 L26 35 L34 25 L42 35 L50 30",
+     "stroke": "#6E7178",
+     "sw": 2,
+     "fill": "none"
+    },
+    {
+     "t": "circle",
+     "cx": 13,
+     "cy": 30,
+     "r": 5.5,
+     "fill": "#9AA0A6",
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 11,
+     "cy": 28,
+     "r": 1.8,
+     "fill": "#D8DCE0"
+    },
+    {
+     "t": "rect",
+     "x": 50,
+     "y": 22,
+     "w": 70,
+     "h": 16,
+     "rx": 4,
+     "fill": "#D8DCE0",
+     "stroke": "#9AA0A6",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 52,
+     "y1": 30,
+     "x2": 118,
+     "y2": 30,
+     "stroke": "#9AA0A6",
+     "sw": 0.8
+    },
+    {
+     "t": "line",
+     "x1": 56,
+     "y1": 23,
+     "x2": 62,
+     "y2": 37,
+     "stroke": "#B0B6BC",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 66,
+     "y1": 23,
+     "x2": 72,
+     "y2": 37,
+     "stroke": "#B0B6BC",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 76,
+     "y1": 23,
+     "x2": 82,
+     "y2": 37,
+     "stroke": "#B0B6BC",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 86,
+     "y1": 23,
+     "x2": 92,
+     "y2": 37,
+     "stroke": "#B0B6BC",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 96,
+     "y1": 23,
+     "x2": 102,
+     "y2": 37,
+     "stroke": "#B0B6BC",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 106,
+     "y1": 23,
+     "x2": 112,
+     "y2": 37,
+     "stroke": "#B0B6BC",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 108,
+     "y": 23,
+     "w": 12,
+     "h": 14,
+     "rx": 2,
+     "fill": "#C9A62E",
+     "stroke": "#A8861A",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 116,
+     "y": 12,
+     "w": 46,
+     "h": 42,
+     "rx": 3,
+     "fill": "#E8C33A",
+     "stroke": "#A8861A",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 116,
+     "y1": 33,
+     "x2": 162,
+     "y2": 33,
+     "stroke": "#A8861A",
+     "sw": 0.8
+    },
+    {
+     "t": "rect",
+     "x": 162,
+     "y": 21,
+     "w": 16,
+     "h": 4,
+     "fill": "#B0B6BC",
+     "stroke": "#6E7178",
+     "sw": 0.6
+    },
+    {
+     "t": "rect",
+     "x": 162,
+     "y": 39,
+     "w": 16,
+     "h": 7,
+     "fill": "#B0B6BC",
+     "stroke": "#6E7178",
+     "sw": 0.6
+    },
+    {
+     "t": "text",
+     "x": 128,
+     "y": 40,
+     "s": "K",
+     "size": 15,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 152,
+     "y": 26,
+     "s": "+",
+     "size": 10,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 152,
+     "y": 47,
+     "s": "\u2212",
+     "size": 10,
+     "fill": "#16181D",
+     "anchor": "middle",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 6,
+     "y": 61,
+     "s": "Type K \u00b7 bead junction",
+     "size": 6.5,
+     "fill": "#16181D",
+     "anchor": "start",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 178,
+     "y": 61,
+     "s": "yellow = K \u00b7 wide blade = \u2212",
+     "size": 6,
+     "fill": "#6E7178",
+     "anchor": "end",
+     "mono": false
+    }
+   ],
+   "pins": [
+    {
+     "name": "+",
+     "x": 178,
+     "y": 23,
+     "signals": [],
+     "description": "Positive (yellow lead, narrow blade) \u2014 reversed polarity reads backwards, not high"
+    },
+    {
+     "name": "\u2212",
+     "x": 178,
+     "y": 42,
+     "signals": [],
+     "description": "Negative (red lead, wide blade) \u2014 polarity matters; the wide blade is the key"
+    }
+   ],
+   "ghost": true
+  },
+  {
+   "id": "max31855-breakout",
+   "title": "MAX31855 Breakout",
+   "subtitle": "K-type SPI amplifier \u00b7 screw terminal + 5-pin header",
+   "w": 160,
+   "h": 88,
+   "notes": "The amplifier half of TC1 \u2014 NOT PURCHASED (TASK-1), Path B only, so the caller should render this ghosted alongside the thermocouple. Everything on this board is low voltage, which is why the terminal block is drawn in low-volt blue and not mains red: a green PCB with a screw terminal is exactly the shape a person misreads as a mains part, so the colour is doing work here. The header is drawn as the five pins the brief names, in the order VIN/GND/DO/CS/CLK; several real breakouts add a 3Vo output pin, so check the silkscreen on the part actually bought before wiring from this picture. DO is data out only \u2014 the MAX31855 is read-only and there is no MOSI.",
+   "shapes": [
+    {
+     "t": "rect",
+     "x": 16,
+     "y": 8,
+     "w": 128,
+     "h": 72,
+     "rx": 3,
+     "fill": "#1E5E3A",
+     "stroke": "#14472C",
+     "sw": 1
+    },
+    {
+     "t": "circle",
+     "cx": 26,
+     "cy": 13,
+     "r": 3.6,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "circle",
+     "cx": 26,
+     "cy": 13,
+     "r": 1.8,
+     "fill": "#FFFFFF"
+    },
+    {
+     "t": "circle",
+     "cx": 26,
+     "cy": 71,
+     "r": 3.6,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "circle",
+     "cx": 26,
+     "cy": 71,
+     "r": 1.8,
+     "fill": "#FFFFFF"
+    },
+    {
+     "t": "line",
+     "x1": 10,
+     "y1": 28,
+     "x2": 0,
+     "y2": 28,
+     "stroke": "#B0B6BC",
+     "sw": 3.5
+    },
+    {
+     "t": "line",
+     "x1": 10,
+     "y1": 54,
+     "x2": 0,
+     "y2": 54,
+     "stroke": "#B0B6BC",
+     "sw": 3.5
+    },
+    {
+     "t": "rect",
+     "x": 4,
+     "y": 18,
+     "w": 38,
+     "h": 46,
+     "rx": 2,
+     "fill": "#15607A",
+     "stroke": "#0E4457",
+     "sw": 1
+    },
+    {
+     "t": "rect",
+     "x": 4,
+     "y": 24,
+     "w": 9,
+     "h": 8,
+     "rx": 1,
+     "fill": "#16181D"
+    },
+    {
+     "t": "rect",
+     "x": 4,
+     "y": 50,
+     "w": 9,
+     "h": 8,
+     "rx": 1,
+     "fill": "#16181D"
+    },
+    {
+     "t": "circle",
+     "cx": 28,
+     "cy": 28,
+     "r": 7,
+     "fill": "#9AA0A6",
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 24,
+     "y1": 28,
+     "x2": 32,
+     "y2": 28,
+     "stroke": "#6E7178",
+     "sw": 1.8
+    },
+    {
+     "t": "circle",
+     "cx": 28,
+     "cy": 54,
+     "r": 7,
+     "fill": "#9AA0A6",
+     "stroke": "#6E7178",
+     "sw": 1
+    },
+    {
+     "t": "line",
+     "x1": 24,
+     "y1": 54,
+     "x2": 32,
+     "y2": 54,
+     "stroke": "#6E7178",
+     "sw": 1.8
+    },
+    {
+     "t": "line",
+     "x1": 54,
+     "y1": 38,
+     "x2": 58,
+     "y2": 38,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 54,
+     "y1": 44,
+     "x2": 58,
+     "y2": 44,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 54,
+     "y1": 50,
+     "x2": 58,
+     "y2": 50,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 54,
+     "y1": 56,
+     "x2": 58,
+     "y2": 56,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 94,
+     "y1": 38,
+     "x2": 98,
+     "y2": 38,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 94,
+     "y1": 44,
+     "x2": 98,
+     "y2": 44,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 94,
+     "y1": 50,
+     "x2": 98,
+     "y2": 50,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "line",
+     "x1": 94,
+     "y1": 56,
+     "x2": 98,
+     "y2": 56,
+     "stroke": "#9AA0A6",
+     "sw": 1.5
+    },
+    {
+     "t": "rect",
+     "x": 58,
+     "y": 34,
+     "w": 36,
+     "h": 24,
+     "rx": 2,
+     "fill": "#2A2E33"
+    },
+    {
+     "t": "circle",
+     "cx": 63,
+     "cy": 39,
+     "r": 2,
+     "fill": "#6E7178"
+    },
+    {
+     "t": "text",
+     "x": 77,
+     "y": 49,
+     "s": "31855",
+     "size": 5,
+     "fill": "#E4E6E2",
+     "anchor": "middle",
+     "mono": true
+    },
+    {
+     "t": "rect",
+     "x": 128,
+     "y": 16,
+     "w": 16,
+     "h": 64,
+     "rx": 1.5,
+     "fill": "#2A2E33"
+    },
+    {
+     "t": "rect",
+     "x": 138,
+     "y": 22,
+     "w": 18,
+     "h": 4,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "rect",
+     "x": 138,
+     "y": 34,
+     "w": 18,
+     "h": 4,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "rect",
+     "x": 138,
+     "y": 46,
+     "w": 18,
+     "h": 4,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "rect",
+     "x": 138,
+     "y": 58,
+     "w": 18,
+     "h": 4,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "rect",
+     "x": 138,
+     "y": 70,
+     "w": 18,
+     "h": 4,
+     "fill": "#C08A4A"
+    },
+    {
+     "t": "text",
+     "x": 46,
+     "y": 25,
+     "s": "MAX31855",
+     "size": 9,
+     "fill": "#E4E6E2",
+     "anchor": "start",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 46,
+     "y": 32,
+     "s": "T+",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "start",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 46,
+     "y": 60,
+     "s": "T\u2212",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "start",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 124,
+     "y": 27,
+     "s": "VIN",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 124,
+     "y": 39,
+     "s": "GND",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 124,
+     "y": 51,
+     "s": "DO",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 124,
+     "y": 63,
+     "s": "CS",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": false
+    },
+    {
+     "t": "text",
+     "x": 124,
+     "y": 75,
+     "s": "CLK",
+     "size": 7,
+     "fill": "#E4E6E2",
+     "anchor": "end",
+     "mono": false
+    }
+   ],
+   "pins": [
+    {
+     "name": "T+",
+     "x": 0,
+     "y": 28,
+     "signals": [],
+     "description": "Thermocouple positive \u2014 yellow K lead into the screw terminal"
+    },
+    {
+     "name": "T\u2212",
+     "x": 0,
+     "y": 54,
+     "signals": [],
+     "description": "Thermocouple negative \u2014 red K lead; swapping the pair reads backwards"
+    },
+    {
+     "name": "VIN",
+     "x": 156,
+     "y": 24,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "VCC"
+      }
+     ],
+     "description": "Supply in, from the ESP32 3.3 V rail"
+    },
+    {
+     "name": "GND",
+     "x": 156,
+     "y": 36,
+     "signals": [
+      {
+       "type": "power",
+       "signal": "GND"
+      }
+     ],
+     "description": "Ground, common with the ESP32"
+    },
+    {
+     "name": "DO",
+     "x": 156,
+     "y": 48,
+     "signals": [
+      {
+       "type": "spi",
+       "signal": "MISO"
+      }
+     ],
+     "description": "SPI data out to the ESP32 \u2014 read-only, there is no MOSI"
+    },
+    {
+     "name": "CS",
+     "x": 156,
+     "y": 60,
+     "signals": [
+      {
+       "type": "spi",
+       "signal": "CS"
+      }
+     ],
+     "description": "Chip select, active low, driven by the ESP32"
+    },
+    {
+     "name": "CLK",
+     "x": 156,
+     "y": 72,
+     "signals": [
+      {
+       "type": "spi",
+       "signal": "SCK"
+      }
+     ],
+     "description": "SPI clock from the ESP32"
+    }
+   ],
+   "ghost": true
+  }
+ ]
+}

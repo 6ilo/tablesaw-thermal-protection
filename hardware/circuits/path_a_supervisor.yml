@@ -1,0 +1,94 @@
+# Path A — the complete low-voltage build, as WIRING.md describes it.
+#
+# No coordinates in this file. Components declare a column and the layout does the
+# rest; ESP32 pins are named by their FIRMWARE ROLE and saw_config.h supplies the
+# number, so this sheet cannot disagree with the firmware about which pin holds the
+# contactor closed.
+#
+# Render:  python3 tools/cirkit.py build
+#
+# NOTE ON WHAT IS DRAWN. Every part here is on the bench except the level shifter
+# and the three resistors, which BUILD-LOG.md records as not scrounged. The drawing
+# is the intent; BUILD-LOG.md is the build.
+
+title: Path A supervisor — low-voltage wiring
+subtitle: Frame NTC as the trip source, 433 MHz fob heartbeat as the output. Mains side is on ladder_coil_circuit.svg, not here.
+
+components:
+  PS1:
+    part: usb-charger
+    col: left
+    label: UL-listed charger
+    note: the isolation barrier for the whole build
+
+  RT1:
+    part: ntc-probe
+    col: left
+    label: DROK 10K B3950
+    note: clamps to the motor frame, not the winding
+
+  R1:
+    part: wokwi-resistor
+    col: left
+    label: 10 kΩ 1%
+    note: measure it — the real value goes in the β equation
+
+  SW1:
+    part: pushbutton-panel
+    col: left
+    label: Acknowledge
+    note: the only way out of MANUAL_LOCKOUT
+
+  U1:
+    part: esp32-devkitc-38
+    col: centre
+    label: Supervisor
+
+  R3:
+    part: wokwi-resistor
+    col: right
+    label: 330 Ω
+    note: limits the opto LED current
+
+  OK1:
+    part: optocoupler-dip4
+    col: right
+    label: PC817
+    note: no shared ground with the fob — that is the point
+
+  KA1:
+    part: key-fob
+    col: right
+    label: Fob (CYS02-E2)
+    note: pigtail unmetered — see BUILD-LOG.md
+
+  R2:
+    part: wokwi-resistor
+    col: right
+    label: 10 kΩ pulldown
+    note: MANDATORY — floating must mean not transmitting
+
+nets:
+  # power in — through the USB-C connector, no VIN wire anywhere
+  - {from: PS1.5V, to: U1.USB, color: red, label: USB-C}
+
+  # the sensing chain: 3V3 -> 10k -> GPIO34 -> NTC -> GND
+  - {from: U1.3V3, to: R1.1, color: orange, label: 3V3}
+  - {from: R1.2, to: "U1.@SAW_PIN_NTC", color: purple, label: divider junction}
+  - {from: R1.2, to: RT1.1, color: purple}
+  - {from: RT1.2, to: U1.GND, color: black}
+
+  # acknowledge button, internal pullup, no external resistor
+  - {from: SW1.1, to: "U1.@SAW_PIN_ACK", color: blue, label: ack}
+  - {from: SW1.2, to: U1.GND.R6, color: black}
+
+  # the hold line: GPIO26 -> 330R -> optocoupler -> the fob's ON pads
+  - {from: "U1.@SAW_PIN_HOLD", to: R3.1, color: brown, label: hold}
+  - {from: R3.2, to: OK1.A, color: brown}
+  - {from: OK1.K, to: U1.GND.R6, color: black}
+  - {from: OK1.C, to: KA1.ON-A, color: brown, label: fob ON pad}
+  - {from: OK1.E, to: "KA1.ON-B", color: black}
+
+  # and the resistor that makes a floating pin mean "stop"
+  - {from: "U1.@SAW_PIN_HOLD", to: R2.1, color: brown}
+  - {from: R2.2, to: U1.GND.R6, color: black, label: pulldown}

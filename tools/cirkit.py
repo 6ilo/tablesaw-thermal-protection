@@ -145,11 +145,20 @@ def render(spec, parts, rmap):
     comps = spec["components"]
     nets = spec.get("nets", [])
 
-    # Which board pins are in play, so the board can highlight them.
+    # Which BOARD pins are in play, so the board can highlight them.
+    #
+    # Scoped to endpoints that actually land on the board. Collecting every pin
+    # name from every net highlighted any header pin that happened to share a name
+    # with a pin on another part — the charger's "5V" lit up the board's 5V header,
+    # which nothing in this circuit connects to. A highlight that marks an unused
+    # pin is worse than no highlight, because it is read as "wire here".
+    board_refs = {r for r, cd in comps.items() if cd["part"] == "esp32-devkitc-38"}
     used = set()
     for n in nets:
         for ep in (n["from"], n["to"]):
             ref, pin = ep.split(".", 1)
+            if ref not in board_refs:
+                continue
             if pin.startswith("@") and pin[1:] in rmap:
                 pin = f"GPIO{rmap[pin[1:]]}"
             used.add(pin)
@@ -270,6 +279,76 @@ def cmd_check(args):
     return 0
 
 
+SHAPE_FIELDS = {
+    "rect": {"x", "y", "w", "h"},
+    "circle": {"cx", "cy", "r"},
+    "line": {"x1", "y1", "x2", "y2"},
+    "path": {"d"},
+    "text": {"x", "y", "s"},
+}
+
+
+def cmd_lint(args):
+    """Mechanical checks on the part library.
+
+    These are geometry facts, so they are arithmetic rather than judgement: a pin
+    that sits inside a body is a wire that vanishes under a component, and no
+    amount of reading the JSON catches it as reliably as computing it.
+    """
+    import partlib as pl
+    problems = []
+    for pid, part in sorted(pl.load_all().items()):
+        if not isinstance(part, pl.LocalPart):
+            continue                      # imported and procedural parts are not ours to lint
+
+        for sh in part.shapes:
+            t = sh.get("t")
+            if t not in SHAPE_FIELDS:
+                problems.append(f"{pid}: unknown shape type {t!r}")
+                continue
+            missing = SHAPE_FIELDS[t] - set(sh)
+            if missing:
+                problems.append(f"{pid}: {t} missing {sorted(missing)}")
+            for k, v in sh.items():
+                if k in ("fill", "stroke") and v not in ("none", None):
+                    if not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(v)):
+                        problems.append(f"{pid}: {t}.{k}={v!r} is not #RRGGBB")
+
+        # A pin must be reachable: near an edge, not stranded in the middle of the
+        # art, or a wire routed to it runs underneath the component.
+        #
+        # The tolerance is deliberately loose. The bounding box includes the part's
+        # LEADS, so a pin legitimately terminates a few pixels inside it — the
+        # optocoupler's legs stop 8 px in from a 120 px box, and the probe's JST
+        # contacts 4 px in from 180 px. Both are on the edge in every sense that
+        # matters. A tight tolerance flags those and teaches everyone to ignore the
+        # linter, which is worse than not having one. What this must catch is a pin
+        # at the CENTRE of a part, and it still does.
+        TOL = max(10.0, 0.08 * min(part.w, part.h))
+        for name, pin in part.pins.items():
+            x, y, w, h = pin["x"], pin["y"], part.w, part.h
+            inside = (TOL < x < w - TOL) and (TOL < y < h - TOL)
+            if inside:
+                problems.append(
+                    f"{pid}: pin {name!r} at ({x:.0f},{y:.0f}) is inside the "
+                    f"{w:.0f}x{h:.0f} body — a wire to it would run under the part")
+            if not (-TOL <= x <= w + TOL and -TOL <= y <= h + TOL):
+                problems.append(
+                    f"{pid}: pin {name!r} at ({x:.0f},{y:.0f}) is outside the "
+                    f"{w:.0f}x{h:.0f} bounding box")
+            if not pin.get("description"):
+                problems.append(f"{pid}: pin {name!r} has no description")
+
+    if problems:
+        print(f"cirkit lint: {len(problems)} problem(s)", file=sys.stderr)
+        for pr in problems:
+            print(f"  {pr}", file=sys.stderr)
+        return 1
+    n = sum(1 for p in pl.load_all().values() if isinstance(p, pl.LocalPart))
+    print(f"OK — {n} local parts: every pin reachable, every shape well formed")
+    return 0
+
+
 def cmd_parts(args):
     d = partlib.describe()
     if args.json:
@@ -290,9 +369,11 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build"); b.add_argument("spec", nargs="?")
     sub.add_parser("check")
+    sub.add_parser("lint", help="mechanical geometry checks on local parts")
     pp = sub.add_parser("parts"); pp.add_argument("--json", action="store_true")
     args = ap.parse_args()
-    fn = {"build": cmd_build, "check": cmd_check, "parts": cmd_parts}[args.cmd]
+    fn = {"build": cmd_build, "check": cmd_check, "parts": cmd_parts,
+          "lint": cmd_lint}[args.cmd]
     sys.exit(fn(args) or 0)
 
 
