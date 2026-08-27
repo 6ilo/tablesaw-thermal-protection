@@ -192,6 +192,14 @@ class Esp32DevKitC(Part):
                 key = nm if nm not in [p["name"] for p in pins] else f"{nm}.{side}{i}"
                 pins.append({"name": key, "x": x, "y": y, "signals": [],
                              "description": nm, "silk": nm, "side": side})
+        # The USB-C connector is a real connection point and the ONLY way power
+        # enters this build — there is no VIN wire anywhere in it. Modelling the
+        # board as header pins alone would leave the supply unable to attach to
+        # anything, and a diagram that cannot draw where the power comes in is
+        # not describing this project.
+        pins.append({"name": "USB", "x": w / 2, "y": h + 6, "signals": [],
+                     "description": "USB-C connector — power in", "silk": "USB",
+                     "side": "B"})
         super().__init__("esp32-devkitc-38", "ESP32-DevKitC-32E", w, h, pins,
                          subtitle="38-pin · USB-C")
 
@@ -207,6 +215,8 @@ class Esp32DevKitC(Part):
         c.rect(ox + w / 2 - 17, oy + h - 5, 34, 11, "#8A9096", r=2)
 
         for p in self.pins.values():
+            if p["side"] == "B":          # the USB connector is drawn above
+                continue
             x, y = ox + p["x"], oy + p["y"]
             silk = p["silk"]
             gpio = int(silk[4:]) if silk.startswith("GPIO") and silk[4:].isdigit() else None
