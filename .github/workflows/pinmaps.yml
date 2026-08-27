@@ -56,6 +56,14 @@ jobs:
         # part's body is a wire that runs underneath the component.
         run: python3 tools/cirkit.py lint
 
+      - name: The readability checks can still fail
+        # Runs the next step's check three times with one piece of the router
+        # disabled each time, and fails if it stays quiet. A gate nobody has ever
+        # seen fail is a gate nobody should trust, and this repository has had both
+        # kinds of bad check: one too strict to believe, and one that passed while
+        # looking at the wrong thing.
+        run: python3 tools/cirkit.py selftest
+
       - name: Every role resolves and every committed sheet is current
         run: |
           python3 tools/pinmap.py check

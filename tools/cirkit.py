@@ -19,9 +19,24 @@ and routing are computed. That is the whole design:
 
 A sheet is therefore ~30 lines of YAML, and a change is one line.
 
+ROUTING
+
+Placement is columns and arithmetic; routing is a search. Each wire proposes every
+route it could take — a straight run, a dog-leg through one channel, or a lap out
+past the end of a part and back — and the cheapest one that is READABLE wins.
+Readable is not a matter of taste here, it is two arithmetic properties:
+
+  * no conductor runs under a component (`buried`), and
+  * no conductor runs along another (`overlap_px`),
+
+both of which are also what `check` asserts, using the same functions on the same
+planned routes. The router cannot draw a route the checker would reject, because
+passing the checker is how a route gets chosen.
+
     python3 tools/cirkit.py parts                 # the vocabulary: parts and pins
     python3 tools/cirkit.py build                 # render every spec
     python3 tools/cirkit.py check                 # CI gate: nets resolve, SVGs current
+    python3 tools/cirkit.py selftest              # prove those checks can fail
 """
 
 import argparse
@@ -42,6 +57,11 @@ CONFIG_H = REPO / "firmware" / "include" / "saw_config.h"
 
 INK, MUTE, RULE = "#16181D", "#6E7178", "#C7CAD1"
 PAPER = "#FFFFFF"
+
+# How close two parallel conductors may run before they stop reading as two. A
+# stroke is 2.6 px wide, so this is a little over four times a stroke: enough white
+# between them to be unambiguous at the size these sheets are actually read at.
+NEAR = 11.0
 
 WIRE = {
     "red": "#C0392B", "black": "#22262A", "orange": "#D98C1F", "purple": "#7A5EA8",
@@ -226,18 +246,31 @@ def bus_groups(wires, owners):
     return groups
 
 
-def path_segments(a, b, channel):
-    """The three legs a normal dog-leg route actually draws."""
-    (x1, y1), (x2, y2) = a, b
-    if abs(y1 - y2) < 1.5:
-        return [("h", y1, x1, x2)]
-    mx = channel if channel is not None else (x1 + x2) / 2
-    return [("h", y1, x1, mx), ("v", mx, y1, y2), ("h", y2, mx, x2)]
+def legs(pts):
+    """A route as ('h'|'v', fixed, from, to) legs.
+
+    Zero-length legs are dropped. A route whose channel lands exactly on a pin has
+    one, and counting it would make the overlap arithmetic report a wire lying on
+    top of itself.
+    """
+    out = []
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if abs(x1 - x2) < 0.05 and abs(y1 - y2) < 0.05:
+            continue
+        out.append(("h", y1, x1, x2) if abs(y1 - y2) < 0.05 else ("v", x1, y1, y2))
+    return out
 
 
-def _seg_hits(seg, box, inset=3):
+# Parts are treated as 2 px larger than they draw. A conductor run along a
+# component's edge is not "clear of" it: the DevKitC's header pads sit exactly on
+# its bounding box, so a wire at that x is drawn over the gold, and a rule that
+# measures the box exactly calls that clean.
+GIRTH = 2.0
+
+
+def _seg_hits(seg, box, grow=GIRTH):
     bx0, by0, bx1, by1 = box
-    bx0, by0, bx1, by1 = bx0 + inset, by0 + inset, bx1 - inset, by1 - inset
+    bx0, by0, bx1, by1 = bx0 - grow, by0 - grow, bx1 + grow, by1 + grow
     kind, fixed, p0, p1 = seg
     lo, hi = sorted((p0, p1))
     if kind == "h":
@@ -245,103 +278,268 @@ def _seg_hits(seg, box, inset=3):
     return bx0 < fixed < bx1 and hi > by0 and lo < by1
 
 
-def blocking(segs, bx, own):
-    """Is this box a real obstruction for these segments?
+def pin_edge(p, bx):
+    """Which edge of its own part a pin sits on."""
+    d = {"L": p[0] - bx[0], "R": bx[2] - p[0], "T": p[1] - bx[1], "B": bx[3] - p[1]}
+    return min(("L", "R", "T", "B"), key=lambda k: round(d[k], 3))
 
-    One rule, used by the router to decide on a detour and by the checker to decide
-    on a complaint. They must agree: a checker with a laxer rule cannot see the
-    defect the router exists to prevent, which is exactly what happened when the
-    checker simply skipped every part a wire terminates on — the GPIO26 conductor
-    could vanish behind the whole board and be reported clean.
+
+def arriving(seg, bx, p, edge):
+    """Is this leg the wire ARRIVING at its pin, or is it running under the part?
+
+    A pin sits a few pixels inside its part's bounding box, because the box includes
+    the leads — the optocoupler's legs stop 8 px in from a 120 px box. So the last
+    few pixels of every wire are legitimately inside the component and a rule that
+    forbids that forbids every route there is.
+
+    What is never legitimate is continuing PAST the pin into the body. That is the
+    difference between a wire landing on a leg and a wire disappearing under a black
+    DIP package, and it is the whole test: along the pin's own edge normal, ending
+    on the pin, never reaching beyond it.
     """
-    if not any(_seg_hits(sg, bx) for sg in segs):
+    kind, fixed, q0, q1 = seg
+    lo, hi = sorted((q0, q1))
+    if edge in ("L", "R"):
+        if kind != "h" or abs(fixed - p[1]) > 0.6:
+            return False
+        if min(abs(q0 - p[0]), abs(q1 - p[0])) > 0.6:
+            return False
+        i0, i1 = max(lo, bx[0] - GIRTH), min(hi, bx[2] + GIRTH)
+        return i1 <= i0 or (i1 <= p[0] + 1 if edge == "L" else i0 >= p[0] - 1)
+    if kind != "v" or abs(fixed - p[0]) > 0.6:
         return False
-    if bx not in own:
-        return True                       # an unrelated part is never acceptable
-    if bx[2] - bx[0] < 100:
-        return False                      # lying along a small part reads fine
-    span = 0.0
-    for kind, fixed, p0, p1 in segs:
-        if kind != "h":
+    if min(abs(q0 - p[1]), abs(q1 - p[1])) > 0.6:
+        return False
+    i0, i1 = max(lo, bx[1] - GIRTH), min(hi, bx[3] + GIRTH)
+    return i1 <= i0 or (i1 <= p[1] + 1 if edge == "T" else i0 >= p[1] - 1)
+
+
+def buried(pts, box, term):
+    """The parts this route runs under, by ref.
+
+    ONE rule, used by the router to choose a route and by the checker to complain
+    about one. They must agree: a checker with a laxer rule cannot see the defect
+    the router exists to prevent, which is exactly what happened when the checker
+    skipped every part a wire terminates on — a conductor could vanish behind the
+    whole board and be reported clean.
+    """
+    ls = legs(pts)
+    out = []
+    for ref in sorted(box):
+        bx = box[ref]
+        p = term.get(ref)
+        edge = pin_edge(p, bx) if p is not None else None
+        for sg in ls:
+            if not _seg_hits(sg, bx):
+                continue
+            if p is not None and arriving(sg, bx, p, edge):
+                continue
+            out.append(ref)
+            break
+    return out
+
+
+def overlap_px(ls, laid, mine, near=None, taper=True):
+    """How much of this route lies ON another conductor rather than crossing it.
+
+    Crossings are unavoidable and readable; a shared stretch is not, because the
+    wire drawn second simply deletes the first. 112 px of the fob's brown ON-pad
+    conductor were hidden under the black one this way, and nothing in the sheet
+    said so.
+
+    Wires that share an endpoint are exempt: two branches of the same bus leave
+    their junction together by construction, and that fork is the notation, not a
+    collision.
+    """
+    near = NEAR if near is None else near
+    tot = 0.0
+    for owner, og in laid:
+        if owner & mine:
             continue
-        lo, hi = sorted((p0, p1))
-        span = max(span, min(hi, bx[2]) - max(lo, bx[0]))
-    return span >= 0.5 * (bx[2] - bx[0])
+        for sg in ls:
+            if sg[0] != og[0]:
+                continue
+            gap = abs(sg[1] - og[1])
+            if gap >= near:
+                continue
+            lo1, hi1 = sorted(sg[2:])
+            lo2, hi2 = sorted(og[2:])
+            # Weighted by separation rather than counted at zero. Two conductors
+            # 3 px apart are not "clear" — at 2.6 px wide they are one thick line
+            # with a seam — so the cost fades out over a stroke's worth of space
+            # instead of switching off, which is also what gives the router a
+            # gradient to follow when it has to fit one more wire into a full
+            # gutter.
+            run = max(0.0, min(hi1, hi2) - max(lo1, lo2))
+            tot += run * (1.0 - gap / near) if taper else run
+    return tot
 
 
-def needs_detour(a, b, channel, boxes, own=()):
-    """The part a wire's ACTUAL path would run through, if any.
+PAD_OUT = (14, 22, 30, 40, 52, 68)
 
-    An earlier version asked whether a box merely sat inside the wire's bounding
-    region, which fired on wires that route cleanly past it — the 3V3 conductor was
-    sent on a lap of the sheet to avoid a probe its channel already cleared by
-    40 px. Testing the three legs the router really draws is both correct and
-    cheaper to reason about.
 
-    Endpoint parts are NOT exempt. A pin can sit on the far side of its own
-    component from everything it connects to (GPIO26 is on the DevKitC's left
-    header while the fob chain is in the right column), and that wire has to go
-    around the board rather than across its face.
+def _exits(p, bx):
+    """x values just outside a part, on the side its pin is on.
+
+    Several offsets rather than one, because the useful one is whichever is not
+    already occupied: the left gutter of the Path A sheet carries nine vertical
+    runs, and a single offset means the last wire routed has nowhere to sit. A pin
+    on a top or bottom edge is reached vertically, so its own x is the exit.
+
+    Nothing here checks that an exit is sensible — leaving a pin on the wrong side
+    is a route that runs under its own part, which `buried` disqualifies, and
+    leaving one so close to the part that it lies on the bus trunk is a cost.
     """
-    segs = path_segments(a, b, channel)
-    worst, worst_w = None, 0
-    for bx in boxes:
-        if blocking(segs, bx, own) and bx[2] - bx[0] > worst_w:
-            worst, worst_w = bx, bx[2] - bx[0]
-    return worst
+    edge = pin_edge(p, bx)
+    if edge == "L":
+        return [bx[0] - k for k in PAD_OUT]
+    if edge == "R":
+        return [bx[2] + k for k in PAD_OUT]
+    return [p[0]]
 
 
-def route_around(c, a, b, colour, sw, obstacle, ca, cb, sheet_h):
-    """Two channels and a transit above or below the obstacle.
+def _transit_ys(obst, x0, x1, y1, y2, top, bot, keep=12):
+    """Candidate heights for a lap's crossing run.
 
-    pin -> channel -> transit -> channel -> pin. The side is whichever gives the
-    shorter path, so a wire to a part near the top goes over and one to a part near
-    the bottom goes under.
+    The middle of every horizontal strip that is clear all the way from x0 to x1 —
+    the same idea as `corridors`, turned ninety degrees and restricted to the span
+    the wire actually crosses. Deriving them instead of offsetting from the nearest
+    part is what finds the 10 px of white between the probe's caption and the
+    resistor above it; offsets found only heights that ran through one or the other,
+    and the 3V3 conductor spent its crossing run inside the words "clamps to the
+    motor frame".
+
+    A strip narrower than a wire plus its clearance is not a route, so bands are
+    filtered by width — otherwise the 2 px between the board's silkscreen and its
+    caption reads as the cheapest crossing on the sheet. The floor is 9 px, which
+    is a 2.6 px conductor with 3 px either side: tight, but it is the gap between a
+    caption and the part below it, and it is where a crossing run belongs.
+    """
+    LEAST = 9
+    x0, x1 = sorted((x0, x1))
+    spans = sorted((by0, by1) for bx0, by0, bx1, by1 in obst if bx1 > x0 and bx0 < x1)
+    merged = []
+    for lo, hi in spans:
+        if merged and lo <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], hi)
+        else:
+            merged.append([lo, hi])
+    ys, cursor = [], top
+    for lo, hi in merged:
+        if lo - cursor >= LEAST:
+            ys.append((cursor + lo) / 2)
+        cursor = max(cursor, hi)
+    if bot - cursor >= LEAST:
+        ys.append((cursor + bot) / 2)
+    # Fallback heights, for a span with no clear strip at all: hugging a part is
+    # ugly but it is a route, and having none means the wire goes back to crossing
+    # something solid. Only these are capped — every clear band is kept, because
+    # capping the list by cost dropped the two clean ways round the board in favour
+    # of twelve cheap ways straight across it.
+    near = sorted({round(y, 2) for _, by0, _, by1 in obst for y in (by0 - 13, by1 + 13)
+                   if top <= y <= bot},
+                  key=lambda y: (round(abs(y1 - y) + abs(y2 - y), 3), y))
+    ys = sorted({round(y, 2) for y in ys if top <= y <= bot} | set(near[:keep]))
+    ys.sort(key=lambda y: (round(abs(y1 - y) + abs(y2 - y), 3), y))
+    return ys
+
+
+def routes(a, b, chan, ba, bb, obst, gaps, top, bot, xlo, xhi):
+    """Every route this wire could take, in preference order.
+
+    Three shapes, cheapest first:
+
+      * a straight run, where the two pins already line up;
+      * a dog-leg through one channel — the normal case;
+      * a lap: out past the end of a part, along a clear band, and back.
+
+    The lap exists for the one thing a dog-leg cannot do, which is reach a pin on
+    the far side of its own component from everything it connects to. R3 is the
+    example: both of its leads connect to things on its left, so one of them has to
+    come round the end rather than across the body.
+
+    This function only proposes. Nothing here knows what is in the way — the caller
+    scores each candidate with the same `buried` rule the CI check uses, so a route
+    the checker would complain about cannot be the route the renderer draws.
     """
     (x1, y1), (x2, y2) = a, b
-    _, by0, _, by1 = obstacle
-    over, under = by0 - 22, by1 + 22
-    cost_o = abs(y1 - over) + abs(y2 - over)
-    cost_u = abs(y1 - under) + abs(y2 - under)
-    yd = over if cost_o <= cost_u else under
-    yd = min(max(yd, 108), sheet_h - 40)
+    out = []
+    if abs(y1 - y2) < 1.5 or abs(x1 - x2) < 1.5:
+        out.append([a, b])
 
-    r = 8
-    def h(x_from, x_to, y):
-        c.line(x_from, y, x_to, y, colour, sw)
-    def v(x, y_from, y_to):
-        c.line(x, y_from, x, y_to, colour, sw)
-    h(x1, ca, y1); v(ca, y1, yd); h(ca, cb, yd); v(cb, yd, y2); h(cb, x2, y2)
-    for (px, py) in (a, b):
-        c.circle(px, py, 3.4, colour)
+    lo, hi = sorted((x1, x2))
+    cxs = ([chan] if chan is not None else [])
+    cxs += [lo + (hi - lo) * f for f in (0.5, 0.32, 0.68, 0.16, 0.84)]
+    cxs += [(g0 + g1) / 2 for g0, g1 in gaps]
+    cxs += _exits(a, ba) + _exits(b, bb)
+    cxs = [x for x in cxs if xlo <= x <= xhi]
+    seen = set()
+    for cx in cxs:
+        if round(cx, 1) in seen:
+            continue
+        seen.add(round(cx, 1))
+        out.append([a, (cx, y1), (cx, y2), b])
 
+    ylo, yhi = sorted((y1, y2))
+    for f in (0.5, 0.3, 0.7):
+        cy = ylo + (yhi - ylo) * f
+        out.append([a, (x1, cy), (x2, cy), b])
 
-def route(c, a, b, colour, sw=2.6, channel=None):
-    """Orthogonal, with a mid-channel dogleg. Straight where it can be."""
-    (x1, y1), (x2, y2) = a, b
-    if abs(y1 - y2) < 1.5:
-        c.line(x1, y1, x2, y2, colour, sw)
-    else:
-        mx = channel if channel is not None else (x1 + x2) / 2
-        r = min(9, abs(y2 - y1) / 2, max(abs(mx - x1), 1))
-        sy = 1 if y2 > y1 else -1
-        sx = 1 if x2 > x1 else -1
-        c.path(
-            f"M{x1:.1f} {y1:.1f} H{mx - r * sx:.1f} "
-            f"Q{mx:.1f} {y1:.1f} {mx:.1f} {y1 + r * sy:.1f} "
-            f"V{y2 - r * sy:.1f} Q{mx:.1f} {y2:.1f} {mx + r * sx:.1f} {y2:.1f} "
-            f"H{x2:.1f}",
-            colour, sw)
-    for (px, py) in (a, b):
-        c.circle(px, py, 3.4, colour)
+    for ca in (x for x in _exits(a, ba) if xlo <= x <= xhi):
+        for cb in (x for x in _exits(b, bb) if xlo <= x <= xhi):
+            for yd in _transit_ys(obst, ca, cb, y1, y2, top, bot):
+                out.append([a, (ca, y1), (ca, yd), (cb, yd), (cb, y2), b])
+    return out
 
 
-def _overlaps(r, others, pad=3):
-    ax0, ay0, ax1, ay1 = r
-    for bx0, by0, bx1, by1 in others:
-        if ax0 < bx1 + pad and bx0 < ax1 + pad and ay0 < by1 + pad and by0 < ay1 + pad:
-            return True
-    return False
+def path_len(pts):
+    return sum(abs(x1 - x2) + abs(y1 - y2)
+               for (x1, y1), (x2, y2) in zip(pts, pts[1:]))
+
+
+def choose(cands, box, term, caps, laid, mine):
+    """The best of the proposed routes, and whether it is actually clean.
+
+    Lexicographic on purpose. Running under a part is disqualifying — length can
+    never buy it back — and everything below that is a cost in pixels, so a lap is
+    taken only when the shorter routes are genuinely blocked. Ties go to the
+    earliest candidate, which is what keeps the output byte-identical from run to
+    run.
+    """
+    best = None
+    for i, pts in enumerate(cands):
+        ls = legs(pts)
+        hard = buried(pts, box, term)
+        soft = sum(1 for cb in caps if any(_seg_hits(sg, cb) for sg in ls))
+        cost = path_len(pts) + 80 * soft + 6 * overlap_px(ls, laid, mine)
+        score = (len(hard), round(cost, 3), i)
+        if best is None or score < best[0]:
+            best = (score, pts, hard)
+    return best[1], best[2]
+
+
+def _sign(v):
+    return 1 if v > 0 else -1 if v < 0 else 0
+
+
+def draw_path(c, pts, colour, sw):
+    """A polyline with rounded corners, which is what a dressed wire looks like."""
+    pts = [p for i, p in enumerate(pts)
+           if i == 0 or abs(p[0] - pts[i - 1][0]) > 0.05 or abs(p[1] - pts[i - 1][1]) > 0.05]
+    if len(pts) < 2:
+        return
+    if len(pts) == 2:
+        c.line(pts[0][0], pts[0][1], pts[1][0], pts[1][1], colour, sw)
+        return
+    d = [f"M{pts[0][0]:.1f} {pts[0][1]:.1f}"]
+    for i in range(1, len(pts) - 1):
+        (px, py), (cx, cy), (nx, ny) = pts[i - 1], pts[i], pts[i + 1]
+        r = min(9, (abs(cx - px) + abs(cy - py)) / 2, (abs(nx - cx) + abs(ny - cy)) / 2)
+        d.append(f"L{cx - _sign(cx - px) * r:.1f} {cy - _sign(cy - py) * r:.1f} "
+                 f"Q{cx:.1f} {cy:.1f} "
+                 f"{cx + _sign(nx - cx) * r:.1f} {cy + _sign(ny - cy) * r:.1f}")
+    d.append(f"L{pts[-1][0]:.1f} {pts[-1][1]:.1f}")
+    c.path(" ".join(d), colour, sw)
 
 
 def place_label(c, a, b, colour, s, hard, soft, bounds, size=10.5):
@@ -354,9 +552,9 @@ def place_label(c, a, b, colour, s, hard, soft, bounds, size=10.5):
 
     A label belongs where the wire LEAVES A PIN, because that is what it names, and
     that is also the one stretch of a wire guaranteed to be a clean horizontal run.
-    Candidates are tried nearest-first and the first clear one wins; if the wire's
-    own side is full the far side is tried, then vertical offsets. Everything is
-    ordered, so the choice is deterministic.
+    Candidates around both pins are scored on how far they sit from the pin and how
+    much they cover, in the same units, and the best wins. Everything is ordered, so
+    the choice is deterministic.
     """
     (x1, y1), (x2, y2) = a, b
     w, h = tw(s, size) + 12, 17
@@ -376,31 +574,48 @@ def place_label(c, a, b, colour, s, hard, soft, bounds, size=10.5):
                 ly = py + dy - h / 2
                 cands.append((abs(dy) + dx * 0.55, lx, ly))
     # Deterministic: sorted by distance, ties broken by the generated order.
-    cands = [(lx, ly) for _, lx, ly in
-             sorted((c for c in cands), key=lambda t: (round(t[0], 3), round(t[1], 2), round(t[2], 2)))]
-    cands.append(((x1 + x2) / 2 - w / 2, (y1 + y2) / 2 - h / 2))
+    cands = sorted(cands, key=lambda t: (round(t[0], 3), round(t[1], 2), round(t[2], 2)))
+    cands.append((260.0, (x1 + x2) / 2 - w / 2, (y1 + y2) / 2 - h / 2))
 
     # A candidate off the edge of the sheet is not a candidate. The widening search
     # will happily walk a label past the right margin, where it renders half-cut and
     # looks like a rendering bug rather than a placement one.
     bx0, by0, bx1, by1 = bounds
-    inb = [(lx, ly) for lx, ly in cands
-           if bx0 <= lx and by0 <= ly and lx + w <= bx1 and ly + h <= by1]
+    inb = [c for c in cands
+           if bx0 <= c[1] and by0 <= c[2] and c[1] + w <= bx1 and c[2] + h <= by1]
 
-    # Two passes. Conductors are a SOFT constraint: crossing somebody else's wire is
-    # untidy, but landing on a component is worse, and treating wires as hard
-    # obstacles over-constrained the sheet enough to push a label onto the fob.
-    # Prefer a spot clear of everything; settle for one clear of the parts.
-    chosen = None
-    for avoid in (hard + soft, hard):
-        for lx, ly in inb:
-            if not _overlaps((lx, ly, lx + w, ly + h), avoid):
-                chosen = (lx, ly)
-                break
-        if chosen:
-            break
-    lx, ly = chosen or cands[-1]
-    hard.append((lx, ly, lx + w, ly + h))
+    # Ranked by how much they cover, not by the first that covers nothing.
+    # Conductors are a SOFT constraint: crossing somebody else's wire is untidy, but
+    # landing on a component is worse. A clear spot still wins — it scores zero, and
+    # the list is ordered nearest-first — but where nothing is clear this settles for
+    # the least-covered spot instead of falling through to the midpoint of a straight
+    # line between the pins. That fallback is what put "fob ON pad" squarely across
+    # the sentence explaining why the fob has no shared ground: in that corner every
+    # candidate overlaps something, and the midpoint was the one place guaranteed to
+    # be worst.
+    def covered(r, boxes):
+        ax0, ay0, ax1, ay1 = r
+        return sum(max(0, min(ax1, bx1) - max(ax0, bx0)) *
+                   max(0, min(ay1, by1) - max(ay0, by0))
+                   for bx0, by0, bx1, by1 in boxes)
+
+    best = None
+    for rank, (dist, lx, ly) in enumerate(inb or cands):
+        r = (lx, ly, lx + w, ly + h)
+        # Distance and coverage in the same currency, so the choice between them is
+        # explicit: sitting squarely on a component costs about 95, which is 95 px
+        # of walking away from the pin it names, while crossing one conductor costs
+        # about 3. That exchange rate is the whole behaviour. Coverage first and
+        # distance only as a tiebreak sent "divider junction" 100 px from its own
+        # wire to reach clear paper, where it reads as the name of whatever
+        # conductor it happens to be nearest; the other way round parks it on the fob.
+        score = ((3 * covered(r, hard) + covered(r, soft)) / 40.0 + dist, rank)
+        if best is None or score < best[0]:
+            best = (score, (lx, ly))
+    lx, ly = best[1]
+    # Grown by 3 px before it becomes an obstacle for the next label, so two of them
+    # keep a hair of white between rather than sharing an edge.
+    hard.append((lx - 3, ly - 3, lx + w + 3, ly + h + 3))
     c.rect(lx, ly, w, h, PAPER, r=3, stroke=colour, sw=1)
     c.text(lx + w / 2, ly + 12.5, s, size, INK, anchor="middle")
 
@@ -410,9 +625,8 @@ def render(spec, parts, rmap):
     nets = spec.get("nets", [])
 
     pl = plan_sheet(spec, parts, rmap)
-    parts, placed, W, bottom = pl["parts"], pl["placed"], pl["W"], pl["bottom"]
-    boxes, wires, eff = pl["boxes"], pl["wires"], pl["eff"]
-    chan, groups, detour = pl["chan"], pl["groups"], pl["detour"]
+    parts, W, bottom = pl["parts"], pl["W"], pl["bottom"]
+    placed, groups, eff = pl["placed"], pl["groups"], pl["eff"]
     legend_y = bottom + 66
     H = legend_y + 96
 
@@ -433,25 +647,19 @@ def render(spec, parts, rmap):
 
     pending, wire_boxes = [], []
     for i, (a, b, colour, sw, label) in enumerate(eff):
-        if i in detour:
-            block, ca, cb = detour[i]
-            route_around(c, a, b, colour, sw, block, ca, cb, H)
-            segs = [("h", a[1], a[0], ca), ("v", ca, a[1], b[1]),
-                    ("v", cb, a[1], b[1]), ("h", b[1], cb, b[0])]
-        else:
-            route(c, a, b, colour, sw, chan.get(i))
-            segs = path_segments(a, b, chan.get(i))
+        draw_path(c, pl["paths"][i], colour, sw)
+        for (px, py) in (a, b):
+            c.circle(px, py, 3.4, colour)
         # A thin box per leg, so labels can be kept off conductors they do not name.
-        legs = []
-        for kind, fixed, p0, p1 in segs:
+        lg = []
+        for kind, fixed, p0, p1 in legs(pl["paths"][i]):
             lo, hi = sorted((p0, p1))
-            legs.append((lo - 2, fixed - 3, hi + 2, fixed + 3) if kind == "h"
-                        else (fixed - 3, lo - 2, fixed + 3, hi + 2))
-        wire_boxes.append(legs)
+            lg.append((lo - 2, fixed - 3, hi + 2, fixed + 3) if kind == "h"
+                      else (fixed - 3, lo - 2, fixed + 3, hi + 2))
+        wire_boxes.append(lg)
         if label:
             pending.append((i, a, b, colour, label))
 
-    obstacles = []
     for ref, cd in comps.items():
         p = parts[cd["part"]]
         ox, oy = placed[ref]
@@ -461,16 +669,7 @@ def render(spec, parts, rmap):
                anchor="middle", weight="600")
         if cd.get("note"):
             c.text(ox + p.w / 2, oy + p.h + 32, cd["note"], 10.5, MUTE, anchor="middle")
-        # The art plus its caption lines. The box must be as wide as the TEXT, not
-        # as wide as the part: a note like "no shared ground with the fob — that is
-        # the point" is three times the width of the optocoupler it sits under, and
-        # measuring the part instead let a label land squarely on it.
-        cap_w = tw(f"{ref}  {cap}", 12)
-        note_w = tw(cd["note"], 10.5) if cd.get("note") else 0
-        span = max(p.w, cap_w, note_w)
-        cx = ox + p.w / 2
-        obstacles.append((cx - span / 2, oy, cx + span / 2,
-                          oy + p.h + (36 if cd.get("note") else 22)))
+    obstacles = list(pl["obstacles"])
 
     label_bounds = (40, 108, W - 40, bottom + 30)
     for i, a, b, colour, s in pending:
@@ -554,7 +753,7 @@ def plan_sheet(spec, parts, rmap):
            for r, cd in comps.items()}
     boxes = list(box.values())
 
-    wires, owners, own_of = [], {}, []
+    wires, owners, own_ref = [], {}, []
     for n in spec.get("nets", []):
         fr, fp = resolve_endpoint(n["from"], comps, parts, rmap)
         to, tp = resolve_endpoint(n["to"], comps, parts, rmap)
@@ -564,7 +763,7 @@ def plan_sheet(spec, parts, rmap):
         wires.append((a, b, colour, 3.2 if n.get("mains") else 2.6, n.get("label")))
         owners[(round(a[0], 1), round(a[1], 1))] = box[fr]
         owners[(round(b[0], 1), round(b[1], 1))] = box[to]
-        own_of.append((box[fr], box[to]))
+        own_ref.append((fr, to))
 
     TRUNK = 24
     groups = bus_groups(wires, owners)
@@ -579,51 +778,106 @@ def plan_sheet(spec, parts, rmap):
     chan = plan_channels(eff, boxes, W)
     gaps = corridors(boxes, W)
 
-    def near_channel(x, avoid):
-        ax0, _, ax1, _ = avoid
-        best = None
-        for g0, g1 in gaps:
-            if g1 <= ax0 + 1 or g0 >= ax1 - 1:
-                cx = (g0 + g1) / 2
-                if best is None or abs(cx - x) < abs(best - x):
-                    best = cx
-        return best if best is not None else x
+    # Two boxes per part. `obstacles` is the art plus its caption lines, which is
+    # what a net label must stay off. `caps` is the caption text alone, which a
+    # conductor should prefer to miss but may cross if the alternative is a lap
+    # round the sheet. Both must be as wide as the TEXT, not as wide as the part: a
+    # note like "no shared ground with the fob" is three times the width of the
+    # optocoupler it sits under.
+    obstacles, caps = [], []
+    for ref, cd in comps.items():
+        p = parts[cd["part"]]
+        ox, oy = placed[ref]
+        cap = cd.get("label") or p.title
+        span = max(p.w, tw(f"{ref}  {cap}", 12),
+                   tw(cd["note"], 10.5) if cd.get("note") else 0)
+        cx, deep = ox + p.w / 2, oy + p.h + (36 if cd.get("note") else 22)
+        obstacles.append((cx - span / 2, oy, cx + span / 2, deep))
+        caps.append((cx - span / 2, oy + p.h + 5, cx + span / 2, deep))
 
-    detour = {}
+    # Conductors already on the sheet, so each route can be scored against what is
+    # actually there. Trunks go down first: nothing should be routed along one.
+    laid = [(frozenset({g["pt"]}),
+             ("h", g["pt"][1], g["pt"][0], g["pt"][0] + g["dir"] * TRUNK))
+            for g in groups.values()]
+
+    cand, term, ends = [], [], []
     for i, (a, b, *_r) in enumerate(eff):
-        blk = needs_detour(a, b, chan.get(i), boxes, own_of[i])
-        if blk is not None:
-            detour[i] = (blk, near_channel(a[0], blk), near_channel(b[0], blk))
+        fr, to = own_ref[i]
+        cand.append(routes(a, b, chan.get(i), box[fr], box[to], boxes + caps, gaps,
+                           108, bottom + 24, 16, W - 16))
+        # The pins, not the effective endpoints: a bus member starts at its junction,
+        # and only a leg that ends on the actual pin can be the wire arriving at it.
+        term.append({fr: wires[i][0], to: wires[i][1]})
+        ends.append(frozenset({a, b}))
+
+    def sheet_so_far(paths, skip):
+        out = list(laid)
+        for j, pts in enumerate(paths):
+            if j == skip or pts is None:
+                continue
+            out += [(ends[j], sg) for sg in legs(pts)]
+        return out
+
+    # Three passes, not one. A single greedy pass gives each wire only the wires
+    # laid before it, so the last one routed has to fit through whatever everything
+    # else already took — on this sheet that left the GPIO26 pulldown conductor
+    # lying along 102 px of the acknowledge button's ground. Re-routing every wire
+    # against the FINISHED sheet lets an early wire move over for a late one, which
+    # is what a person does when they dress a loom and find the last conductor has
+    # nowhere to sit. It settles in two; the third is there to prove it.
+    paths, hard_of = [None] * len(eff), [[]] * len(eff)
+    for _ in range(3):
+        moved = False
+        for i in range(len(eff)):
+            pts, hard = choose(cand[i], box, term[i], caps,
+                               sheet_so_far(paths, i), ends[i])
+            moved = moved or paths[i] != pts
+            paths[i], hard_of[i] = pts, hard
+        if not moved:
+            break
+    stuck = [(i, h) for i, h in enumerate(hard_of) if h]
 
     return dict(parts=parts, placed=placed, W=W, bottom=bottom, box=box, boxes=boxes,
-                wires=wires, eff=eff, chan=chan, groups=groups, detour=detour,
-                own_of=own_of, trunk=TRUNK)
+                wires=wires, eff=eff, chan=chan, groups=groups, paths=paths,
+                stuck=stuck, obstacles=obstacles, caps=caps, own_ref=own_ref,
+                trunk=TRUNK)
 
 
 def crossings(spec, parts, rmap):
-    """Wires whose path runs under a part they do not connect to.
+    """Every way a conductor can be made unreadable: under a part, or under another
+    conductor.
 
-    Corridors make this impossible by construction today, which is exactly why it
-    is worth asserting: the property is a consequence of the routing design, so a
-    future change to placement or allocation could quietly lose it, and a wire that
-    disappears under a component is unreadable in the one way that matters.
+    Both are re-derived from the planned routes with the same functions the router
+    scored them with, so this cannot pass by looking at a path that is not the one
+    drawn. It is worth asserting even though the router avoids both by construction,
+    because that is a property of the search, and a future change to placement,
+    channel allocation or part art could quietly lose it.
     """
     pl = plan_sheet(spec, parts, rmap)
-    box, eff, chan, detour, own_of = (pl["box"], pl["eff"], pl["chan"],
-                                      pl["detour"], pl["own_of"])
-    bad = []
-    for i, (a, b, *_r) in enumerate(eff):
-        if i in detour:
-            blk, ca, cb = detour[i]
-            segs = [("h", a[1], a[0], ca), ("v", ca, a[1], b[1]),
-                    ("v", cb, a[1], b[1]), ("h", b[1], cb, b[0])]
-        else:
-            segs = path_segments(a, b, chan.get(i))
-        for r, bx in box.items():
-            if blocking(segs, bx, own_of[i]):
-                net = spec["nets"][i]
-                bad.append(f"net {i} ({net.get('label') or net.get('color', '?')}: "
-                           f"{net['from']} -> {net['to']}) runs under {r}")
+    nets = spec["nets"]
+    paths, eff = pl["paths"], pl["eff"]
+
+    def who(i):
+        n = nets[i]
+        return (f"net {i} ({n.get('label') or n.get('color', '?')}: "
+                f"{n['from']} -> {n['to']})")
+
+    bad = [f"{who(i)} runs under {', '.join(refs)}" for i, refs in pl["stuck"]]
+
+    for i in range(len(paths)):
+        for j in range(i + 1, len(paths)):
+            if {eff[i][0], eff[i][1]} & {eff[j][0], eff[j][1]}:
+                continue              # two branches of one bus: a fork, not a collision
+            # The router's cost tapers with separation, because two conductors
+            # 8 px apart are worth nudging but are perfectly readable. The CHECK is
+            # the untapered thing it is there to prevent: one conductor drawn on
+            # top of another, where the second simply deletes the first.
+            ov = overlap_px(legs(paths[i]),
+                            [(frozenset(), sg) for sg in legs(paths[j])],
+                            frozenset(), near=3.5, taper=False)
+            if ov > 6:
+                bad.append(f"{who(i)} lies on {who(j)} for {ov:.0f} px")
     return bad
 
 
@@ -664,7 +918,7 @@ def cmd_check(args):
         if not out.exists() or out.read_text() != want:
             stale.append(rel(out))
     if buried:
-        print("cirkit: these wires run under a part they do not connect to:",
+        print("cirkit: these conductors cannot be followed on the sheet:",
               file=sys.stderr)
         for b in buried:
             print(f"  {b}", file=sys.stderr)
@@ -759,6 +1013,63 @@ SHAPE_FIELDS = {
     "path": {"d"},
     "text": {"x", "y", "s"},
 }
+
+
+def cmd_selftest(args):
+    """Make each readability check fail on purpose, and confirm it notices.
+
+    A gate nobody has ever seen fail is a gate nobody should trust. Every check in
+    this repository that was written and believed turned out to need correcting —
+    four were too strict and condemned correct work, one passed while looking at the
+    wrong thing — so a check is worth having only once it has been disbelieved.
+
+    Each case here disables exactly one thing the router does to keep conductors
+    followable and asserts that `check` complains. If a case stops producing
+    complaints, either the router got better in a way that makes the case
+    meaningless, or the check went blind. Both are worth a person looking.
+    """
+    parts, rmap = partlib.load_all(), roles()
+    spec = yaml.safe_load(specs(None)[0].read_text())
+    saved = (routes, overlap_px, arriving)
+    cases, bad = [], []
+    try:
+        # 1. Only dog-legs. Wires whose pin is on the far side of their own part
+        #    have nowhere to go but across it.
+        globals()["routes"] = lambda *a, **k: [p for p in saved[0](*a, **k) if len(p) <= 4]
+        cases.append(("no lap shape", "runs under", crossings(spec, parts, rmap)))
+        globals()["routes"] = saved[0]
+
+        # 2. The router stops caring what is already on the sheet.
+        globals()["overlap_px"] = (
+            lambda ls, laid, mine, near=None, taper=True:
+            0.0 if taper else saved[1](ls, laid, mine, near, taper))
+        cases.append(("no overlap cost", "lies on", crossings(spec, parts, rmap)))
+        globals()["overlap_px"] = saved[1]
+
+        # 3. No stub excusal, so every wire is guilty of touching its own part.
+        globals()["arriving"] = lambda *a: False
+        cases.append(("no arriving-stub rule", "runs under", crossings(spec, parts, rmap)))
+    finally:
+        globals()["routes"], globals()["overlap_px"], globals()["arriving"] = saved
+
+    for name, want, found in cases:
+        hits = [c for c in found if want in c]
+        print(f"  {name:<24} {len(hits)} × {want!r}")
+        for c in hits[:4]:
+            print(f"      {c}")
+        if not hits:
+            bad.append(f"{name}: expected at least one {want!r}, got none")
+
+    if crossings(spec, parts, rmap):
+        bad.append("the sheet as built is not clean")
+    if bad:
+        print("cirkit selftest: the checks are not doing what they claim",
+              file=sys.stderr)
+        for b in bad:
+            print(f"  {b}", file=sys.stderr)
+        return 1
+    print("OK — every readability check fails when the thing it guards is removed")
+    return 0
 
 
 def cmd_lint(args):
@@ -924,11 +1235,12 @@ def main():
     b = sub.add_parser("build"); b.add_argument("spec", nargs="?")
     sub.add_parser("check")
     sub.add_parser("lint", help="mechanical geometry checks on local parts")
+    sub.add_parser("selftest", help="prove the readability checks can fail")
     sub.add_parser("catalogue", help="render every part on one sheet, pins marked")
     pp = sub.add_parser("parts"); pp.add_argument("--json", action="store_true")
     args = ap.parse_args()
     fn = {"build": cmd_build, "check": cmd_check, "parts": cmd_parts,
-          "lint": cmd_lint, "catalogue": cmd_catalogue}[args.cmd]
+          "lint": cmd_lint, "catalogue": cmd_catalogue, "selftest": cmd_selftest}[args.cmd]
     sys.exit(fn(args) or 0)
 
 
