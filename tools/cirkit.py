@@ -279,6 +279,79 @@ def cmd_check(args):
     return 0
 
 
+# The palette local parts may draw from. Shared with hardware/parts/local/README.md
+# and with the brief the parts were drawn to. An off-palette colour is not a crime,
+# but a library where every part invents its own greys stops looking like one library.
+PALETTE = {
+    "#2A2E33", "#D8DCE0", "#1E5E3A", "#9AA0A6", "#B0B6BC", "#C08A4A",
+    "#B3261E", "#15607A", "#1E6B45", "#16181D", "#6E7178", "#FFFFFF",
+    "#E4E6E2", "#C7CAD1", "#3A3F45", "#D4B106", "#8A6716",
+}
+
+
+def _rgb(h):
+    return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def palette_distance(c):
+    """Distance from the nearest allowed colour.
+
+    Identity was the wrong test. The brief that produced these parts asked for the
+    fob pigtail in its REAL conductor colours, and shading a moulded body is normal
+    draughtsmanship — so an exact-match palette flags correct art and teaches people
+    to ignore the linter. What matters is that nothing wanders to a foreign hue.
+    """
+    allowed = PALETTE | {v.upper() for v in WIRE.values()}
+    r, g, b = _rgb(c.upper())
+    return min(((r - x) ** 2 + (g - y) ** 2 + (b - z) ** 2) ** 0.5
+               for x, y, z in (_rgb(a) for a in allowed))
+
+
+def _lum(hexc):
+    """WCAG relative luminance."""
+    def ch(v):
+        v /= 255.0
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+    r, g, b = (int(hexc[i:i + 2], 16) for i in (1, 3, 5))
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b)
+
+
+def contrast(fg, bg):
+    a, b = _lum(fg), _lum(bg)
+    hi, lo = max(a, b), min(a, b)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def _bg_behind(shapes, upto, x, y):
+    """Fill of the last filled shape painted before `upto` that covers (x, y).
+
+    Paint order is declaration order, so the nearest enclosing earlier shape is
+    what a reader actually sees behind the text. Falls back to paper.
+    """
+    bg = "#FFFFFF"
+    for sh in shapes[:upto]:
+        f = sh.get("fill")
+        if not f or f == "none" or not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(f)):
+            continue
+        if sh.get("t") == "rect":
+            if sh["x"] <= x <= sh["x"] + sh["w"] and sh["y"] - 10 <= y <= sh["y"] + sh["h"]:
+                bg = f
+        elif sh.get("t") == "circle":
+            if (x - sh["cx"]) ** 2 + (y - sh["cy"]) ** 2 <= sh["r"] ** 2:
+                bg = f
+        elif sh.get("t") == "path":
+            # Crude bbox from the numbers in `d`. Parts draw moulded bodies as
+            # filled paths — the TO-92 half-cylinder is one — and ignoring those
+            # made every marking on them look like text floating on white paper.
+            nums = [float(n) for n in re.findall(r"-?\d+\.?\d*", sh["d"])]
+            pts = list(zip(nums[0::2], nums[1::2]))
+            if pts:
+                xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+                if min(xs) <= x <= max(xs) and min(ys) - 10 <= y <= max(ys):
+                    bg = f
+    return bg
+
+
 SHAPE_FIELDS = {
     "rect": {"x", "y", "w", "h"},
     "circle": {"cx", "cy", "r"},
@@ -313,6 +386,26 @@ def cmd_lint(args):
                 if k in ("fill", "stroke") and v not in ("none", None):
                     if not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(v)):
                         problems.append(f"{pid}: {t}.{k}={v!r} is not #RRGGBB")
+                    elif palette_distance(str(v)) > 70:
+                        problems.append(
+                            f"{pid}: {t}.{k}={v} is off-palette "
+                            f"({palette_distance(str(v)):.0f} from the nearest allowed colour)")
+
+        # Text contrast. A part's markings are what tell somebody which leg a wire
+        # lands on, so they are held to the WCAG 4.5:1 floor against whatever is
+        # actually painted behind them.
+        for i, sh in enumerate(part.shapes):
+            if sh.get("t") != "text":
+                continue
+            fg = str(sh.get("fill", "#16181D"))
+            if not re.fullmatch(r"#[0-9A-Fa-f]{6}", fg):
+                continue
+            bg = _bg_behind(part.shapes, i, sh["x"], sh["y"])
+            ratio = contrast(fg.upper(), bg.upper())
+            if ratio < 4.5:
+                problems.append(
+                    f"{pid}: text {sh['s']!r} is {fg} on {bg} — {ratio:.2f}:1, "
+                    f"below the 4.5:1 floor")
 
         # A pin must be reachable: near an edge, not stranded in the middle of the
         # art, or a wire routed to it runs underneath the component.

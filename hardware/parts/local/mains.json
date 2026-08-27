@@ -439,7 +439,7 @@
      "y": 42,
      "s": "GOULD ITE",
      "size": 6.5,
-     "fill": "#6E7178",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": false
     },
@@ -699,7 +699,7 @@
      "y": 101,
      "s": "A1",
      "size": 7,
-     "fill": "#E4E6E2",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": true
     },
@@ -719,7 +719,7 @@
      "y": 101,
      "s": "A2",
      "size": 7,
-     "fill": "#E4E6E2",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": true
     }

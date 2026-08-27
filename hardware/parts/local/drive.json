@@ -289,7 +289,7 @@
      "y": 44,
      "s": "2N3904",
      "size": 8,
-     "fill": "#E4E6E2",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": true
     },
@@ -309,7 +309,7 @@
      "y": 54,
      "s": "B",
      "size": 7,
-     "fill": "#9AA0A6",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": false
     },
@@ -319,7 +319,7 @@
      "y": 54,
      "s": "C",
      "size": 7,
-     "fill": "#9AA0A6",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": false
     },
@@ -423,7 +423,7 @@
      "y": 45,
      "s": "2N7000",
      "size": 8,
-     "fill": "#E4E6E2",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": true
     },
@@ -433,7 +433,7 @@
      "y": 54,
      "s": "S",
      "size": 7,
-     "fill": "#9AA0A6",
+     "fill": "#E4E6E2",
      "anchor": "middle",
      "mono": false
     },
@@ -443,7 +443,7 @@
      "y": 54,
      "s": "G",
      "size": 7,
-     "fill": "#9AA0A6",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": false
     },
@@ -453,7 +453,7 @@
      "y": 54,
      "s": "D",
      "size": 7,
-     "fill": "#9AA0A6",
+     "fill": "#16181D",
      "anchor": "middle",
      "mono": false
     }
